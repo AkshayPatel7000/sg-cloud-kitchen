@@ -52,11 +52,6 @@ export function OffersCarousel({
                   </div>
                   <CardHeader>
                     <CardTitle>{item.title}</CardTitle>
-                    {item.price && (
-                      <p className="text-xl font-semibold text-primary">
-                        Rs.{item.price.toFixed(2)}
-                      </p>
-                    )}
                   </CardHeader>
                   <CardContent className="flex-grow">
                     <CardDescription>{item.description}</CardDescription>

@@ -6,7 +6,6 @@
   },
   "categories": [
     {
-      "id": "cat_pizza_pasta",
       "name": "Pizza and Pasta",
       "slug": "pizza-and-pasta",
       "description": "Italian favorites with an Indian twist",
@@ -14,7 +13,6 @@
       "isActive": true
     },
     {
-      "id": "cat_rice_biryani",
       "name": "Rice and Biryani",
       "slug": "rice-and-biryani",
       "description": "Fragrant basmati rice dishes",
@@ -22,7 +20,6 @@
       "isActive": true
     },
     {
-      "id": "cat_thali",
       "name": "Thali",
       "slug": "thali",
       "description": "Wholesome meal combos",
@@ -30,7 +27,6 @@
       "isActive": true
     },
     {
-      "id": "cat_main_course",
       "name": "Main Course",
       "slug": "main-course",
       "description": "Hearty North Indian delicacies",
@@ -46,7 +42,6 @@
       "isActive": true
     },
     {
-      "id": "cat_fried_rice_noodles",
       "name": "Fried Rice and Noodles",
       "slug": "fried-rice-and-noodles",
       "description": "Indo-Chinese favorites",
@@ -54,7 +49,6 @@
       "isActive": true
     },
     {
-      "id": "cat_breads",
       "name": "Breads",
       "slug": "breads",
       "description": "Freshly baked Indian breads",
@@ -62,7 +56,6 @@
       "isActive": true
     },
     {
-      "id": "cat_snacks",
       "name": "Snacks",
       "slug": "snacks",
       "description": "Quick evening bites",
@@ -70,7 +63,6 @@
       "isActive": true
     },
     {
-      "id": "cat_desserts",
       "name": "Desserts",
       "slug": "desserts",
       "description": "Sweet conclusions",
@@ -78,7 +70,6 @@
       "isActive": true
     },
     {
-      "id": "cat_drinks",
       "name": "Drinks (Beverages)",
       "slug": "drinks",
       "description": "Refreshing beverages",
@@ -86,7 +77,6 @@
       "isActive": true
     },
     {
-      "id": "cat_bowls",
       "name": "Bowls",
       "slug": "bowls",
       "description": "Wholesome single-serve meals",
@@ -96,7 +86,6 @@
   ],
   "dishes": [
     {
-      "id": "d1",
       "categoryId": "cat_pizza_pasta",
       "name": "Delight Cheese Margherita Thin Crust Pizza",
       "description": "Fresh dough, fresh marinara sauce. Marinara sauce, Mozzarella and fresh basil.",
@@ -107,7 +96,6 @@
       "tags": ["bestseller"]
     },
     {
-      "id": "d2",
       "categoryId": "cat_pizza_pasta",
       "name": "The Royal Thin Crust Pizza",
       "description": "Special thin crust pizza with royal toppings and extra cheese.",
@@ -118,7 +106,6 @@
       "tags": []
     },
     {
-      "id": "d3",
       "categoryId": "cat_pizza_pasta",
       "name": "SG Paneer Tikka Thin Crust Pizza",
       "description": "Fresh dough, fresh marinara sauce. Special tikka sauce, tikka paneer and Mozzarella.",
@@ -129,7 +116,6 @@
       "tags": ["spicy"]
     },
     {
-      "id": "d4",
       "categoryId": "cat_pizza_pasta",
       "name": "All Veggie Delight Thin Crust Pizza",
       "description": "Fresh dough and fresh marinara sauce. All veggies and cheese.",
@@ -140,7 +126,6 @@
       "tags": []
     },
     {
-      "id": "d5",
       "categoryId": "cat_pizza_pasta",
       "name": "Exotic Cake Style Thin Crust Pizza",
       "description": "Fresh dough, fresh marinara sauce. Cake style, exotic veggies and cheese.",
@@ -151,7 +136,6 @@
       "tags": []
     },
     {
-      "id": "d6",
       "categoryId": "cat_pizza_pasta",
       "name": "Five Cheese Lovers Thin Crust Pizza",
       "description": "Fresh dough, fresh marinara sauce. Double base, filled cheese, Mozzarella, Indian cheese, english cheese.",
@@ -162,7 +146,6 @@
       "tags": ["bestseller"]
     },
     {
-      "id": "d7",
       "categoryId": "cat_pizza_pasta",
       "name": "The MBO Thin Crust Pizza",
       "description": "Fresh dough and fresh marinara sauce. M - Mushroom, B- broccoli and O- black olives.",
@@ -173,7 +156,6 @@
       "tags": []
     },
     {
-      "id": "d8",
       "categoryId": "cat_pizza_pasta",
       "name": "The CBO Thin Crust Pizza",
       "description": "Fresh dough and fresh marinara sauce. C - Corn, B- broccoli and O- black olives.",
@@ -184,7 +166,6 @@
       "tags": []
     },
     {
-      "id": "d9",
       "categoryId": "cat_pizza_pasta",
       "name": "Italian Red Sauce Pasta",
       "description": "Penne pasta tossed in tangy Italian red sauce with herbs and vegetables.",
@@ -195,7 +176,6 @@
       "tags": []
     },
     {
-      "id": "d10",
       "categoryId": "cat_pizza_pasta",
       "name": "Aglio Olio Pasta",
       "description": "Classic pasta with garlic, olive oil, chili flakes and parsley.",
@@ -206,7 +186,6 @@
       "tags": []
     },
     {
-      "id": "d11",
       "categoryId": "cat_pizza_pasta",
       "name": "Alfredo White Sauce Pasta",
       "description": "Creamy white sauce pasta with mushroom and cheese.",
@@ -217,7 +196,6 @@
       "tags": []
     },
     {
-      "id": "d12",
       "categoryId": "cat_pizza_pasta",
       "name": "Pink Sauce Pasta",
       "description": "A perfect blend of red and white sauce with exotic vegetables.",
@@ -228,7 +206,6 @@
       "tags": []
     },
     {
-      "id": "d13",
       "categoryId": "cat_pizza_pasta",
       "name": "SG Special Paneer Tikka Pasta",
       "description": "Fusion pasta with paneer tikka chunks and spicy sauce.",
@@ -239,7 +216,6 @@
       "tags": ["spicy"]
     },
     {
-      "id": "d14",
       "categoryId": "cat_pizza_pasta",
       "name": "Double Cheese Bake Macaroni",
       "description": "Oven baked macaroni with double layers of cheese.",
@@ -251,7 +227,6 @@
     },
 
     {
-      "id": "d15",
       "categoryId": "cat_rice_biryani",
       "name": "SG Special Soya Chaap Biryani (500ml)",
       "description": "Fragrant basmati rice layered with juicy, spiced soya chaap, slow cooked to perfection.",
@@ -262,7 +237,6 @@
       "tags": ["bestseller"]
     },
     {
-      "id": "d16",
       "categoryId": "cat_rice_biryani",
       "name": "Veg Biryani",
       "description": "Classic vegetable biryani served with raita.",
@@ -273,7 +247,6 @@
       "tags": []
     },
     {
-      "id": "d17",
       "categoryId": "cat_rice_biryani",
       "name": "Hing Tadka Khichdi",
       "description": "Comforting khichdi with a strong asafoetida seasoning.",
@@ -284,7 +257,6 @@
       "tags": []
     },
     {
-      "id": "d18",
       "categoryId": "cat_rice_biryani",
       "name": "Butter Matar Khichdi",
       "description": "Creamy khichdi with green peas and lots of butter.",
@@ -295,7 +267,6 @@
       "tags": []
     },
     {
-      "id": "d19",
       "categoryId": "cat_rice_biryani",
       "name": "Spicy Paneer Double Tadka Khichdi",
       "description": "Spicy khichdi with paneer cubes and double tempering.",
@@ -307,7 +278,6 @@
     },
 
     {
-      "id": "d20",
       "categoryId": "cat_thali",
       "name": "SG Special Thali",
       "description": "Wholesome meal with paneer, dal, dry veg, rice, roti, salad and dessert.",
@@ -318,7 +288,6 @@
       "tags": ["bestseller"]
     },
     {
-      "id": "d21",
       "categoryId": "cat_thali",
       "name": "Thali - 199",
       "description": "Value meal with 2 types of sabzi, dal, rice, 4 roti and salad.",
@@ -329,7 +298,6 @@
       "tags": []
     },
     {
-      "id": "d22",
       "categoryId": "cat_thali",
       "name": "Thali -119",
       "description": "Budget thali with 1 sabzi, dal, rice, 3 roti.",
@@ -340,7 +308,6 @@
       "tags": []
     },
     {
-      "id": "d23",
       "categoryId": "cat_thali",
       "name": "Sabji with Poori Thali",
       "description": "5 Poori served with spicy potato curry or seasonal veg.",
@@ -352,7 +319,6 @@
     },
 
     {
-      "id": "d24",
       "categoryId": "cat_fried_rice_noodles",
       "name": "Schezwan Fried Rice",
       "description": "Spicy stir-fried rice with vegetables and schezwan sauce.",
@@ -363,7 +329,6 @@
       "tags": ["spicy"]
     },
     {
-      "id": "d25",
       "categoryId": "cat_fried_rice_noodles",
       "name": "Veg Noodles",
       "description": "Classic hakka style noodles with crunchy vegetables.",
@@ -374,7 +339,6 @@
       "tags": []
     },
     {
-      "id": "d26",
       "categoryId": "cat_fried_rice_noodles",
       "name": "Schezwan Noodles",
       "description": "Spicy noodles with schezwan peppers and vegetables.",
@@ -386,7 +350,6 @@
     },
 
     {
-      "id": "d27",
       "categoryId": "cat_desserts",
       "name": "Strawberry Cheesecake [1 Piece]",
       "description": "Creamy cheesecake with strawberry topping.",
@@ -397,7 +360,6 @@
       "tags": []
     },
     {
-      "id": "d28",
       "categoryId": "cat_desserts",
       "name": "Lotus Biscoff Cheesecake [1 Piece]",
       "description": "Premium cheesecake with Lotus Biscoff spread and biscuit.",
@@ -408,7 +370,6 @@
       "tags": ["bestseller"]
     },
     {
-      "id": "d29",
       "categoryId": "cat_desserts",
       "name": "Classic Cheesecake [1 Piece]",
       "description": "Traditional NY style creamy cheesecake.",
@@ -419,7 +380,6 @@
       "tags": []
     },
     {
-      "id": "d30",
       "categoryId": "cat_desserts",
       "name": "Nutella Cheesecake [1 Piece]",
       "description": "Decadent cheesecake swirled with Nutella.",
@@ -430,7 +390,6 @@
       "tags": []
     },
     {
-      "id": "d31",
       "categoryId": "cat_desserts",
       "name": "Blue Berry Cheesecake [1 Piece]",
       "description": "Creamy cheesecake with blueberry compote.",
@@ -442,7 +401,6 @@
     },
 
     {
-      "id": "d32",
       "categoryId": "cat_drinks",
       "name": "Oreo Shake [200 ml]",
       "description": "Thick shake with crushed Oreo cookies.",
@@ -453,7 +411,6 @@
       "tags": []
     },
     {
-      "id": "d33",
       "categoryId": "cat_drinks",
       "name": "Brownie Shake [200 ml]",
       "description": "Shake made with fudge brownie and chocolate sauce.",
@@ -464,7 +421,6 @@
       "tags": []
     },
     {
-      "id": "d34",
       "categoryId": "cat_drinks",
       "name": "Sitaphal Shake [200 ml]",
       "description": "Seasonal special sitaphal (custard apple) shake.",
@@ -475,7 +431,6 @@
       "tags": []
     },
     {
-      "id": "d35",
       "categoryId": "cat_drinks",
       "name": "Chocolate Shake [200 ml]",
       "description": "Classic rich chocolate flavored thick shake.",
@@ -486,7 +441,6 @@
       "tags": []
     },
     {
-      "id": "d36",
       "categoryId": "cat_drinks",
       "name": "Strawberry Shake [200 ml]",
       "description": "Refreshing strawberry flavored shake.",
@@ -497,7 +451,6 @@
       "tags": []
     },
     {
-      "id": "d37",
       "categoryId": "cat_drinks",
       "name": "KitKat Shake [200 ml]",
       "description": "Shake with KitKat bits and chocolate syrup.",
@@ -508,7 +461,6 @@
       "tags": []
     },
     {
-      "id": "d38",
       "categoryId": "cat_drinks",
       "name": "Lotus Biscoff Shake [200 ml]",
       "description": "Premium shake with Lotus Biscoff flavor.",
@@ -520,7 +472,6 @@
     },
 
     {
-      "id": "d39",
       "categoryId": "cat_snacks",
       "name": "Cheese Garlic Bread [4 Pieces]",
       "description": "Toasted garlic bread topped with melted cheese.",
@@ -531,7 +482,6 @@
       "tags": []
     },
     {
-      "id": "d40",
       "categoryId": "cat_snacks",
       "name": "Chilli Melt Crunchy Toast [4 Pieces]",
       "description": "Spicy and crunchy toast with chili and cheese.",
@@ -542,7 +492,6 @@
       "tags": ["spicy"]
     },
     {
-      "id": "d41",
       "categoryId": "cat_snacks",
       "name": "Three Pepper Garlic Bread [4 Pieces]",
       "description": "Garlic bread topped with three types of bell peppers and cheese.",
@@ -553,7 +502,6 @@
       "tags": []
     },
     {
-      "id": "d42",
       "categoryId": "cat_snacks",
       "name": "Creamy Garlic Mushroom Toast [4 Pieces]",
       "description": "Toast topped with creamy garlic mushrooms.",
@@ -564,7 +512,6 @@
       "tags": []
     },
     {
-      "id": "d43",
       "categoryId": "cat_snacks",
       "name": "SG Veggie Cheese Sandwich",
       "description": "SG special chutney, onion, tomato and english cucumber.",
@@ -575,7 +522,6 @@
       "tags": []
     },
     {
-      "id": "d44",
       "categoryId": "cat_snacks",
       "name": "Hot Pepper Cottage Cheese Sandwich",
       "description": "Onion, three pepper, paneer, cheese and special sauce.",
@@ -586,7 +532,6 @@
       "tags": ["spicy"]
     },
     {
-      "id": "d45",
       "categoryId": "cat_snacks",
       "name": "Masala Cheese Maggi",
       "description": "Classic Maggi with spicy masala and cheese.",
@@ -597,7 +542,6 @@
       "tags": []
     },
     {
-      "id": "d46",
       "categoryId": "cat_snacks",
       "name": "SG Special Paneer Makhani Cheese Maggi",
       "description": "Maggi in rich paneer makhani gravy with cheese.",
@@ -608,7 +552,6 @@
       "tags": ["bestseller"]
     },
     {
-      "id": "d47",
       "categoryId": "cat_snacks",
       "name": "Veggie Cheese Paneer Roll",
       "description": "Rolled paratha stuffed with veggies, paneer and cheese.",
@@ -619,7 +562,6 @@
       "tags": []
     },
     {
-      "id": "d48",
       "categoryId": "cat_snacks",
       "name": "Cheese Garlic Breadsticks",
       "description": "Freshly baked breadsticks with garlic and cheese.",
@@ -631,7 +573,6 @@
     },
 
     {
-      "id": "d49",
       "categoryId": "cat_bowls",
       "name": "Kidney Beans Rice Bowl",
       "description": "SG special rajma and jeera rice.",
@@ -642,7 +583,6 @@
       "tags": []
     },
     {
-      "id": "d50",
       "categoryId": "cat_bowls",
       "name": "Peri Peri Sriracha Rice Bowl",
       "description": "Spicy rice bowl with peri peri sauce and sriracha.",
@@ -653,7 +593,6 @@
       "tags": ["spicy"]
     },
     {
-      "id": "d51",
       "categoryId": "cat_bowls",
       "name": "Spicy Paneer Rice Bowl",
       "description": "Bowl with spicy gravy paneer served over steamed rice.",
@@ -664,7 +603,6 @@
       "tags": ["spicy"]
     },
     {
-      "id": "d52",
       "categoryId": "cat_bowls",
       "name": "Plain Hummus and Pita Bowl",
       "description": "Traditional hummus served with soft pita bread.",
@@ -675,7 +613,6 @@
       "tags": []
     },
     {
-      "id": "d53",
       "categoryId": "cat_bowls",
       "name": "Flavoured Hummus and Pita Bowl",
       "description": "Specialty flavored hummus with pita bread.",
@@ -686,7 +623,6 @@
       "tags": []
     },
     {
-      "id": "d54",
       "categoryId": "cat_bowls",
       "name": "Classic Hummus and Pita Bowl",
       "description": "Classic Mediterranean hummus and pita.",
@@ -697,7 +633,6 @@
       "tags": []
     },
     {
-      "id": "d55",
       "categoryId": "cat_bowls",
       "name": "Hot Spicy Hummus and Pita Bowl",
       "description": "Spicy hummus for those who like it hot.",
@@ -709,7 +644,6 @@
     },
 
     {
-      "id": "d56",
       "categoryId": "cat_starters",
       "name": "Veg Manchurian",
       "description": "Crispy vegetable balls tossed in a spicy and tangy Indo Chinese sauce.",
@@ -720,7 +654,6 @@
       "tags": []
     },
     {
-      "id": "d57",
       "categoryId": "cat_starters",
       "name": "Honey Chilli Potato",
       "description": "Crispy potato fingers glazed with honey and chili sauce.",
@@ -731,7 +664,6 @@
       "tags": ["bestseller"]
     },
     {
-      "id": "d58",
       "categoryId": "cat_starters",
       "name": "Mushroom Chilli",
       "description": "Batter fried mushrooms tossed with chilies and onions.",
@@ -742,7 +674,6 @@
       "tags": []
     },
     {
-      "id": "d59",
       "categoryId": "cat_starters",
       "name": "Chilli Paneer",
       "description": "Classic Indo-Chinese starter with paneer cubes and capsicum.",
@@ -754,7 +685,6 @@
     },
 
     {
-      "id": "d60",
       "categoryId": "cat_breads",
       "name": "Aloo Paratha",
       "description": "Soft paratha stuffed with spiced mashed potato.",
@@ -765,7 +695,6 @@
       "tags": []
     },
     {
-      "id": "d61",
       "categoryId": "cat_breads",
       "name": "Gobi Paratha",
       "description": "Paratha filled with spicy cauliflower mixture.",
@@ -776,7 +705,6 @@
       "tags": []
     },
     {
-      "id": "d62",
       "categoryId": "cat_breads",
       "name": "Onion Sev Paratha",
       "description": "Unique paratha with onion and sev stuffing.",
@@ -787,7 +715,6 @@
       "tags": []
     },
     {
-      "id": "d63",
       "categoryId": "cat_breads",
       "name": "Paneer Paratha",
       "description": "Rich paratha stuffed with seasoned cottage cheese.",
@@ -798,7 +725,6 @@
       "tags": ["bestseller"]
     },
     {
-      "id": "d64",
       "categoryId": "cat_breads",
       "name": "Tawa Butter Roti",
       "description": "Traditional whole wheat flatbread grilled on tawa with butter.",
@@ -809,7 +735,6 @@
       "tags": []
     },
     {
-      "id": "d65",
       "categoryId": "cat_breads",
       "name": "Plain Paratha",
       "description": "Simple layered whole wheat paratha.",
@@ -821,7 +746,6 @@
     },
 
     {
-      "id": "d66",
       "categoryId": "cat_main_course",
       "name": "SG Special Matar Paneer",
       "description": "Curry made with soft paneer cubes and tender green peas.",
@@ -832,7 +756,6 @@
       "tags": []
     },
     {
-      "id": "d67",
       "categoryId": "cat_main_course",
       "name": "SG Special Chole Paneer",
       "description": "Unique combination of chickpeas and paneer in spicy gravy.",
@@ -843,7 +766,6 @@
       "tags": []
     },
     {
-      "id": "d68",
       "categoryId": "cat_main_course",
       "name": "SG Special Mix Veg",
       "description": "Melange of seasonal vegetables in Indian spices.",
@@ -854,7 +776,6 @@
       "tags": []
     },
     {
-      "id": "d69",
       "categoryId": "cat_main_course",
       "name": "Special Rajma",
       "description": "Slow cooked red kidney beans in thick tomato gravy.",
@@ -865,7 +786,6 @@
       "tags": []
     },
     {
-      "id": "d70",
       "categoryId": "cat_main_course",
       "name": "Dal Tadka",
       "description": "Yellow lentils tempered with cumin, garlic and red chilies.",
@@ -876,7 +796,6 @@
       "tags": []
     },
     {
-      "id": "d71",
       "categoryId": "cat_main_course",
       "name": "Dal Fry",
       "description": "Traditional spiced and fried lentils.",
@@ -887,7 +806,6 @@
       "tags": []
     },
     {
-      "id": "d72",
       "categoryId": "cat_main_course",
       "name": "SG Special Soya Chaap Masala",
       "description": "Soya chaap chunks cooked in rich masala gravy.",
@@ -898,7 +816,6 @@
       "tags": ["spicy"]
     },
     {
-      "id": "d73",
       "categoryId": "cat_main_course",
       "name": "SG Special Sev Tamatar",
       "description": "Popular Rajasthani curry with tomatoes and sev.",

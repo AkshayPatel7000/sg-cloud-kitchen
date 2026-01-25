@@ -76,7 +76,6 @@ const offerSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   imageUrl: z.string().url("Must be a valid URL"),
-  price: z.coerce.number().optional(),
   sectionType: z.enum(["offers", "todaysSpecial", "whatsNew"]),
   isActive: z.boolean(),
   priority: z.coerce.number().int(),
@@ -99,7 +98,6 @@ function OfferForm({
       title: currentOffer?.title ?? "",
       description: currentOffer?.description ?? "",
       imageUrl: currentOffer?.imageUrl ?? "",
-      price: currentOffer?.price ?? undefined,
       sectionType: currentOffer?.sectionType ?? "offers",
       isActive: currentOffer?.isActive ?? true,
       priority: currentOffer?.priority ?? 0,
@@ -154,19 +152,6 @@ function OfferForm({
           )}
         />
         <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="price"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Price</FormLabel>
-                <FormControl>
-                  <Input type="number" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <FormField
             control={form.control}
             name="priority"
@@ -310,7 +295,6 @@ export function OffersClient({
                 <TableHead>Title</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="text-right">Price</TableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -323,9 +307,6 @@ export function OffersClient({
                     <Badge variant={offer.isActive ? "default" : "secondary"}>
                       {offer.isActive ? "Active" : "Inactive"}
                     </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {offer.price ? `Rs.${offer.price.toFixed(2)}` : "-"}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>

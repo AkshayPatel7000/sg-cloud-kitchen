@@ -17,8 +17,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, PlusCircle, Trash, Edit } from "lucide-react";
-import { useState } from "react";
+import { MoreHorizontal, PlusCircle, Trash, Edit, Search } from "lucide-react";
+import { useState, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -245,16 +245,27 @@ export function DishesClient({
   const [dishes, setDishes] = useState(initialDishes);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentDish, setCurrentDish] = useState<Dish | null>(null);
+
+  // Search and Filter State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+
   const { toast } = useToast();
 
   const handleSave = async (data: DishFormValues, id?: string) => {
     try {
+      const formattedData = {
+        ...data,
+        tags: data.tags || [],
+      };
       if (id) {
-        await updateDish(id, data);
-        setDishes(dishes.map((d) => (d.id === id ? { ...d, ...data } : d)));
+        await updateDish(id, formattedData as any);
+        setDishes(
+          dishes.map((d) => (d.id === id ? { ...d, ...formattedData } : d)),
+        );
         toast({ title: "Dish updated successfully!" });
       } else {
-        const newDish = await addDish(data);
+        const newDish = await addDish(formattedData as any);
         setDishes([newDish, ...dishes]);
         toast({ title: "Dish created successfully!" });
       }
@@ -273,39 +284,84 @@ export function DishesClient({
     }
   };
 
+  // Filtered Dishes
+  const filteredDishes = useMemo(() => {
+    return dishes.filter((dish) => {
+      const matchesSearch = dish.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      const matchesCategory =
+        selectedCategory === "all" || dish.categoryId === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [dishes, searchQuery, selectedCategory]);
+
   const getCategoryName = (id: string) =>
     categories.find((c) => c.id === id)?.name ?? "Unknown";
 
   return (
     <>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Dishes</h2>
-          <p className="text-muted-foreground">
-            Manage all the dishes on your menu.
-          </p>
+      <div className="flex flex-col gap-6 mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">Dishes</h2>
+            <p className="text-muted-foreground">
+              Manage all the dishes on your menu.
+            </p>
+          </div>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => setCurrentDish(null)}>
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Dish
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-xl">
+              <DialogHeader>
+                <DialogTitle>{currentDish ? "Edit" : "Add"} Dish</DialogTitle>
+                <DialogDescription>
+                  Fill in the details for the menu dish.
+                </DialogDescription>
+              </DialogHeader>
+              <DishForm
+                currentDish={currentDish}
+                categories={categories}
+                onSave={handleSave}
+                closeDialog={() => setIsDialogOpen(false)}
+              />
+            </DialogContent>
+          </Dialog>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => setCurrentDish(null)}>
-              <PlusCircle className="mr-2 h-4 w-4" /> Add Dish
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-xl">
-            <DialogHeader>
-              <DialogTitle>{currentDish ? "Edit" : "Add"} Dish</DialogTitle>
-              <DialogDescription>
-                Fill in the details for the menu dish.
-              </DialogDescription>
-            </DialogHeader>
-            <DishForm
-              currentDish={currentDish}
-              categories={categories}
-              onSave={handleSave}
-              closeDialog={() => setIsDialogOpen(false)}
+
+        {/* Filters and Search */}
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-grow">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search dishes by name..."
+              className="pl-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
-          </DialogContent>
-        </Dialog>
+          </div>
+          <div className="w-full md:w-[200px]">
+            <Select
+              value={selectedCategory}
+              onValueChange={setSelectedCategory}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </div>
       <Card>
         <CardContent className="p-0">
@@ -321,7 +377,7 @@ export function DishesClient({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {dishes.map((dish) => (
+              {filteredDishes.map((dish) => (
                 <TableRow key={dish.id}>
                   <TableCell className="font-medium">{dish.name}</TableCell>
                   <TableCell>{getCategoryName(dish.categoryId)}</TableCell>
