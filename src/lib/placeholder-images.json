@@ -1,0 +1,118 @@
+{
+  "placeholderImages": [
+    {
+      "id": "logo",
+      "description": "Restaurant logo",
+      "imageUrl": "https://images.unsplash.com/photo-1640342538716-286e4e27e104?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxsb2dvJTIwbW9ub2dyYW18ZW58MHx8fHwxNzY1MTA4ODYzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "logo monogram"
+    },
+    {
+      "id": "hero",
+      "description": "Restaurant interior",
+      "imageUrl": "https://images.unsplash.com/photo-1613274554329-70f997f5789f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxyZXN0YXVyYW50JTIwaW50ZXJpb3J8ZW58MHx8fHwxNzY1MDcxMzUzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "restaurant interior"
+    },
+    {
+      "id": "offer-1",
+      "description": "Gourmet pasta dish special",
+      "imageUrl": "https://images.unsplash.com/photo-1541832676-9b763b0239ab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxnb3VybWV0JTIwZm9vZHxlbnwwfHx8fDE3NjUwNDU1NDJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "gourmet food"
+    },
+    {
+      "id": "offer-2",
+      "description": "Artisanal pizza special",
+      "imageUrl": "https://images.unsplash.com/photo-1571997478779-2adcbbe9ab2f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cGl6emF8ZW58MHx8fHwxNzY1MDY0NjgyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "pizza"
+    },
+    {
+      "id": "offer-3",
+      "description": "Refreshing summer cocktail",
+      "imageUrl": "https://images.unsplash.com/photo-1500217052183-bc01eee1a74e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjb2NrdGFpbHxlbnwwfHx8fDE3NjUwMTgzMjZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cocktail"
+    },
+    {
+      "id": "special-1",
+      "description": "Chef's special steak",
+      "imageUrl": "https://images.unsplash.com/photo-1615937722923-67f6deaf2cc9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxzdGVhayUyMGRpbm5lcnxlbnwwfHx8fDE3NjUwMTY5NDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "steak dinner"
+    },
+    {
+      "id": "special-2",
+      "description": "Seafood platter",
+      "imageUrl": "https://images.unsplash.com/photo-1759337677690-ef7608ce9e5b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxzZWFmb29kJTIwcGxhdHRlcnxlbnwwfHx8fDE3NjUwOTI5NDV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "seafood platter"
+    },
+    {
+      "id": "new-1",
+      "description": "New vegan burger",
+      "imageUrl": "https://images.unsplash.com/photo-1592415499556-74fcb9f18667?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx2ZWdhbiUyMGJ1cmdlcnxlbnwwfHx8fDE3NjUwNjA4Njl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "vegan burger"
+    },
+    {
+      "id": "new-2",
+      "description": "Decadent chocolate lava cake",
+      "imageUrl": "https://images.unsplash.com/photo-1626263468007-a9e0cf83f1ac?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjaG9jb2xhdGUlMjBjYWtlfGVufDB8fHx8MTc2NTA3NDYxNHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "chocolate cake"
+    },
+    {
+      "id": "dish-bruschetta",
+      "description": "Classic tomato bruschetta",
+      "imageUrl": "https://images.unsplash.com/photo-1633285874195-b4c5dd4caace?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxicnVzY2hldHRhfGVufDB8fHx8MTc2NTA4ODI2N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "bruschetta"
+    },
+    {
+      "id": "dish-soup",
+      "description": "Creamy tomato soup",
+      "imageUrl": "https://images.unsplash.com/photo-1620418025834-f4379baf1de9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHx0b21hdG8lMjBzb3VwfGVufDB8fHx8MTc2NTEwNzgwMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "tomato soup"
+    },
+    {
+      "id": "dish-salad",
+      "description": "Fresh garden salad",
+      "imageUrl": "https://images.unsplash.com/photo-1642346881079-56938000f95d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxnYXJkZW4lMjBzYWxhZHxlbnwwfHx8fDE3NjUwMTg5NTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "garden salad"
+    },
+    {
+      "id": "dish-pasta",
+      "description": "Spaghetti carbonara",
+      "imageUrl": "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8c3BhZ2hldHRpJTIwY2FyYm9uYXJhfGVufDB8fHx8MTc2NTA5NzI5N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "spaghetti carbonara"
+    },
+    {
+      "id": "dish-steak",
+      "description": "Grilled steak with vegetables",
+      "imageUrl": "https://images.unsplash.com/photo-1657143378504-681ac84e7b30?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxncmlsbGVkJTIwc3RlYWt8ZW58MHx8fHwxNzY1MDc0NjE0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "grilled steak"
+    },
+    {
+      "id": "dish-salmon",
+      "description": "Pan-seared salmon",
+      "imageUrl": "https://images.unsplash.com/photo-1700706259342-3b4f681f9bfe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxzZWFyZWQlMjBzYWxtb258ZW58MHx8fHwxNzY1MTA4ODYzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "seared salmon"
+    },
+    {
+      "id": "dish-tiramisu",
+      "description": "Classic tiramisu",
+      "imageUrl": "https://images.unsplash.com/photo-1567608286687-394db5f7520a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx0aXJhbWlzdXxlbnwwfHx8fDE3NjUwMjM1MjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "tiramisu"
+    },
+    {
+      "id": "dish-cheesecake",
+      "description": "New York cheesecake",
+      "imageUrl": "https://images.unsplash.com/photo-1676300185983-d5f242babe34?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjaGVlc2VjYWtlfGVufDB8fHx8MTc2NTAyMzUyNXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cheesecake"
+    },
+    {
+      "id": "dish-wine",
+      "description": "Glass of red wine",
+      "imageUrl": "https://images.unsplash.com/photo-1621644894301-cd6b2eaca610?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxyZWQlMjB3aW5lfGVufDB8fHx8MTc2NTAxNDY4NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "red wine"
+    },
+    {
+      "id": "dish-coffee",
+      "description": "Freshly brewed coffee",
+      "imageUrl": "https://images.unsplash.com/photo-1447933601403-0c6688de566e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjb2ZmZWV8ZW58MHx8fHwxNzY1MTA4ODYzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "coffee"
+    }
+  ]
+}
