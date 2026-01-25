@@ -445,7 +445,7 @@ export default function OrderDetailsPage() {
                         </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground mt-1">
-                        ₹{item.price.toFixed(2)} × {item.quantity}
+                        Rs.{item.price.toFixed(2)} × {item.quantity}
                       </p>
                       {item.notes && (
                         <p className="text-xs text-muted-foreground mt-1 italic">
@@ -455,7 +455,7 @@ export default function OrderDetailsPage() {
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-primary">
-                        ₹{(item.price * item.quantity).toFixed(2)}
+                        Rs.{(item.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -494,18 +494,18 @@ export default function OrderDetailsPage() {
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
                   <span className="font-medium">
-                    ₹{order.subtotal.toFixed(2)}
+                    Rs.{order.subtotal.toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Tax (GST 5%)</span>
-                  <span className="font-medium">₹{order.tax.toFixed(2)}</span>
+                  <span className="font-medium">Rs.{order.tax.toFixed(2)}</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between text-lg font-bold">
                   <span>Total</span>
                   <span className="text-primary">
-                    ₹{order.total.toFixed(2)}
+                    Rs.{order.total.toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -523,7 +523,7 @@ export default function OrderDetailsPage() {
                     <span>
                       {item.dishName} × {item.quantity}
                     </span>
-                    <span>₹{(item.price * item.quantity).toFixed(2)}</span>
+                    <span>Rs.{(item.price * item.quantity).toFixed(2)}</span>
                   </div>
                 ))}
               </div>

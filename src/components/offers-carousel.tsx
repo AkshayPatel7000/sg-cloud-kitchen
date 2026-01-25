@@ -54,7 +54,7 @@ export function OffersCarousel({
                     <CardTitle>{item.title}</CardTitle>
                     {item.price && (
                       <p className="text-xl font-semibold text-primary">
-                        ₹{item.price.toFixed(2)}
+                        Rs.{item.price.toFixed(2)}
                       </p>
                     )}
                   </CardHeader>

@@ -274,7 +274,7 @@ export default function NewOrderPage() {
                                 {dish.isVeg ? "🟢 Veg" : "🔴 Non-Veg"}
                               </Badge>
                               <span className="text-sm font-bold text-primary">
-                                ₹{dish.price.toFixed(2)}
+                                Rs.{dish.price.toFixed(2)}
                               </span>
                             </div>
                           </div>
@@ -378,7 +378,7 @@ export default function NewOrderPage() {
                       <div className="flex-grow">
                         <p className="font-medium text-sm">{item.dishName}</p>
                         <p className="text-xs text-muted-foreground">
-                          ₹{item.price.toFixed(2)} each
+                          Rs.{item.price.toFixed(2)} each
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -425,16 +425,16 @@ export default function NewOrderPage() {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-medium">₹{subtotal.toFixed(2)}</span>
+                  <span className="font-medium">Rs.{subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Tax (GST 5%)</span>
-                  <span className="font-medium">₹{tax.toFixed(2)}</span>
+                  <span className="font-medium">Rs.{tax.toFixed(2)}</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between text-lg font-bold">
                   <span>Total</span>
-                  <span className="text-primary">₹{total.toFixed(2)}</span>
+                  <span className="text-primary">Rs.{total.toFixed(2)}</span>
                 </div>
               </div>
 

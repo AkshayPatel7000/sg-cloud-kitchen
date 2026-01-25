@@ -60,7 +60,7 @@ export function separator(
  * Format currency
  */
 export function formatCurrency(amount: number): string {
-  return `Rs.${amount.toFixed(2)}`;
+  return `₹${amount.toFixed(2)}`;
 }
 
 /**
@@ -136,7 +136,7 @@ export function generatePrintHTML(content: string): string {
         }
         body {
           padding: 1mm 2mm;
-          font-family: 'Courier New', Courier, monospace;
+          font-family: 'DejaVu Sans Mono', 'Consolas', 'Monaco', 'Liberation Mono', 'Courier New', monospace;
           font-size: 9pt;
           line-height: 1.2;
           color: black;
@@ -145,7 +145,7 @@ export function generatePrintHTML(content: string): string {
         pre {
           margin: 0;
           padding: 0;
-          font-family: 'Courier New', Courier, monospace;
+          font-family: 'DejaVu Sans Mono', 'Consolas', 'Monaco', 'Liberation Mono', 'Courier New', monospace;
           font-size: 9pt;
           line-height: 1.2;
           white-space: pre;
@@ -193,24 +193,26 @@ export function printContent(htmlContent: string) {
     iframeDoc.write(htmlContent);
     iframeDoc.close();
 
-    // Wait for content to load
-    iframe.onload = () => {
-      // Focus and print
+    let hasPrinted = false;
+    const triggerPrint = () => {
+      if (hasPrinted) return;
+      hasPrinted = true;
+
       iframe.contentWindow?.focus();
       iframe.contentWindow?.print();
 
       // Remove iframe after printing (with delay to ensure print dialog opens)
       setTimeout(() => {
-        document.body.removeChild(iframe);
+        if (iframe.parentNode) {
+          document.body.removeChild(iframe);
+        }
       }, 1000);
     };
 
-    // Trigger onload manually if it doesn't fire
-    if (iframe.contentWindow) {
-      setTimeout(() => {
-        iframe.contentWindow?.focus();
-        iframe.contentWindow?.print();
-      }, 250);
-    }
+    // Wait for content to load
+    iframe.onload = triggerPrint;
+
+    // Trigger manually if it doesn't fire within a reasonable time
+    setTimeout(triggerPrint, 500);
   }
 }

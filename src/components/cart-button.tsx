@@ -79,7 +79,7 @@ export function CartButton() {
                         {item.dish.name}
                       </h4>
                       <p className="text-sm text-primary font-bold mt-1">
-                        ₹{item.dish.price.toFixed(2)}
+                        Rs.{item.dish.price.toFixed(2)}
                       </p>
                       <div className="flex items-center gap-2 mt-2">
                         <Button
@@ -117,7 +117,7 @@ export function CartButton() {
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
                       <p className="text-sm font-bold">
-                        ₹{(item.dish.price * item.quantity).toFixed(2)}
+                        Rs.{(item.dish.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -131,17 +131,19 @@ export function CartButton() {
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
                   <span className="font-medium">
-                    ₹{cart.subtotal.toFixed(2)}
+                    Rs.{cart.subtotal.toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Tax (5%)</span>
-                  <span className="font-medium">₹{cart.tax.toFixed(2)}</span>
+                  <span className="font-medium">Rs.{cart.tax.toFixed(2)}</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between text-base font-bold">
                   <span>Total</span>
-                  <span className="text-primary">₹{cart.total.toFixed(2)}</span>
+                  <span className="text-primary">
+                    Rs.{cart.total.toFixed(2)}
+                  </span>
                 </div>
               </div>
 

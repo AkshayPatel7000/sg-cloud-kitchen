@@ -28,21 +28,21 @@ Hi, I'm John!
 
 1. *Margherita Pizza*
    🟢 Veg
-   Qty: 2 × ₹250.00
-   Subtotal: ₹500.00
+   Qty: 2 × Rs.250.00
+   Subtotal: Rs.500.00
 
 2. *Pasta Carbonara*
    🔴 Non-Veg
-   Qty: 1 × ₹300.00
-   Subtotal: ₹300.00
+   Qty: 1 × Rs.300.00
+   Subtotal: Rs.300.00
 
 ==============================
 *Bill Summary*
 ==============================
-Subtotal: ₹800.00
-Tax (GST 5%): ₹40.00
+Subtotal: Rs.800.00
+Tax (GST 5%): Rs.40.00
 ──────────────────────────────
-*Total Amount: ₹840.00*
+*Total Amount: Rs.840.00*
 
 Please confirm my order. Thank you! 🙏
 ```
@@ -241,7 +241,7 @@ If `whatsappNumber` is not set, the system automatically uses the `phone` field 
 
 ### Currency:
 
-- Currently: ₹ (Indian Rupee)
+- Currently: Rs. (Indian Rupee)
 - Easy to change in `whatsapp.ts`
 
 ### Language:
@@ -298,7 +298,7 @@ Cash on Delivery
 📝 *Special Instructions*
 Extra cheese, no onions
 
-Total: ₹840.00
+Total: Rs.840.00
 ```
 
 ## 🛠️ Configuration

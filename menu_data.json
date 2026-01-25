@@ -1,0 +1,912 @@
+{
+  "restaurant": {
+    "name": "S G Cloud Kitchen",
+    "location": "Vijay Nagar, Indore",
+    "description": "Premium vegetarian kitchen serving North Indian, Pizzas, and more."
+  },
+  "categories": [
+    {
+      "id": "cat_pizza_pasta",
+      "name": "Pizza and Pasta",
+      "slug": "pizza-and-pasta",
+      "description": "Italian favorites with an Indian twist",
+      "order": 1,
+      "isActive": true
+    },
+    {
+      "id": "cat_rice_biryani",
+      "name": "Rice and Biryani",
+      "slug": "rice-and-biryani",
+      "description": "Fragrant basmati rice dishes",
+      "order": 2,
+      "isActive": true
+    },
+    {
+      "id": "cat_thali",
+      "name": "Thali",
+      "slug": "thali",
+      "description": "Wholesome meal combos",
+      "order": 3,
+      "isActive": true
+    },
+    {
+      "id": "cat_main_course",
+      "name": "Main Course",
+      "slug": "main-course",
+      "description": "Hearty North Indian delicacies",
+      "order": 4,
+      "isActive": true
+    },
+    {
+      "id": "cat_starters",
+      "name": "Starters",
+      "slug": "starters",
+      "description": "Appetizing small bites",
+      "order": 5,
+      "isActive": true
+    },
+    {
+      "id": "cat_fried_rice_noodles",
+      "name": "Fried Rice and Noodles",
+      "slug": "fried-rice-and-noodles",
+      "description": "Indo-Chinese favorites",
+      "order": 6,
+      "isActive": true
+    },
+    {
+      "id": "cat_breads",
+      "name": "Breads",
+      "slug": "breads",
+      "description": "Freshly baked Indian breads",
+      "order": 7,
+      "isActive": true
+    },
+    {
+      "id": "cat_snacks",
+      "name": "Snacks",
+      "slug": "snacks",
+      "description": "Quick evening bites",
+      "order": 8,
+      "isActive": true
+    },
+    {
+      "id": "cat_desserts",
+      "name": "Desserts",
+      "slug": "desserts",
+      "description": "Sweet conclusions",
+      "order": 9,
+      "isActive": true
+    },
+    {
+      "id": "cat_drinks",
+      "name": "Drinks (Beverages)",
+      "slug": "drinks",
+      "description": "Refreshing beverages",
+      "order": 10,
+      "isActive": true
+    },
+    {
+      "id": "cat_bowls",
+      "name": "Bowls",
+      "slug": "bowls",
+      "description": "Wholesome single-serve meals",
+      "order": 11,
+      "isActive": true
+    }
+  ],
+  "dishes": [
+    {
+      "id": "d1",
+      "categoryId": "cat_pizza_pasta",
+      "name": "Delight Cheese Margherita Thin Crust Pizza",
+      "description": "Fresh dough, fresh marinara sauce. Marinara sauce, Mozzarella and fresh basil.",
+      "price": 229,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1574071318508-1cdbad80ad38?w=800",
+      "isAvailable": true,
+      "tags": ["bestseller"]
+    },
+    {
+      "id": "d2",
+      "categoryId": "cat_pizza_pasta",
+      "name": "The Royal Thin Crust Pizza",
+      "description": "Special thin crust pizza with royal toppings and extra cheese.",
+      "price": 249,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d3",
+      "categoryId": "cat_pizza_pasta",
+      "name": "SG Paneer Tikka Thin Crust Pizza",
+      "description": "Fresh dough, fresh marinara sauce. Special tikka sauce, tikka paneer and Mozzarella.",
+      "price": 269,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=800",
+      "isAvailable": true,
+      "tags": ["spicy"]
+    },
+    {
+      "id": "d4",
+      "categoryId": "cat_pizza_pasta",
+      "name": "All Veggie Delight Thin Crust Pizza",
+      "description": "Fresh dough and fresh marinara sauce. All veggies and cheese.",
+      "price": 249,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d5",
+      "categoryId": "cat_pizza_pasta",
+      "name": "Exotic Cake Style Thin Crust Pizza",
+      "description": "Fresh dough, fresh marinara sauce. Cake style, exotic veggies and cheese.",
+      "price": 279,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1574071318508-1cdbad80ad38?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d6",
+      "categoryId": "cat_pizza_pasta",
+      "name": "Five Cheese Lovers Thin Crust Pizza",
+      "description": "Fresh dough, fresh marinara sauce. Double base, filled cheese, Mozzarella, Indian cheese, english cheese.",
+      "price": 299,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800",
+      "isAvailable": true,
+      "tags": ["bestseller"]
+    },
+    {
+      "id": "d7",
+      "categoryId": "cat_pizza_pasta",
+      "name": "The MBO Thin Crust Pizza",
+      "description": "Fresh dough and fresh marinara sauce. M - Mushroom, B- broccoli and O- black olives.",
+      "price": 259,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1574071318508-1cdbad80ad38?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d8",
+      "categoryId": "cat_pizza_pasta",
+      "name": "The CBO Thin Crust Pizza",
+      "description": "Fresh dough and fresh marinara sauce. C - Corn, B- broccoli and O- black olives.",
+      "price": 259,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d9",
+      "categoryId": "cat_pizza_pasta",
+      "name": "Italian Red Sauce Pasta",
+      "description": "Penne pasta tossed in tangy Italian red sauce with herbs and vegetables.",
+      "price": 189,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d10",
+      "categoryId": "cat_pizza_pasta",
+      "name": "Aglio Olio Pasta",
+      "description": "Classic pasta with garlic, olive oil, chili flakes and parsley.",
+      "price": 199,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d11",
+      "categoryId": "cat_pizza_pasta",
+      "name": "Alfredo White Sauce Pasta",
+      "description": "Creamy white sauce pasta with mushroom and cheese.",
+      "price": 209,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d12",
+      "categoryId": "cat_pizza_pasta",
+      "name": "Pink Sauce Pasta",
+      "description": "A perfect blend of red and white sauce with exotic vegetables.",
+      "price": 219,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d13",
+      "categoryId": "cat_pizza_pasta",
+      "name": "SG Special Paneer Tikka Pasta",
+      "description": "Fusion pasta with paneer tikka chunks and spicy sauce.",
+      "price": 229,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=800",
+      "isAvailable": true,
+      "tags": ["spicy"]
+    },
+    {
+      "id": "d14",
+      "categoryId": "cat_pizza_pasta",
+      "name": "Double Cheese Bake Macaroni",
+      "description": "Oven baked macaroni with double layers of cheese.",
+      "price": 239,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+
+    {
+      "id": "d15",
+      "categoryId": "cat_rice_biryani",
+      "name": "SG Special Soya Chaap Biryani (500ml)",
+      "description": "Fragrant basmati rice layered with juicy, spiced soya chaap, slow cooked to perfection.",
+      "price": 249,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1563379091339-03b21bc4a4f8?w=800",
+      "isAvailable": true,
+      "tags": ["bestseller"]
+    },
+    {
+      "id": "d16",
+      "categoryId": "cat_rice_biryani",
+      "name": "Veg Biryani",
+      "description": "Classic vegetable biryani served with raita.",
+      "price": 219,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d17",
+      "categoryId": "cat_rice_biryani",
+      "name": "Hing Tadka Khichdi",
+      "description": "Comforting khichdi with a strong asafoetida seasoning.",
+      "price": 169,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d18",
+      "categoryId": "cat_rice_biryani",
+      "name": "Butter Matar Khichdi",
+      "description": "Creamy khichdi with green peas and lots of butter.",
+      "price": 179,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d19",
+      "categoryId": "cat_rice_biryani",
+      "name": "Spicy Paneer Double Tadka Khichdi",
+      "description": "Spicy khichdi with paneer cubes and double tempering.",
+      "price": 199,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=800",
+      "isAvailable": true,
+      "tags": ["spicy"]
+    },
+
+    {
+      "id": "d20",
+      "categoryId": "cat_thali",
+      "name": "SG Special Thali",
+      "description": "Wholesome meal with paneer, dal, dry veg, rice, roti, salad and dessert.",
+      "price": 249,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800",
+      "isAvailable": true,
+      "tags": ["bestseller"]
+    },
+    {
+      "id": "d21",
+      "categoryId": "cat_thali",
+      "name": "Thali - 199",
+      "description": "Value meal with 2 types of sabzi, dal, rice, 4 roti and salad.",
+      "price": 199,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d22",
+      "categoryId": "cat_thali",
+      "name": "Thali -119",
+      "description": "Budget thali with 1 sabzi, dal, rice, 3 roti.",
+      "price": 119,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1626777553732-48995abae1f8?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d23",
+      "categoryId": "cat_thali",
+      "name": "Sabji with Poori Thali",
+      "description": "5 Poori served with spicy potato curry or seasonal veg.",
+      "price": 179,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1626777553732-48995abae1f8?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+
+    {
+      "id": "d24",
+      "categoryId": "cat_fried_rice_noodles",
+      "name": "Schezwan Fried Rice",
+      "description": "Spicy stir-fried rice with vegetables and schezwan sauce.",
+      "price": 179,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1626777553732-48995abae1f8?w=800",
+      "isAvailable": true,
+      "tags": ["spicy"]
+    },
+    {
+      "id": "d25",
+      "categoryId": "cat_fried_rice_noodles",
+      "name": "Veg Noodles",
+      "description": "Classic hakka style noodles with crunchy vegetables.",
+      "price": 159,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d26",
+      "categoryId": "cat_fried_rice_noodles",
+      "name": "Schezwan Noodles",
+      "description": "Spicy noodles with schezwan peppers and vegetables.",
+      "price": 169,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800",
+      "isAvailable": true,
+      "tags": ["spicy"]
+    },
+
+    {
+      "id": "d27",
+      "categoryId": "cat_desserts",
+      "name": "Strawberry Cheesecake [1 Piece]",
+      "description": "Creamy cheesecake with strawberry topping.",
+      "price": 149,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d28",
+      "categoryId": "cat_desserts",
+      "name": "Lotus Biscoff Cheesecake [1 Piece]",
+      "description": "Premium cheesecake with Lotus Biscoff spread and biscuit.",
+      "price": 169,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=800",
+      "isAvailable": true,
+      "tags": ["bestseller"]
+    },
+    {
+      "id": "d29",
+      "categoryId": "cat_desserts",
+      "name": "Classic Cheesecake [1 Piece]",
+      "description": "Traditional NY style creamy cheesecake.",
+      "price": 139,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d30",
+      "categoryId": "cat_desserts",
+      "name": "Nutella Cheesecake [1 Piece]",
+      "description": "Decadent cheesecake swirled with Nutella.",
+      "price": 159,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d31",
+      "categoryId": "cat_desserts",
+      "name": "Blue Berry Cheesecake [1 Piece]",
+      "description": "Creamy cheesecake with blueberry compote.",
+      "price": 149,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+
+    {
+      "id": "d32",
+      "categoryId": "cat_drinks",
+      "name": "Oreo Shake [200 ml]",
+      "description": "Thick shake with crushed Oreo cookies.",
+      "price": 129,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1572490122709-66c5e62bf2a6?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d33",
+      "categoryId": "cat_drinks",
+      "name": "Brownie Shake [200 ml]",
+      "description": "Shake made with fudge brownie and chocolate sauce.",
+      "price": 139,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1572490122709-66c5e62bf2a6?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d34",
+      "categoryId": "cat_drinks",
+      "name": "Sitaphal Shake [200 ml]",
+      "description": "Seasonal special sitaphal (custard apple) shake.",
+      "price": 149,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1572490122709-66c5e62bf2a6?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d35",
+      "categoryId": "cat_drinks",
+      "name": "Chocolate Shake [200 ml]",
+      "description": "Classic rich chocolate flavored thick shake.",
+      "price": 119,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1572490122709-66c5e62bf2a6?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d36",
+      "categoryId": "cat_drinks",
+      "name": "Strawberry Shake [200 ml]",
+      "description": "Refreshing strawberry flavored shake.",
+      "price": 119,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1572490122709-66c5e62bf2a6?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d37",
+      "categoryId": "cat_drinks",
+      "name": "KitKat Shake [200 ml]",
+      "description": "Shake with KitKat bits and chocolate syrup.",
+      "price": 139,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1572490122709-66c5e62bf2a6?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d38",
+      "categoryId": "cat_drinks",
+      "name": "Lotus Biscoff Shake [200 ml]",
+      "description": "Premium shake with Lotus Biscoff flavor.",
+      "price": 159,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1572490122709-66c5e62bf2a6?w=800",
+      "isAvailable": true,
+      "tags": ["bestseller"]
+    },
+
+    {
+      "id": "d39",
+      "categoryId": "cat_snacks",
+      "name": "Cheese Garlic Bread [4 Pieces]",
+      "description": "Toasted garlic bread topped with melted cheese.",
+      "price": 129,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d40",
+      "categoryId": "cat_snacks",
+      "name": "Chilli Melt Crunchy Toast [4 Pieces]",
+      "description": "Spicy and crunchy toast with chili and cheese.",
+      "price": 139,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=800",
+      "isAvailable": true,
+      "tags": ["spicy"]
+    },
+    {
+      "id": "d41",
+      "categoryId": "cat_snacks",
+      "name": "Three Pepper Garlic Bread [4 Pieces]",
+      "description": "Garlic bread topped with three types of bell peppers and cheese.",
+      "price": 149,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d42",
+      "categoryId": "cat_snacks",
+      "name": "Creamy Garlic Mushroom Toast [4 Pieces]",
+      "description": "Toast topped with creamy garlic mushrooms.",
+      "price": 159,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d43",
+      "categoryId": "cat_snacks",
+      "name": "SG Veggie Cheese Sandwich",
+      "description": "SG special chutney, onion, tomato and english cucumber.",
+      "price": 119,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d44",
+      "categoryId": "cat_snacks",
+      "name": "Hot Pepper Cottage Cheese Sandwich",
+      "description": "Onion, three pepper, paneer, cheese and special sauce.",
+      "price": 139,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=800",
+      "isAvailable": true,
+      "tags": ["spicy"]
+    },
+    {
+      "id": "d45",
+      "categoryId": "cat_snacks",
+      "name": "Masala Cheese Maggi",
+      "description": "Classic Maggi with spicy masala and cheese.",
+      "price": 99,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d46",
+      "categoryId": "cat_snacks",
+      "name": "SG Special Paneer Makhani Cheese Maggi",
+      "description": "Maggi in rich paneer makhani gravy with cheese.",
+      "price": 129,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?w=800",
+      "isAvailable": true,
+      "tags": ["bestseller"]
+    },
+    {
+      "id": "d47",
+      "categoryId": "cat_snacks",
+      "name": "Veggie Cheese Paneer Roll",
+      "description": "Rolled paratha stuffed with veggies, paneer and cheese.",
+      "price": 149,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1589112106528-57d424b33b93?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d48",
+      "categoryId": "cat_snacks",
+      "name": "Cheese Garlic Breadsticks",
+      "description": "Freshly baked breadsticks with garlic and cheese.",
+      "price": 139,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+
+    {
+      "id": "d49",
+      "categoryId": "cat_bowls",
+      "name": "Kidney Beans Rice Bowl",
+      "description": "SG special rajma and jeera rice.",
+      "price": 179,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d50",
+      "categoryId": "cat_bowls",
+      "name": "Peri Peri Sriracha Rice Bowl",
+      "description": "Spicy rice bowl with peri peri sauce and sriracha.",
+      "price": 189,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800",
+      "isAvailable": true,
+      "tags": ["spicy"]
+    },
+    {
+      "id": "d51",
+      "categoryId": "cat_bowls",
+      "name": "Spicy Paneer Rice Bowl",
+      "description": "Bowl with spicy gravy paneer served over steamed rice.",
+      "price": 199,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800",
+      "isAvailable": true,
+      "tags": ["spicy"]
+    },
+    {
+      "id": "d52",
+      "categoryId": "cat_bowls",
+      "name": "Plain Hummus and Pita Bowl",
+      "description": "Traditional hummus served with soft pita bread.",
+      "price": 159,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d53",
+      "categoryId": "cat_bowls",
+      "name": "Flavoured Hummus and Pita Bowl",
+      "description": "Specialty flavored hummus with pita bread.",
+      "price": 179,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d54",
+      "categoryId": "cat_bowls",
+      "name": "Classic Hummus and Pita Bowl",
+      "description": "Classic Mediterranean hummus and pita.",
+      "price": 169,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d55",
+      "categoryId": "cat_bowls",
+      "name": "Hot Spicy Hummus and Pita Bowl",
+      "description": "Spicy hummus for those who like it hot.",
+      "price": 179,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800",
+      "isAvailable": true,
+      "tags": ["spicy"]
+    },
+
+    {
+      "id": "d56",
+      "categoryId": "cat_starters",
+      "name": "Veg Manchurian",
+      "description": "Crispy vegetable balls tossed in a spicy and tangy Indo Chinese sauce.",
+      "price": 179,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d57",
+      "categoryId": "cat_starters",
+      "name": "Honey Chilli Potato",
+      "description": "Crispy potato fingers glazed with honey and chili sauce.",
+      "price": 169,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800",
+      "isAvailable": true,
+      "tags": ["bestseller"]
+    },
+    {
+      "id": "d58",
+      "categoryId": "cat_starters",
+      "name": "Mushroom Chilli",
+      "description": "Batter fried mushrooms tossed with chilies and onions.",
+      "price": 189,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d59",
+      "categoryId": "cat_starters",
+      "name": "Chilli Paneer",
+      "description": "Classic Indo-Chinese starter with paneer cubes and capsicum.",
+      "price": 199,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800",
+      "isAvailable": true,
+      "tags": ["spicy"]
+    },
+
+    {
+      "id": "d60",
+      "categoryId": "cat_breads",
+      "name": "Aloo Paratha",
+      "description": "Soft paratha stuffed with spiced mashed potato.",
+      "price": 89,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d61",
+      "categoryId": "cat_breads",
+      "name": "Gobi Paratha",
+      "description": "Paratha filled with spicy cauliflower mixture.",
+      "price": 99,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d62",
+      "categoryId": "cat_breads",
+      "name": "Onion Sev Paratha",
+      "description": "Unique paratha with onion and sev stuffing.",
+      "price": 109,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d63",
+      "categoryId": "cat_breads",
+      "name": "Paneer Paratha",
+      "description": "Rich paratha stuffed with seasoned cottage cheese.",
+      "price": 119,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=800",
+      "isAvailable": true,
+      "tags": ["bestseller"]
+    },
+    {
+      "id": "d64",
+      "categoryId": "cat_breads",
+      "name": "Tawa Butter Roti",
+      "description": "Traditional whole wheat flatbread grilled on tawa with butter.",
+      "price": 25,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d65",
+      "categoryId": "cat_breads",
+      "name": "Plain Paratha",
+      "description": "Simple layered whole wheat paratha.",
+      "price": 59,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+
+    {
+      "id": "d66",
+      "categoryId": "cat_main_course",
+      "name": "SG Special Matar Paneer",
+      "description": "Curry made with soft paneer cubes and tender green peas.",
+      "price": 219,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1626074353765-517a681e40be?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d67",
+      "categoryId": "cat_main_course",
+      "name": "SG Special Chole Paneer",
+      "description": "Unique combination of chickpeas and paneer in spicy gravy.",
+      "price": 219,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1626074353765-517a681e40be?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d68",
+      "categoryId": "cat_main_course",
+      "name": "SG Special Mix Veg",
+      "description": "Melange of seasonal vegetables in Indian spices.",
+      "price": 189,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1626074353765-517a681e40be?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d69",
+      "categoryId": "cat_main_course",
+      "name": "Special Rajma",
+      "description": "Slow cooked red kidney beans in thick tomato gravy.",
+      "price": 179,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1626074353765-517a681e40be?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d70",
+      "categoryId": "cat_main_course",
+      "name": "Dal Tadka",
+      "description": "Yellow lentils tempered with cumin, garlic and red chilies.",
+      "price": 159,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d71",
+      "categoryId": "cat_main_course",
+      "name": "Dal Fry",
+      "description": "Traditional spiced and fried lentils.",
+      "price": 149,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "id": "d72",
+      "categoryId": "cat_main_course",
+      "name": "SG Special Soya Chaap Masala",
+      "description": "Soya chaap chunks cooked in rich masala gravy.",
+      "price": 229,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1626074353765-517a681e40be?w=800",
+      "isAvailable": true,
+      "tags": ["spicy"]
+    },
+    {
+      "id": "d73",
+      "categoryId": "cat_main_course",
+      "name": "SG Special Sev Tamatar",
+      "description": "Popular Rajasthani curry with tomatoes and sev.",
+      "price": 169,
+      "isVeg": true,
+      "imageUrl": "https://images.unsplash.com/photo-1626074353765-517a681e40be?w=800",
+      "isAvailable": true,
+      "tags": []
+    }
+  ]
+}

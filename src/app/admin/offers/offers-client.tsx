@@ -325,7 +325,7 @@ export function OffersClient({
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    {offer.price ? `₹${offer.price.toFixed(2)}` : "-"}
+                    {offer.price ? `Rs.${offer.price.toFixed(2)}` : "-"}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>

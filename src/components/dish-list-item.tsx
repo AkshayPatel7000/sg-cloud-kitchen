@@ -38,7 +38,7 @@ export function DishListItem({ dish }: { dish: Dish }) {
           <div className="flex-grow">
             <h4 className="font-semibold text-base">{dish.name}</h4>
             <p className="text-base font-bold text-primary mt-1">
-              ₹{dish.price.toFixed(2)}
+              Rs.{dish.price.toFixed(2)}
             </p>
           </div>
           <Button

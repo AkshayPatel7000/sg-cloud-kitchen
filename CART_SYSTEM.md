@@ -82,13 +82,13 @@ The cart automatically calculates:
 Example:
 
 ```
-Item 1: ₹200 × 2 = ₹400
-Item 2: ₹150 × 1 = ₹150
+Item 1: Rs.200 × 2 = Rs.400
+Item 2: Rs.150 × 1 = Rs.150
 ─────────────────────────
-Subtotal:        ₹550.00
-Tax (5%):         ₹27.50
+Subtotal:        Rs.550.00
+Tax (5%):         Rs.27.50
 ─────────────────────────
-Total:           ₹577.50
+Total:           Rs.577.50
 ```
 
 ## Components Structure

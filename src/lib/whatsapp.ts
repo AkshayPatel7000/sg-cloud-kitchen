@@ -14,17 +14,17 @@ export function generateWhatsAppMessage(cart: Cart, userName?: string): string {
   cart.items.forEach((item, index) => {
     message += `${index + 1}. *${item.dish.name}*\n`;
     message += `   ${item.dish.isVeg ? "🟢" : "🔴"} ${item.dish.isVeg ? "Veg" : "Non-Veg"}\n`;
-    message += `   Qty: ${item.quantity} × ₹${item.dish.price.toFixed(2)}\n`;
-    message += `   Subtotal: ₹${(item.dish.price * item.quantity).toFixed(2)}\n\n`;
+    message += `   Qty: ${item.quantity} × Rs.${item.dish.price.toFixed(2)}\n`;
+    message += `   Subtotal: Rs.${(item.dish.price * item.quantity).toFixed(2)}\n\n`;
   });
 
   message += `${"=".repeat(30)}\n`;
   message += `*Bill Summary*\n`;
   message += `${"=".repeat(30)}\n`;
-  message += `Subtotal: ₹${cart.subtotal.toFixed(2)}\n`;
-  message += `Tax (GST 5%): ₹${cart.tax.toFixed(2)}\n`;
+  message += `Subtotal: Rs.${cart.subtotal.toFixed(2)}\n`;
+  message += `Tax (GST 5%): Rs.${cart.tax.toFixed(2)}\n`;
   message += `${"─".repeat(30)}\n`;
-  message += `*Total Amount: ₹${cart.total.toFixed(2)}*\n\n`;
+  message += `*Total Amount: Rs.${cart.total.toFixed(2)}*\n\n`;
 
   message += `Please confirm my order. Thank you! 🙏`;
 

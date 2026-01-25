@@ -183,10 +183,10 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                           </div>
                           <div className="text-right">
                             <p className="text-sm text-muted-foreground">
-                              ₹{item.dish.price.toFixed(2)} × {item.quantity}
+                              Rs.{item.dish.price.toFixed(2)} × {item.quantity}
                             </p>
                             <p className="text-lg font-bold text-primary">
-                              ₹{(item.dish.price * item.quantity).toFixed(2)}
+                              Rs.{(item.dish.price * item.quantity).toFixed(2)}
                             </p>
                           </div>
                         </div>
@@ -212,18 +212,20 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                       )
                     </span>
                     <span className="font-medium">
-                      ₹{cart.subtotal.toFixed(2)}
+                      Rs.{cart.subtotal.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Tax (GST 5%)</span>
-                    <span className="font-medium">₹{cart.tax.toFixed(2)}</span>
+                    <span className="font-medium">
+                      Rs.{cart.tax.toFixed(2)}
+                    </span>
                   </div>
                   <Separator />
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total Amount</span>
                     <span className="text-primary">
-                      ₹{cart.total.toFixed(2)}
+                      Rs.{cart.total.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -240,7 +242,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                           {item.dish.name} × {item.quantity}
                         </span>
                         <span>
-                          ₹{(item.dish.price * item.quantity).toFixed(2)}
+                          Rs.{(item.dish.price * item.quantity).toFixed(2)}
                         </span>
                       </div>
                     ))}

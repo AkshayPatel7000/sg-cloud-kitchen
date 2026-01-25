@@ -41,15 +41,15 @@
 ┌─────────────────────────────────────┐
 │  BILL SUMMARY                       │
 ├─────────────────────────────────────┤
-│  Subtotal (3 items)      ₹550.00   │
-│  Tax (GST 5%)             ₹27.50   │
+│  Subtotal (3 items)      Rs.550.00   │
+│  Tax (GST 5%)             Rs.27.50   │
 ├─────────────────────────────────────┤
-│  Total Amount            ₹577.50   │
+│  Total Amount            Rs.577.50   │
 ├─────────────────────────────────────┤
 │                                     │
 │  Items Breakdown:                   │
-│  • Pasta × 2            ₹400.00    │
-│  • Salad × 1            ₹150.00    │
+│  • Pasta × 2            Rs.400.00    │
+│  • Salad × 1            Rs.150.00    │
 │                                     │
 └─────────────────────────────────────┘
 ```
@@ -79,7 +79,7 @@ function MyComponent() {
   return (
     <div>
       <p>Items in cart: {itemCount}</p>
-      <p>Total: ₹{cart.total.toFixed(2)}</p>
+      <p>Total: Rs.{cart.total.toFixed(2)}</p>
     </div>
   );
 }
