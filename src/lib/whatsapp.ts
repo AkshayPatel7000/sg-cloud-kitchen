@@ -49,7 +49,8 @@ export function sendWhatsAppMessage(
     ? `whatsapp://send?phone=${phoneNumber}&text=${encodedMessage}`
     : `https://web.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`;
 
-  window.open(whatsappUrl, "_blank");
+  // Use location.href instead of window.open to avoid popup blockers
+  window.location.href = whatsappUrl;
 }
 
 /**

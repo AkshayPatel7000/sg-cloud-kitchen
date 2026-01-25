@@ -75,3 +75,40 @@ export type Cart = {
   tax: number;
   total: number;
 };
+
+// Order Types
+export type OrderStatus =
+  | "pending"
+  | "preparing"
+  | "ready"
+  | "completed"
+  | "cancelled";
+
+export type OrderItem = {
+  dishId: string;
+  dishName: string;
+  quantity: number;
+  price: number;
+  isVeg: boolean;
+  notes?: string;
+};
+
+export type Order = {
+  id: string;
+  orderNumber: string; // e.g., "ORD-001"
+  customerName?: string;
+  customerPhone?: string;
+  items: OrderItem[];
+  subtotal: number;
+  tax: number;
+  total: number;
+  status: OrderStatus;
+  orderType: "dine-in" | "takeaway" | "delivery";
+  tableNumber?: string;
+  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy: string; // Admin user ID
+  isPaid: boolean;
+  paymentMethod?: "cash" | "card" | "upi" | "online";
+};

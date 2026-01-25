@@ -9,6 +9,7 @@ import {
   Sparkles,
   Utensils,
   ChevronDown,
+  Receipt,
 } from "lucide-react";
 import {
   Sidebar,
@@ -38,6 +39,7 @@ import { useEffect, useState } from "react";
 
 const navItems: AdminNavItem[] = [
   { href: "/admin", label: "Dashboard", icon: Home },
+  { href: "/admin/orders", label: "Orders", icon: Receipt },
   { href: "/admin/restaurant", label: "Restaurant Info", icon: Utensils },
   { href: "/admin/offers", label: "Offers & Specials", icon: Sparkles },
   { href: "/admin/categories", label: "Categories", icon: BookMarked },
