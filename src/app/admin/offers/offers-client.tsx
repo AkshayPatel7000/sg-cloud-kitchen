@@ -24,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, PlusCircle, Trash, Edit } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 import {
   Dialog,
@@ -71,6 +72,7 @@ import {
   updateSectionItem,
   deleteSectionItem,
 } from "@/lib/data-client";
+import { ImageUpload } from "@/components/image-upload";
 
 const offerSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -89,7 +91,7 @@ function OfferForm({
   closeDialog,
 }: {
   currentOffer?: SectionItem | null;
-  onSave: (data: OfferFormValues, id?: string) => void;
+  onSave: (data: OfferFormValues, id?: string) => Promise<void>;
   closeDialog: () => void;
 }) {
   const form = useForm<OfferFormValues>({
@@ -104,8 +106,8 @@ function OfferForm({
     },
   });
 
-  const onSubmit = (data: OfferFormValues) => {
-    onSave(data, currentOffer?.id);
+  const onSubmit = async (data: OfferFormValues) => {
+    await onSave(data, currentOffer?.id);
     closeDialog();
   };
 
@@ -143,9 +145,14 @@ function OfferForm({
           name="imageUrl"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Image URL</FormLabel>
+              <FormLabel>Image</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <ImageUpload
+                  value={field.value}
+                  onChange={field.onChange}
+                  onRemove={() => field.onChange("")}
+                  folder="/offers"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -218,6 +225,7 @@ export function OffersClient({
 }) {
   const [offers, setOffers] = useState(initialOffers);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentOffer, setCurrentOffer] = useState<SectionItem | null>(null);
   const { toast } = useToast();
 
@@ -292,6 +300,7 @@ export function OffersClient({
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[80px]">Image</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Status</TableHead>
@@ -301,6 +310,16 @@ export function OffersClient({
             <TableBody>
               {offers.map((offer) => (
                 <TableRow key={offer.id}>
+                  <TableCell>
+                    <div className="relative h-12 w-12 overflow-hidden rounded-md border">
+                      <Image
+                        src={offer.imageUrl}
+                        alt={offer.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  </TableCell>
                   <TableCell className="font-medium">{offer.title}</TableCell>
                   <TableCell>{sectionTypeNames[offer.sectionType]}</TableCell>
                   <TableCell>
@@ -317,7 +336,8 @@ export function OffersClient({
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                          onClick={() => {
+                          onSelect={(e) => {
+                            e.preventDefault();
                             setCurrentOffer(offer);
                             setIsDialogOpen(true);
                           }}
@@ -325,34 +345,17 @@ export function OffersClient({
                           <Edit className="mr-2 h-4 w-4" />
                           Edit
                         </DropdownMenuItem>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <DropdownMenuItem
-                              onSelect={(e) => e.preventDefault()}
-                              className="text-red-600"
-                            >
-                              <Trash className="mr-2 h-4 w-4" />
-                              Delete
-                            </DropdownMenuItem>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This action cannot be undone. This will
-                                permanently delete this item.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDelete(offer.id)}
-                              >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                        <DropdownMenuItem
+                          onSelect={(e) => {
+                            e.preventDefault();
+                            setCurrentOffer(offer);
+                            setIsDeleteDialogOpen(true);
+                          }}
+                          className="text-red-600"
+                        >
+                          <Trash className="mr-2 h-4 w-4" />
+                          Delete
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -362,6 +365,32 @@ export function OffersClient({
           </Table>
         </CardContent>
       </Card>
+
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete this
+              item.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (currentOffer) handleDelete(currentOffer.id);
+                setIsDeleteDialogOpen(false);
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

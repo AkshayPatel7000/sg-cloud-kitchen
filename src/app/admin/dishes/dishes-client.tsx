@@ -17,7 +17,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, PlusCircle, Trash, Edit, Search } from "lucide-react";
+import {
+  MoreHorizontal,
+  PlusCircle,
+  Trash,
+  Edit,
+  Search,
+  Flame,
+  Star,
+} from "lucide-react";
+import Image from "next/image";
 import { useState, useMemo } from "react";
 import {
   Dialog,
@@ -62,6 +71,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { VegNonVegIcon } from "@/components/veg-non-veg-icon";
 import { addDish, updateDish, deleteDish } from "@/lib/data-client";
+import { ImageUpload } from "@/components/image-upload";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const dishSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -84,7 +95,7 @@ function DishForm({
 }: {
   currentDish?: Dish | null;
   categories: Category[];
-  onSave: (data: DishFormValues, id?: string) => void;
+  onSave: (data: DishFormValues, id?: string) => Promise<void>;
   closeDialog: () => void;
 }) {
   const form = useForm<DishFormValues>({
@@ -101,8 +112,8 @@ function DishForm({
     },
   });
 
-  const onSubmit = (data: DishFormValues) => {
-    onSave(data, currentDish?.id);
+  const onSubmit = async (data: DishFormValues) => {
+    await onSave(data, currentDish?.id);
     closeDialog();
   };
 
@@ -110,7 +121,7 @@ function DishForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 max-h-[70vh] overflow-y-auto p-1"
+        className="space-y-4 max-h-[80vh] overflow-y-auto p-1"
       >
         <FormField
           control={form.control}
@@ -138,19 +149,82 @@ function DishForm({
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="imageUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Image URL</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="flex gap-6 items-start">
+          <FormField
+            control={form.control}
+            name="imageUrl"
+            render={({ field }) => (
+              <FormItem className="flex-shrink-0">
+                <FormLabel>Image</FormLabel>
+                <FormControl>
+                  <ImageUpload
+                    value={field.value}
+                    onChange={field.onChange}
+                    onRemove={() => field.onChange("")}
+                    folder="/dishes"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="space-y-4 flex-grow pt-8">
+            <FormLabel>Tags</FormLabel>
+            <div className="flex flex-col gap-3">
+              <FormField
+                control={form.control}
+                name="tags"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value?.includes("spicy")}
+                        onCheckedChange={(checked) => {
+                          const current = field.value || [];
+                          return checked
+                            ? field.onChange([...current, "spicy"])
+                            : field.onChange(
+                                current.filter((value) => value !== "spicy"),
+                              );
+                        }}
+                      />
+                    </FormControl>
+                    <FormLabel className="font-normal cursor-pointer">
+                      Spicy
+                    </FormLabel>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="tags"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value?.includes("bestseller")}
+                        onCheckedChange={(checked) => {
+                          const current = field.value || [];
+                          return checked
+                            ? field.onChange([...current, "bestseller"])
+                            : field.onChange(
+                                current.filter(
+                                  (value) => value !== "bestseller",
+                                ),
+                              );
+                        }}
+                      />
+                    </FormControl>
+                    <FormLabel className="font-normal cursor-pointer">
+                      Bestseller
+                    </FormLabel>
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+        </div>
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -244,6 +318,7 @@ export function DishesClient({
 }) {
   const [dishes, setDishes] = useState(initialDishes);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentDish, setCurrentDish] = useState<Dish | null>(null);
 
   // Search and Filter State
@@ -368,6 +443,7 @@ export function DishesClient({
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[80px]">Image</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Type</TableHead>
@@ -379,7 +455,31 @@ export function DishesClient({
             <TableBody>
               {filteredDishes.map((dish) => (
                 <TableRow key={dish.id}>
-                  <TableCell className="font-medium">{dish.name}</TableCell>
+                  <TableCell>
+                    <div className="relative h-12 w-12 overflow-hidden rounded-md border">
+                      <Image
+                        src={dish.imageUrl}
+                        alt={dish.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        {dish.name}
+                        <div className="flex gap-1">
+                          {dish.tags?.includes("spicy") && (
+                            <Flame className="h-4 w-4 text-orange-500 fill-orange-500" />
+                          )}
+                          {dish.tags?.includes("bestseller") && (
+                            <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </TableCell>
                   <TableCell>{getCategoryName(dish.categoryId)}</TableCell>
                   <TableCell>
                     <VegNonVegIcon isVeg={dish.isVeg} />
@@ -401,7 +501,8 @@ export function DishesClient({
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                          onClick={() => {
+                          onSelect={(e) => {
+                            e.preventDefault();
                             setCurrentDish(dish);
                             setIsDialogOpen(true);
                           }}
@@ -409,33 +510,17 @@ export function DishesClient({
                           <Edit className="mr-2 h-4 w-4" />
                           Edit
                         </DropdownMenuItem>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <DropdownMenuItem
-                              onSelect={(e) => e.preventDefault()}
-                              className="text-red-600"
-                            >
-                              <Trash className="mr-2 h-4 w-4" />
-                              Delete
-                            </DropdownMenuItem>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This will permanently delete this dish.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDelete(dish.id)}
-                              >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                        <DropdownMenuItem
+                          onSelect={(e) => {
+                            e.preventDefault();
+                            setCurrentDish(dish);
+                            setIsDeleteDialogOpen(true);
+                          }}
+                          className="text-red-600"
+                        >
+                          <Trash className="mr-2 h-4 w-4" />
+                          Delete
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -445,6 +530,31 @@ export function DishesClient({
           </Table>
         </CardContent>
       </Card>
+
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete this dish.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (currentDish) handleDelete(currentDish.id);
+                setIsDeleteDialogOpen(false);
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

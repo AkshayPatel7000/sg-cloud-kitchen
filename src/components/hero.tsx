@@ -1,3 +1,5 @@
+"use client";
+
 import type { Restaurant } from "@/lib/types";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import Image from "next/image";
@@ -9,6 +11,8 @@ import {
   MapPin,
   Phone,
   Twitter,
+  Menu,
+  PhoneCall,
 } from "lucide-react";
 
 export function Hero({ restaurant }: { restaurant: Restaurant }) {
@@ -35,13 +39,29 @@ export function Hero({ restaurant }: { restaurant: Restaurant }) {
           <p className="mt-4 max-w-2xl text-lg md:text-xl text-white/90">
             {restaurant.tagline}
           </p>
-          <div className="mt-8 flex justify-center">
+          <div className="mt-8 flex justify-center gap-4">
             <Button
               size="lg"
               variant="default"
               className="bg-accent text-accent-foreground hover:bg-accent/90"
+              onClick={() => {
+                const element = document.getElementById("menu");
+                element?.scrollIntoView({ behavior: "smooth" });
+              }}
             >
+              <Menu className="mr-2 h-5 w-5" />
               View Menu
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 hover:text-white"
+              onClick={() => {
+                window.open(`tel:${restaurant.phone}`);
+              }}
+            >
+              <PhoneCall className="mr-2 h-5 w-5" />
+              Call Now
             </Button>
           </div>
         </div>

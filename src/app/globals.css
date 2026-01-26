@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  font-family: 'PT Sans', sans-serif;
+  font-family: "PT Sans", sans-serif;
 }
 
 @layer base {
@@ -84,5 +84,6 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    pointer-events: auto !important;
   }
 }

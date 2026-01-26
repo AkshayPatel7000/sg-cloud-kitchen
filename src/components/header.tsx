@@ -50,7 +50,9 @@ export function Header({ restaurant }: { restaurant: Restaurant | null }) {
                 {link.label}
               </Link>
             ))}
-            <Button>
+            <Button
+              onClick={() => window.open(`tel:${restaurant?.phone || ""}`)}
+            >
               <Phone className="mr-2 h-4 w-4" />
               Call Now
             </Button>

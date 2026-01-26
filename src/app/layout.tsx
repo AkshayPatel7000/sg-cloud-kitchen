@@ -10,15 +10,20 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: restaurant.name,
     description: restaurant.tagline,
+    icons: {
+      icon: restaurant.logoUrl,
+    },
     openGraph: {
       title: restaurant.name,
       description: restaurant.tagline,
       type: "website",
+      images: [restaurant.logoUrl],
     },
     twitter: {
       card: "summary_large_image",
       title: restaurant.name,
       description: restaurant.tagline,
+      images: [restaurant.logoUrl],
     },
   };
 }
