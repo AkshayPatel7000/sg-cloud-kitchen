@@ -6,11 +6,14 @@ import type { Cart } from "./types";
 export function generateWhatsAppMessage(
   cart: Cart,
   userName?: string,
+  userPhone?: string,
   orderNumber?: string,
 ): string {
   const greeting = userName ? `Hi, I'm ${userName}!` : "Hi!";
+  const phoneInfo = userPhone ? ` (Phone: ${userPhone})` : "";
 
-  let message = `${greeting}\n\n`;
+  let message = `${greeting}${phoneInfo}\n\n`;
+
   if (orderNumber) {
     message += `🆔 *Order ID: ${orderNumber}*\n`;
   }
@@ -67,8 +70,14 @@ export function sendCartViaWhatsApp(
   cart: Cart,
   restaurantPhone: string,
   userName?: string,
+  userPhone?: string,
   orderNumber?: string,
 ): void {
-  const message = generateWhatsAppMessage(cart, userName, orderNumber);
+  const message = generateWhatsAppMessage(
+    cart,
+    userName,
+    userPhone,
+    orderNumber,
+  );
   sendWhatsAppMessage(restaurantPhone, message);
 }

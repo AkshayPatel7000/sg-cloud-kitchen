@@ -19,7 +19,7 @@ import Link from "next/link";
 import { VegNonVegIcon } from "@/components/veg-non-veg-icon";
 import { sendCartViaWhatsApp } from "@/lib/whatsapp";
 import type { Restaurant } from "@/lib/types";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
@@ -29,10 +29,20 @@ import { useToast } from "@/hooks/use-toast";
 export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
   const { cart, updateQuantity, removeFromCart, clearCart, itemCount } =
     useCart();
+  const { toast } = useToast();
+
   const [userName, setUserName] = useState("");
+  const [userPhone, setUserPhone] = useState("");
   const [showNameInput, setShowNameInput] = useState(false);
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
-  const { toast } = useToast();
+
+  // Load saved details from localStorage
+  useEffect(() => {
+    const savedName = localStorage.getItem("customer_name");
+    const savedPhone = localStorage.getItem("customer_phone");
+    if (savedName) setUserName(savedName);
+    if (savedPhone) setUserPhone(savedPhone);
+  }, []);
 
   const generateOrderNumber = () => {
     // Generate order number using timestamp + random suffix
@@ -49,6 +59,15 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
   const handleCheckout = async () => {
     if (!showNameInput) {
       setShowNameInput(true);
+      return;
+    }
+
+    if (!userName.trim() || !userPhone.trim()) {
+      toast({
+        title: "Information Required",
+        description: "Please enter your name and mobile number to proceed.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -75,7 +94,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
       const orderData = {
         orderNumber,
         customerName: userName || "Customer",
-        customerPhone: null,
+        customerPhone: userPhone || null,
         items: cart.items.map((item) => ({
           dishId: item.dish.id,
           dishName: item.dish.name,
@@ -99,6 +118,10 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
 
       const docRef = await addDoc(collection(db, "orders"), orderData);
       console.log("Order created successfully with ID:", docRef.id);
+
+      // Save to localStorage for future orders
+      localStorage.setItem("customer_name", userName);
+      localStorage.setItem("customer_phone", userPhone);
 
       // Send notification to admin
       try {
@@ -133,6 +156,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
         cart,
         whatsappNumber,
         userName || undefined,
+        userPhone || undefined,
         orderNumber,
       );
 
@@ -354,17 +378,31 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
 
                 <Separator />
 
-                {/* Name Input (conditional) */}
+                {/* Name & Phone Input (conditional) */}
                 {showNameInput && (
-                  <div className="space-y-2">
-                    <Label htmlFor="userName">Your Name (Optional)</Label>
-                    <Input
-                      id="userName"
-                      placeholder="Enter your name"
-                      value={userName}
-                      onChange={(e) => setUserName(e.target.value)}
-                      autoFocus
-                    />
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="userName">Your Name</Label>
+                      <Input
+                        id="userName"
+                        placeholder="Enter your name"
+                        value={userName}
+                        onChange={(e) => setUserName(e.target.value)}
+                        required
+                        autoFocus
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="userPhone">Mobile Number</Label>
+                      <Input
+                        id="userPhone"
+                        type="tel"
+                        placeholder="Enter your mobile number"
+                        value={userPhone}
+                        onChange={(e) => setUserPhone(e.target.value)}
+                        required
+                      />
+                    </div>
                   </div>
                 )}
 
