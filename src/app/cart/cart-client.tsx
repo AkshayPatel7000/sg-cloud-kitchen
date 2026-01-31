@@ -22,12 +22,7 @@ import type { Restaurant } from "@/lib/types";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  collection,
-  addDoc,
-  serverTimestamp,
-  getDocs,
-} from "firebase/firestore";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 
@@ -39,11 +34,16 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
   const { toast } = useToast();
 
-  const generateOrderNumber = async () => {
-    const ordersRef = collection(db, "orders");
-    const snapshot = await getDocs(ordersRef);
-    const orderCount = snapshot.size + 1;
-    return `ORD-${String(orderCount).padStart(4, "0")}`;
+  const generateOrderNumber = () => {
+    // Generate order number using timestamp + random suffix
+    // Format: ORD-YYYYMMDD-HHMMSS-XXX
+    const now = new Date();
+    const datePart = now.toISOString().slice(0, 10).replace(/-/g, "");
+    const timePart = now.toTimeString().slice(0, 8).replace(/:/g, "");
+    const randomSuffix = Math.floor(Math.random() * 1000)
+      .toString()
+      .padStart(3, "0");
+    return `ORD-${datePart}-${timePart}-${randomSuffix}`;
   };
 
   const handleCheckout = async () => {
@@ -70,7 +70,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
 
     try {
       // Create order in Firestore
-      const orderNumber = await generateOrderNumber();
+      const orderNumber = generateOrderNumber();
 
       const orderData = {
         orderNumber,
@@ -97,7 +97,8 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
         paymentMethod: null,
       };
 
-      await addDoc(collection(db, "orders"), orderData);
+      const docRef = await addDoc(collection(db, "orders"), orderData);
+      console.log("Order created successfully with ID:", docRef.id);
 
       toast({
         title: "Order Created",
@@ -105,7 +106,12 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
       });
 
       // Send via WhatsApp
-      sendCartViaWhatsApp(cart, whatsappNumber, userName || undefined);
+      sendCartViaWhatsApp(
+        cart,
+        whatsappNumber,
+        userName || undefined,
+        orderNumber,
+      );
 
       // Clear cart after successful order creation
       setTimeout(() => {

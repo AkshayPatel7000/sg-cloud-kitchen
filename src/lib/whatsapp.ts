@@ -3,11 +3,18 @@ import type { Cart } from "./types";
 /**
  * Generates a WhatsApp message with cart details
  */
-export function generateWhatsAppMessage(cart: Cart, userName?: string): string {
+export function generateWhatsAppMessage(
+  cart: Cart,
+  userName?: string,
+  orderNumber?: string,
+): string {
   const greeting = userName ? `Hi, I'm ${userName}!` : "Hi!";
 
   let message = `${greeting}\n\n`;
-  message += `🛒 *My Order*\n`;
+  if (orderNumber) {
+    message += `🆔 *Order ID: ${orderNumber}*\n`;
+  }
+  message += `🛒 *My Order Details*\n`;
   message += `${"=".repeat(30)}\n\n`;
 
   // Add each item
@@ -60,7 +67,8 @@ export function sendCartViaWhatsApp(
   cart: Cart,
   restaurantPhone: string,
   userName?: string,
+  orderNumber?: string,
 ): void {
-  const message = generateWhatsAppMessage(cart, userName);
+  const message = generateWhatsAppMessage(cart, userName, orderNumber);
   sendWhatsAppMessage(restaurantPhone, message);
 }

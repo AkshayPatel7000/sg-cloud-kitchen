@@ -57,9 +57,7 @@ export default function OrdersPage() {
   const [orderTypeFilter, setOrderTypeFilter] = useState<string>("all");
   const [isLoading, setIsLoading] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [previousOrderIds, setPreviousOrderIds] = useState<Set<string>>(
-    new Set(),
-  );
+  const previousOrderIdsRef = useRef<Set<string>>(new Set());
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const isInitialLoad = useRef(true);
   const { toast } = useToast();
@@ -77,13 +75,35 @@ export default function OrdersPage() {
 
     const unsubscribe = onSnapshot(
       q,
+      { includeMetadataChanges: true },
       (querySnapshot) => {
-        const fetchedOrders = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt?.toDate() || new Date(),
-          updatedAt: doc.data().updatedAt?.toDate() || new Date(),
-        })) as Order[];
+        const fetchedOrders = querySnapshot.docs.map((doc) => {
+          const data = doc.data();
+
+          // Helper to safely convert Firebase Timestamp or Date to Date object
+          const toDate = (val: any) => {
+            if (val?.toDate) return val.toDate();
+            if (val instanceof Date) return val;
+            return new Date(); // Fallback for null (serverTimestamp pending)
+          };
+
+          return {
+            id: doc.id,
+            ...data,
+            createdAt: toDate(data.createdAt),
+            updatedAt: toDate(data.updatedAt),
+          };
+        }) as Order[];
+
+        console.log(`Snapshot updated: ${fetchedOrders.length} orders found.`);
+        if (fetchedOrders.length > 0) {
+          console.log(
+            "Latest order ID:",
+            fetchedOrders[0].id,
+            "Created at:",
+            fetchedOrders[0].createdAt,
+          );
+        }
 
         // Detect new customer orders
         if (!isInitialLoad.current && notificationsEnabled) {
@@ -92,7 +112,8 @@ export default function OrdersPage() {
           // Find new orders
           const newOrders = fetchedOrders.filter(
             (order) =>
-              !previousOrderIds.has(order.id) && order.createdBy === "customer", // Only notify for customer orders
+              !previousOrderIdsRef.current.has(order.id) &&
+              order.createdBy === "customer",
           );
 
           // Play notification for each new customer order
@@ -105,10 +126,10 @@ export default function OrdersPage() {
             });
           });
 
-          setPreviousOrderIds(currentOrderIds);
+          previousOrderIdsRef.current = currentOrderIds;
         } else if (isInitialLoad.current) {
           // On initial load, just store the order IDs without notification
-          setPreviousOrderIds(new Set(fetchedOrders.map((o) => o.id)));
+          previousOrderIdsRef.current = new Set(fetchedOrders.map((o) => o.id));
           isInitialLoad.current = false;
         }
 
@@ -117,13 +138,19 @@ export default function OrdersPage() {
       },
       (error) => {
         console.error("Error fetching orders:", error);
+        toast({
+          title: "Connection Error",
+          description:
+            "Failed to listen for order updates. Please check your permissions.",
+          variant: "destructive",
+        });
         setIsLoading(false);
       },
     );
 
     // Cleanup listener on unmount
     return () => unsubscribe();
-  }, [notificationsEnabled, previousOrderIds, toast]);
+  }, [notificationsEnabled, toast]);
 
   const playNotificationSound = () => {
     if (audioRef.current && notificationsEnabled) {

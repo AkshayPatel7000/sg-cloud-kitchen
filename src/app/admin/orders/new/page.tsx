@@ -149,11 +149,16 @@ export default function NewOrderPage() {
     return { subtotal, discount: discountAmount, afterDiscount, tax, total };
   };
 
-  const generateOrderNumber = async () => {
-    const ordersRef = collection(db, "orders");
-    const snapshot = await getDocs(ordersRef);
-    const orderCount = snapshot.size + 1;
-    return `ORD-${String(orderCount).padStart(4, "0")}`;
+  const generateOrderNumber = () => {
+    // Generate order number using timestamp + random suffix
+    // Format: ORD-YYYYMMDD-HHMMSS-XXX
+    const now = new Date();
+    const datePart = now.toISOString().slice(0, 10).replace(/-/g, "");
+    const timePart = now.toTimeString().slice(0, 8).replace(/:/g, "");
+    const randomSuffix = Math.floor(Math.random() * 1000)
+      .toString()
+      .padStart(3, "0");
+    return `ORD-${datePart}-${timePart}-${randomSuffix}`;
   };
 
   const handleSubmit = async () => {
@@ -180,7 +185,7 @@ export default function NewOrderPage() {
     try {
       const { subtotal, discount, afterDiscount, tax, total } =
         calculateTotals();
-      const orderNumber = await generateOrderNumber();
+      const orderNumber = generateOrderNumber();
 
       const orderData = {
         orderNumber,
