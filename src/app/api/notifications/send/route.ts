@@ -3,18 +3,21 @@ import { adminDb, adminMessaging } from "@/lib/firebase/admin";
 
 export async function POST(request: Request) {
   try {
-    const { orderDetails } = await request.json();
+    const { orderDetails, fcmToken } = await request.json();
+    let tokens: string[] = [];
 
-    // Fetch all admin tokens from Firestore
-    const adminSnapshot = await adminDb.collection("admins").get();
-    const tokens: string[] = [];
-
-    adminSnapshot.forEach((doc) => {
-      const data = doc.data();
-      if (data.fcmToken) {
-        tokens.push(data.fcmToken);
-      }
-    });
+    if (fcmToken) {
+      tokens = [fcmToken];
+    } else {
+      // Fallback: Fetch from Firestore only if token not provided by client
+      const adminSnapshot = await adminDb.collection("admins").get();
+      adminSnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.fcmToken) {
+          tokens.push(data.fcmToken);
+        }
+      });
+    }
 
     if (tokens.length === 0) {
       return NextResponse.json(

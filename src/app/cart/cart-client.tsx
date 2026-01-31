@@ -102,6 +102,11 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
 
       // Send notification to admin
       try {
+        // Fetch admin token on client side to avoid server-side quota issues
+        const { getAdmins } = await import("@/lib/data-client");
+        const admins = await getAdmins();
+        const adminToken = admins.find((a) => a.fcmToken)?.fcmToken;
+
         await fetch("/api/notifications/send", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -111,6 +116,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
               orderNumber: orderNumber,
               total: cart.total,
             },
+            fcmToken: adminToken, // Pass the token directly
           }),
         });
       } catch (notiError) {
