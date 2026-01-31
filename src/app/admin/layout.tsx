@@ -30,16 +30,28 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
     }
   }, [user, loading, router, pathname]);
 
+  const [isAudioEnabled, setIsAudioEnabled] = useState(false);
+
   useEffect(() => {
     let unsubscribe: any;
     const notificationChannel = new BroadcastChannel("fcm_notifications");
 
+    // Hidden audio element for consistent playback
+    const audio =
+      typeof window !== "undefined" ? new Audio("/notfy.wav") : null;
+    if (audio) {
+      audio.load();
+    }
+
     const playSound = () => {
-      try {
-        const audio = new Audio("/notfy.wav");
-        audio.play().catch((e) => console.log("Audio play failed:", e));
-      } catch (audioErr) {
-        console.error("Error playing notification sound:", audioErr);
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch((e) => {
+          console.log(
+            "📢 [FCM] Audio play failed (likely background/no interaction):",
+            e,
+          );
+        });
       }
     };
 
@@ -62,7 +74,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
           // Play custom notification sound
           playSound();
 
-          // Fallback: Browser notification even in foreground if user is in another tab
+          // Fallback: Browser notification even in foreground
           if (Notification.permission === "granted") {
             new Notification(payload.notification.title, {
               body: payload.notification.body,
@@ -73,13 +85,34 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       });
     }
 
+    // Attempt to enable audio on first click
+    const handleFirstClick = () => {
+      if (!isAudioEnabled) {
+        setIsAudioEnabled(true);
+        // Play and immediately pause to "unlock" audio on mobile/strict browsers
+        if (audio) {
+          audio
+            .play()
+            .then(() => {
+              audio.pause();
+              audio.currentTime = 0;
+              console.log("🔊 [FCM] Audio unlocked");
+            })
+            .catch((e) => console.log("Audio unlock failed:", e));
+        }
+        window.removeEventListener("click", handleFirstClick);
+      }
+    };
+    window.addEventListener("click", handleFirstClick);
+
     return () => {
       if (unsubscribe && typeof unsubscribe === "function") {
         unsubscribe();
       }
       notificationChannel.close();
+      window.removeEventListener("click", handleFirstClick);
     };
-  }, [user, toast]);
+  }, [user, toast, isAudioEnabled]);
 
   useEffect(() => {
     async function fetchRestaurant() {
@@ -105,7 +138,12 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <div className="md:flex w-full">
+      <div className="md:flex w-full relative">
+        {!isAudioEnabled && (
+          <div className="fixed bottom-4 right-4 z-[100] bg-yellow-500/90 text-black px-4 py-2 rounded-full text-xs font-bold animate-pulse shadow-lg pointer-events-none">
+            📣 Click anywhere to enable order sounds
+          </div>
+        )}
         <AdminNav restaurant={restaurant} />
         <SidebarInset className="flex-1">{children}</SidebarInset>
       </div>

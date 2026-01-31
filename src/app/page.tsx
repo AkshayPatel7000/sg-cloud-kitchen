@@ -23,12 +23,17 @@ export default async function Home() {
           <MenuSection />
         </div>
       </main>
-      <footer className="bg-primary text-primary-foreground py-8">
-        <div className="container mx-auto px-4 text-center">
-          <p>
+      <footer className="py-8 bg-muted/50 border-t">
+        <div className="container px-4 mx-auto text-center">
+          <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} {restaurant.name}. All Rights
             Reserved.
           </p>
+          <div className="mt-2 text-[10px] opacity-20 hover:opacity-100 transition-opacity">
+            <a href="/admin" className="hover:underline">
+              Admin Login
+            </a>
+          </div>
         </div>
       </footer>
       <CartButton />
