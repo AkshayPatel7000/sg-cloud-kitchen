@@ -32,6 +32,23 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let unsubscribe: any;
+    const notificationChannel = new BroadcastChannel("fcm_notifications");
+
+    const playSound = () => {
+      try {
+        const audio = new Audio("/notfy.wav");
+        audio.play().catch((e) => console.log("Audio play failed:", e));
+      } catch (audioErr) {
+        console.error("Error playing notification sound:", audioErr);
+      }
+    };
+
+    // Listen for messages from Service Worker (when tab is backgrounded)
+    notificationChannel.onmessage = (event) => {
+      console.log("📢 [FCM] Message from BroadcastChannel:", event.data);
+      playSound();
+    };
+
     if (user) {
       const { onMessageListener } = require("@/lib/notifications");
       unsubscribe = onMessageListener((payload: any) => {
@@ -43,12 +60,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
           });
 
           // Play custom notification sound
-          try {
-            const audio = new Audio("/notfy.wav");
-            audio.play().catch((e) => console.log("Audio play failed:", e));
-          } catch (audioErr) {
-            console.error("Error playing notification sound:", audioErr);
-          }
+          playSound();
 
           // Fallback: Browser notification even in foreground if user is in another tab
           if (Notification.permission === "granted") {
@@ -65,6 +77,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       if (unsubscribe && typeof unsubscribe === "function") {
         unsubscribe();
       }
+      notificationChannel.close();
     };
   }, [user, toast]);
 

@@ -17,11 +17,16 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
+const notificationChannel = new BroadcastChannel("fcm_notifications");
+
 messaging.onBackgroundMessage((payload) => {
   console.log(
     "[firebase-messaging-sw.js] Received background message ",
     payload,
   );
+
+  // Send to foreground pages via BroadcastChannel
+  notificationChannel.postMessage(payload);
 
   const notificationTitle = payload.notification?.title || "New Order!";
   const notificationOptions = {
