@@ -17,6 +17,14 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
+    console.log("🔑 [AdminLayout] User state:", !!user, user?.uid);
+    if (typeof window !== "undefined") {
+      console.log(
+        "🔔 [Notification] Current Permission:",
+        Notification.permission,
+      );
+    }
+
     if (!loading && !user && pathname !== "/admin/login") {
       router.replace("/admin/login");
     }
@@ -27,16 +35,32 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
     if (user) {
       const { onMessageListener } = require("@/lib/notifications");
       unsubscribe = onMessageListener((payload: any) => {
-        console.log("Foreground message received:", payload);
+        console.log("⚡ [FCM] Foreground message received:", payload);
         if (payload?.notification) {
           toast({
             title: payload.notification.title,
             description: payload.notification.body,
           });
-          // Note: Play sound if needed
+
+          // Play custom notification sound
+          try {
+            const audio = new Audio("/notfy.wav");
+            audio.play().catch((e) => console.log("Audio play failed:", e));
+          } catch (audioErr) {
+            console.error("Error playing notification sound:", audioErr);
+          }
+
+          // Fallback: Browser notification even in foreground if user is in another tab
+          if (Notification.permission === "granted") {
+            new Notification(payload.notification.title, {
+              body: payload.notification.body,
+              icon: "/logo.png",
+            });
+          }
         }
       });
     }
+
     return () => {
       if (unsubscribe && typeof unsubscribe === "function") {
         unsubscribe();

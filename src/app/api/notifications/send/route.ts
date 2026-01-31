@@ -36,6 +36,17 @@ export async function POST(request: Request) {
         orderNumber: orderDetails.orderNumber,
         click_action: "/admin/orders",
       },
+      webpush: {
+        fcm_options: {
+          link: "/admin/orders",
+        },
+        notification: {
+          icon: "/logo.png",
+          badge: "/logo.png", // Small icon for mobile status bar
+          tag: "new-order", // Prevents stacking of multiple notifications
+          requireInteraction: true, // Keeps notification visible until clicked
+        },
+      },
       tokens: tokens,
     };
 

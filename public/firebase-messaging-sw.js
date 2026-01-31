@@ -23,11 +23,38 @@ messaging.onBackgroundMessage((payload) => {
     payload,
   );
 
-  const notificationTitle = payload.notification.title;
+  const notificationTitle = payload.notification?.title || "New Order!";
   const notificationOptions = {
-    body: payload.notification.body,
-    icon: "/logo.png", // Make sure you have an icon at this path
+    body: payload.notification?.body || "A new order has been received.",
+    icon: "/logo.png",
+    data: payload.data, // Include data for click handling
+    silent: false, // Ensure it's not silent
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+self.addEventListener("notificationclick", (event) => {
+  console.log("[firebase-messaging-sw.js] Notification clicked:", event);
+  event.notification.close();
+
+  const clickAction = event.notification.data?.click_action || "/admin/orders";
+
+  event.waitUntil(
+    clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((windowClients) => {
+        // If a tab is already open, focus it
+        for (let i = 0; i < windowClients.length; i++) {
+          const client = windowClients[i];
+          if (client.url.includes(clickAction) && "focus" in client) {
+            return client.focus();
+          }
+        }
+        // If not, open a new tab
+        if (clients.openWindow) {
+          return clients.openWindow(clickAction);
+        }
+      }),
+  );
 });
