@@ -211,6 +211,23 @@ export default function NewOrderPage() {
 
       const docRef = await addDoc(collection(db, "orders"), orderData);
 
+      // Send notification to admin
+      try {
+        await fetch("/api/notifications/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderDetails: {
+              id: docRef.id,
+              orderNumber: orderNumber,
+              total: total,
+            },
+          }),
+        });
+      } catch (notiError) {
+        console.error("Failed to send notification:", notiError);
+      }
+
       toast({
         title: "Success",
         description: `Order ${orderNumber} created successfully`,

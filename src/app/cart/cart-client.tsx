@@ -100,6 +100,23 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
       const docRef = await addDoc(collection(db, "orders"), orderData);
       console.log("Order created successfully with ID:", docRef.id);
 
+      // Send notification to admin
+      try {
+        await fetch("/api/notifications/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderDetails: {
+              id: docRef.id,
+              orderNumber: orderNumber,
+              total: cart.total,
+            },
+          }),
+        });
+      } catch (notiError) {
+        console.error("Failed to send notification:", notiError);
+      }
+
       toast({
         title: "Order Created",
         description: `Order ${orderNumber} has been created successfully!`,

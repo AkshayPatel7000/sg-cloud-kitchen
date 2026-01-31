@@ -1,10 +1,21 @@
 "use client";
 
-import { useRouter } from 'next/navigation';
-import { useState, useEffect, useContext, createContext, ReactNode } from 'react';
-import type { AdminUser } from '@/lib/types';
-import { auth } from '@/lib/firebase/firestore';
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut, User as FirebaseUser } from 'firebase/auth';
+import { useRouter } from "next/navigation";
+import {
+  useState,
+  useEffect,
+  useContext,
+  createContext,
+  ReactNode,
+} from "react";
+import type { AdminUser } from "@/lib/types";
+import { auth } from "@/lib/firebase/firestore";
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
+  User as FirebaseUser,
+} from "firebase/auth";
 
 interface AuthContextType {
   user: AdminUser | null;
@@ -21,22 +32,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
-      if (firebaseUser) {
-        // For this app, we'll assume any authenticated user is an admin.
-        // In a real-world scenario, you might check for a custom claim or a role in your database.
-        const adminUser: AdminUser = {
-          uid: firebaseUser.uid,
-          email: firebaseUser.email || 'admin@example.com',
-          name: firebaseUser.displayName || 'Admin User',
-          role: 'admin',
-        };
-        setUser(adminUser);
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
-    });
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      async (firebaseUser: FirebaseUser | null) => {
+        console.log("🚀 ~ AuthProvider ~ firebaseUser:", firebaseUser);
+        if (firebaseUser) {
+          // For this app, we'll assume any authenticated user is an admin.
+          // In a real-world scenario, you might check for a custom claim or a role in your database.
+          const adminUser: AdminUser = {
+            uid: firebaseUser.uid,
+            email: firebaseUser.email || "admin@example.com",
+            name: firebaseUser.displayName || "Admin User",
+            role: "admin",
+          };
+          setUser(adminUser);
+
+          // Request notification permission and save token
+          const { requestNotificationPermission } =
+            await import("@/lib/notifications");
+          await requestNotificationPermission(firebaseUser.uid);
+        } else {
+          setUser(null);
+        }
+        setLoading(false);
+      },
+    );
 
     return () => unsubscribe();
   }, []);
@@ -48,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       return true;
     } catch (error) {
-      console.error('Firebase login error:', error);
+      console.error("Firebase login error:", error);
       setLoading(false);
       return false;
     }
@@ -57,9 +77,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     try {
       await signOut(auth);
-      router.push('/admin/login');
+      router.push("/admin/login");
     } catch (error) {
-      console.error('Firebase logout error:', error);
+      console.error("Firebase logout error:", error);
     }
   };
 
@@ -71,7 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

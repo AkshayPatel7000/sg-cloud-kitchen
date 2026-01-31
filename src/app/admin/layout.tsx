@@ -7,18 +7,42 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { getRestaurant } from "@/lib/data-client";
 import type { Restaurant } from "@/lib/types";
+import { useToast } from "@/hooks/use-toast";
 
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!loading && !user && pathname !== "/admin/login") {
       router.replace("/admin/login");
     }
   }, [user, loading, router, pathname]);
+
+  useEffect(() => {
+    let unsubscribe: any;
+    if (user) {
+      const { onMessageListener } = require("@/lib/notifications");
+      unsubscribe = onMessageListener((payload: any) => {
+        console.log("Foreground message received:", payload);
+        if (payload?.notification) {
+          toast({
+            title: payload.notification.title,
+            description: payload.notification.body,
+          });
+          // Note: Play sound if needed
+        }
+      });
+    }
+    return () => {
+      if (unsubscribe && typeof unsubscribe === "function") {
+        unsubscribe();
+      }
+    };
+  }, [user, toast]);
 
   useEffect(() => {
     async function fetchRestaurant() {

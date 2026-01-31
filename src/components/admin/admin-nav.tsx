@@ -10,7 +10,9 @@ import {
   Utensils,
   ChevronDown,
   Receipt,
+  Bell,
 } from "lucide-react";
+
 import {
   Sidebar,
   SidebarContent,
@@ -125,9 +127,15 @@ export function AdminNav({ restaurant }: { restaurant: Restaurant | null }) {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
+              <DropdownMenuItem
+                onClick={async () => {
+                  const { requestNotificationPermission } =
+                    await import("@/lib/notifications");
+                  if (user) await requestNotificationPermission(user.uid);
+                }}
+              >
+                <Bell className="mr-2 h-4 w-4" />
+                <span>Enable Notifications</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={logout}>
