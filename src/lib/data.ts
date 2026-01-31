@@ -19,23 +19,35 @@ import type {
 
 // TODO: Add error handling for all data fetching functions.
 
-const toPlainObject = (data: any) => {
-  if (!data) return data;
-  const plain: any = { ...data };
-  for (const key in plain) {
-    if (
-      plain[key] &&
-      typeof plain[key] === "object" &&
-      "seconds" in plain[key]
-    ) {
-      plain[key] = new Date(plain[key].seconds * 1000).toISOString();
-    } else if (Array.isArray(plain[key])) {
-      plain[key] = plain[key].map(toPlainObject);
-    } else if (plain[key] && typeof plain[key] === "object") {
-      plain[key] = toPlainObject(plain[key]);
-    }
+const toPlainObject = (data: any): any => {
+  if (data === null || data === undefined) return data;
+
+  // Handle arrays
+  if (Array.isArray(data)) {
+    return data.map(toPlainObject);
   }
-  return plain;
+
+  // Handle Firestore Timestamps
+  if (
+    data &&
+    typeof data === "object" &&
+    "seconds" in data &&
+    "nanoseconds" in data
+  ) {
+    return new Date(data.seconds * 1000).toISOString();
+  }
+
+  // Handle regular objects
+  if (typeof data === "object" && data.constructor === Object) {
+    const plain: any = {};
+    for (const key in data) {
+      plain[key] = toPlainObject(data[key]);
+    }
+    return plain;
+  }
+
+  // Return primitives as they are
+  return data;
 };
 
 export async function getRestaurant(): Promise<Restaurant> {

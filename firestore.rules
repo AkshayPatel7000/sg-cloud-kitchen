@@ -22,9 +22,10 @@ service cloud.firestore {
     }
     
     // Admin collection - allow admins to manage their own settings/FCM tokens
-    match /admin/{adminId} {
+    match /admins/{adminId} {
       allow read, write: if request.auth != null && request.auth.uid == adminId;
     }
+
 
     // Orders collection - allow customers to create orders
     match /orders/{orderId} {
