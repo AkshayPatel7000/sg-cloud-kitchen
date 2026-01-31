@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,12 +18,13 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Minus, Trash2, ArrowLeft, Save, Percent } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import type { Dish, OrderItem } from "@/lib/types";
+import type { Dish, OrderItem, Order } from "@/lib/types";
 import {
   collection,
   getDocs,
-  addDoc,
+  doc,
+  getDoc,
+  updateDoc,
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase/firestore";
@@ -33,7 +35,11 @@ import { sanitizeImageUrl } from "@/lib/image-utils";
 
 const TAX_RATE = 0.05;
 
-export default function NewOrderPage() {
+export default function EditOrderPage() {
+  const params = useParams();
+  const orderId = params.id as string;
+
+  const [order, setOrder] = useState<Order | null>(null);
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [customerName, setCustomerName] = useState("");
@@ -45,7 +51,7 @@ export default function NewOrderPage() {
   const [notes, setNotes] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isFetchingDishes, setIsFetchingDishes] = useState(true);
+  const [isFetchingData, setIsFetchingData] = useState(true);
   const [discountType, setDiscountType] = useState<"percentage" | "fixed">(
     "percentage",
   );
@@ -56,11 +62,49 @@ export default function NewOrderPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchDishes();
-  }, []);
+    if (orderId) {
+      fetchOrderAndDishes();
+    }
+  }, [orderId]);
 
-  const fetchDishes = async () => {
+  const fetchOrderAndDishes = async () => {
     try {
+      // Fetch order
+      const orderRef = doc(db, "orders", orderId);
+      const orderSnap = await getDoc(orderRef);
+
+      if (!orderSnap.exists()) {
+        toast({
+          title: "Error",
+          description: "Order not found",
+          variant: "destructive",
+        });
+        router.push("/admin/orders");
+        return;
+      }
+
+      const orderData = {
+        id: orderSnap.id,
+        ...orderSnap.data(),
+        createdAt: orderSnap.data().createdAt?.toDate() || new Date(),
+        updatedAt: orderSnap.data().updatedAt?.toDate() || new Date(),
+      } as Order;
+
+      setOrder(orderData);
+      setOrderItems(orderData.items);
+      setCustomerName(orderData.customerName || "");
+      setCustomerPhone(orderData.customerPhone || "");
+      setOrderType(orderData.orderType);
+      setTableNumber(orderData.tableNumber || "");
+      setNotes(orderData.notes || "");
+
+      // Set discount values if they exist
+      if (orderData.discount && orderData.discount > 0) {
+        setDiscountType(orderData.discountType || "percentage");
+        setDiscountValue(orderData.discountValue?.toString() || "");
+      }
+
+      // Fetch dishes
       const dishesRef = collection(db, "dishes");
       const querySnapshot = await getDocs(dishesRef);
       const fetchedDishes = querySnapshot.docs.map((doc) => ({
@@ -69,14 +113,14 @@ export default function NewOrderPage() {
       })) as Dish[];
       setDishes(fetchedDishes.filter((d) => d.isAvailable));
     } catch (error) {
-      console.error("Error fetching dishes:", error);
+      console.error("Error fetching data:", error);
       toast({
         title: "Error",
-        description: "Failed to load dishes",
+        description: "Failed to load order data",
         variant: "destructive",
       });
     } finally {
-      setIsFetchingDishes(false);
+      setIsFetchingData(false);
     }
   };
 
@@ -133,11 +177,9 @@ export default function NewOrderPage() {
 
     if (discountNum > 0) {
       if (discountType === "percentage") {
-        // Percentage discount (max 100%)
         const percentage = Math.min(discountNum, 100);
         discountAmount = (subtotal * percentage) / 100;
       } else {
-        // Fixed amount discount (max subtotal)
         discountAmount = Math.min(discountNum, subtotal);
       }
     }
@@ -147,13 +189,6 @@ export default function NewOrderPage() {
     const total = afterDiscount + tax;
 
     return { subtotal, discount: discountAmount, afterDiscount, tax, total };
-  };
-
-  const generateOrderNumber = async () => {
-    const ordersRef = collection(db, "orders");
-    const snapshot = await getDocs(ordersRef);
-    const orderCount = snapshot.size + 1;
-    return `ORD-${String(orderCount).padStart(4, "0")}`;
   };
 
   const handleSubmit = async () => {
@@ -169,7 +204,7 @@ export default function NewOrderPage() {
     if (!user) {
       toast({
         title: "Error",
-        description: "You must be logged in to create an order",
+        description: "You must be logged in to update an order",
         variant: "destructive",
       });
       return;
@@ -180,10 +215,8 @@ export default function NewOrderPage() {
     try {
       const { subtotal, discount, afterDiscount, tax, total } =
         calculateTotals();
-      const orderNumber = await generateOrderNumber();
 
       const orderData = {
-        orderNumber,
         customerName: customerName || null,
         customerPhone: customerPhone || null,
         items: orderItems,
@@ -193,30 +226,26 @@ export default function NewOrderPage() {
         discountValue: discount > 0 ? parseFloat(discountValue) : null,
         tax,
         total,
-        status: "pending",
         orderType,
         tableNumber: orderType === "dine-in" ? tableNumber : null,
         notes: notes || null,
-        createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-        createdBy: user.uid,
-        isPaid: false,
-        paymentMethod: null,
       };
 
-      const docRef = await addDoc(collection(db, "orders"), orderData);
+      const orderRef = doc(db, "orders", orderId);
+      await updateDoc(orderRef, orderData);
 
       toast({
         title: "Success",
-        description: `Order ${orderNumber} created successfully`,
+        description: `Order ${order?.orderNumber} updated successfully`,
       });
 
-      router.push(`/admin/orders/${docRef.id}`);
+      router.push(`/admin/orders/${orderId}`);
     } catch (error) {
-      console.error("Error creating order:", error);
+      console.error("Error updating order:", error);
       toast({
         title: "Error",
-        description: "Failed to create order",
+        description: "Failed to update order",
         variant: "destructive",
       });
     } finally {
@@ -230,19 +259,34 @@ export default function NewOrderPage() {
 
   const { subtotal, discount, afterDiscount, tax, total } = calculateTotals();
 
+  if (isFetchingData) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading order...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!order) {
+    return null;
+  }
+
   return (
     <div className="space-y-6 p-4 md:p-8">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link href="/admin/orders">
+        <Link href={`/admin/orders/${orderId}`}>
           <Button variant="ghost" size="icon">
             <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold">Create New Order</h1>
+          <h1 className="text-3xl font-bold">Edit Order {order.orderNumber}</h1>
           <p className="text-muted-foreground">
-            Add items and customer details
+            Modify order details and items
           </p>
         </div>
       </div>
@@ -260,82 +304,76 @@ export default function NewOrderPage() {
               />
             </CardHeader>
             <CardContent>
-              {isFetchingDishes ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[600px] overflow-y-auto">
-                  {filteredDishes.map((dish) => {
-                    const selectedItem = orderItems.find(
-                      (item) => item.dishId === dish.id,
-                    );
-                    const isSelected = !!selectedItem;
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[600px] overflow-y-auto">
+                {filteredDishes.map((dish) => {
+                  const selectedItem = orderItems.find(
+                    (item) => item.dishId === dish.id,
+                  );
+                  const isSelected = !!selectedItem;
 
-                    return (
-                      <Card
-                        key={dish.id}
-                        className={`cursor-pointer hover:shadow-md transition-all ${
-                          isSelected
-                            ? "border-2 border-green-500 bg-green-50 dark:bg-green-950/20"
-                            : "border"
-                        }`}
-                        onClick={() => addDishToOrder(dish)}
-                      >
-                        <CardContent className="p-3">
-                          <div className="flex gap-3">
-                            <div className="relative h-16 w-16 flex-shrink-0 rounded overflow-hidden">
-                              <Image
-                                src={sanitizeImageUrl(dish.imageUrl, "dish")}
-                                alt={dish.name}
-                                fill
-                                sizes="64px"
-                                className="object-cover"
-                              />
+                  return (
+                    <Card
+                      key={dish.id}
+                      className={`cursor-pointer hover:shadow-md transition-all ${
+                        isSelected
+                          ? "border-2 border-green-500 bg-green-50 dark:bg-green-950/20"
+                          : "border"
+                      }`}
+                      onClick={() => addDishToOrder(dish)}
+                    >
+                      <CardContent className="p-3">
+                        <div className="flex gap-3">
+                          <div className="relative h-16 w-16 flex-shrink-0 rounded overflow-hidden">
+                            <Image
+                              src={sanitizeImageUrl(dish.imageUrl, "dish")}
+                              alt={dish.name}
+                              fill
+                              sizes="64px"
+                              className="object-cover"
+                            />
+                            {isSelected && (
+                              <div className="absolute top-0 right-0 bg-green-500 text-white text-xs font-bold rounded-bl px-1.5 py-0.5">
+                                {selectedItem.quantity}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-grow">
+                            <div className="flex items-start justify-between gap-2">
+                              <h4 className="font-semibold text-sm">
+                                {dish.name}
+                              </h4>
                               {isSelected && (
-                                <div className="absolute top-0 right-0 bg-green-500 text-white text-xs font-bold rounded-bl px-1.5 py-0.5">
-                                  {selectedItem.quantity}
-                                </div>
+                                <Badge
+                                  variant="default"
+                                  className="bg-green-500 hover:bg-green-600 text-xs"
+                                >
+                                  ✓ Added
+                                </Badge>
                               )}
                             </div>
-                            <div className="flex-grow">
-                              <div className="flex items-start justify-between gap-2">
-                                <h4 className="font-semibold text-sm">
-                                  {dish.name}
-                                </h4>
-                                {isSelected && (
-                                  <Badge
-                                    variant="default"
-                                    className="bg-green-500 hover:bg-green-600 text-xs"
-                                  >
-                                    ✓ Added
-                                  </Badge>
-                                )}
-                              </div>
-                              <p className="text-xs text-muted-foreground line-clamp-1">
-                                {dish.description}
-                              </p>
-                              <div className="flex items-center gap-2 mt-1">
-                                <Badge
-                                  variant={
-                                    dish.isVeg ? "secondary" : "destructive"
-                                  }
-                                  className="text-xs"
-                                >
-                                  {dish.isVeg ? "🟢 Veg" : "🔴 Non-Veg"}
-                                </Badge>
-                                <span className="text-sm font-bold text-primary">
-                                  Rs.{dish.price.toFixed(2)}
-                                </span>
-                              </div>
+                            <p className="text-xs text-muted-foreground line-clamp-1">
+                              {dish.description}
+                            </p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge
+                                variant={
+                                  dish.isVeg ? "secondary" : "destructive"
+                                }
+                                className="text-xs"
+                              >
+                                {dish.isVeg ? "🟢 Veg" : "🔴 Non-Veg"}
+                              </Badge>
+                              <span className="text-sm font-bold text-primary">
+                                Rs.{dish.price.toFixed(2)}
+                              </span>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-              )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -550,12 +588,12 @@ export default function NewOrderPage() {
                 {isLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Creating...
+                    Updating...
                   </>
                 ) : (
                   <>
                     <Save className="mr-2 h-5 w-5" />
-                    Create Order
+                    Update Order
                   </>
                 )}
               </Button>

@@ -22,14 +22,31 @@ import type { Restaurant } from "@/lib/types";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  getDocs,
+} from "firebase/firestore";
+import { db } from "@/lib/firebase/firestore";
+import { useToast } from "@/hooks/use-toast";
 
 export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
   const { cart, updateQuantity, removeFromCart, clearCart, itemCount } =
     useCart();
   const [userName, setUserName] = useState("");
   const [showNameInput, setShowNameInput] = useState(false);
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+  const { toast } = useToast();
 
-  const handleCheckout = () => {
+  const generateOrderNumber = async () => {
+    const ordersRef = collection(db, "orders");
+    const snapshot = await getDocs(ordersRef);
+    const orderCount = snapshot.size + 1;
+    return `ORD-${String(orderCount).padStart(4, "0")}`;
+  };
+
+  const handleCheckout = async () => {
     if (!showNameInput) {
       setShowNameInput(true);
       return;
@@ -40,13 +57,70 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
       restaurant.whatsappNumber || restaurant.phone.replace(/[^0-9]/g, "");
 
     if (!whatsappNumber) {
-      alert(
-        "Restaurant WhatsApp number not configured. Please contact the restaurant directly.",
-      );
+      toast({
+        title: "Error",
+        description:
+          "Restaurant WhatsApp number not configured. Please contact the restaurant directly.",
+        variant: "destructive",
+      });
       return;
     }
 
-    sendCartViaWhatsApp(cart, whatsappNumber, userName || undefined);
+    setIsCreatingOrder(true);
+
+    try {
+      // Create order in Firestore
+      const orderNumber = await generateOrderNumber();
+
+      const orderData = {
+        orderNumber,
+        customerName: userName || "Customer",
+        customerPhone: null,
+        items: cart.items.map((item) => ({
+          dishId: item.dish.id,
+          dishName: item.dish.name,
+          quantity: item.quantity,
+          price: item.dish.price,
+          isVeg: item.dish.isVeg,
+        })),
+        subtotal: cart.subtotal,
+        discount: 0,
+        tax: cart.tax,
+        total: cart.total,
+        status: "pending",
+        orderType: "delivery",
+        notes: "Order placed via WhatsApp",
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        createdBy: "customer", // Mark as customer order
+        isPaid: false,
+        paymentMethod: null,
+      };
+
+      await addDoc(collection(db, "orders"), orderData);
+
+      toast({
+        title: "Order Created",
+        description: `Order ${orderNumber} has been created successfully!`,
+      });
+
+      // Send via WhatsApp
+      sendCartViaWhatsApp(cart, whatsappNumber, userName || undefined);
+
+      // Clear cart after successful order creation
+      setTimeout(() => {
+        clearCart();
+      }, 1000);
+    } catch (error) {
+      console.error("Error creating order:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create order. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCreatingOrder(false);
+    }
   };
 
   if (cart.items.length === 0) {
@@ -265,11 +339,25 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                   </div>
                 )}
 
-                <Button className="w-full" size="lg" onClick={handleCheckout}>
-                  <MessageCircle className="mr-2 h-5 w-5" />
-                  {showNameInput
-                    ? "Send Order via WhatsApp"
-                    : "Proceed to Checkout"}
+                <Button
+                  className="w-full"
+                  size="lg"
+                  onClick={handleCheckout}
+                  disabled={isCreatingOrder}
+                >
+                  {isCreatingOrder ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Creating Order...
+                    </>
+                  ) : (
+                    <>
+                      <MessageCircle className="mr-2 h-5 w-5" />
+                      {showNameInput
+                        ? "Send Order via WhatsApp"
+                        : "Proceed to Checkout"}
+                    </>
+                  )}
                 </Button>
 
                 <p className="text-xs text-center text-muted-foreground">

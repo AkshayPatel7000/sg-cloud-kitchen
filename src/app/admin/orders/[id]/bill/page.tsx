@@ -159,6 +159,26 @@ export default function BillPage() {
 
     // Totals
     bill += splitLine("Subtotal:", formatCurrency(order.subtotal)) + "\n";
+
+    // Discount (if applicable)
+    if (order.discount && order.discount > 0) {
+      let discountLabel = "Discount:";
+      if (order.discountType && order.discountValue) {
+        if (order.discountType === "percentage") {
+          discountLabel = `Discount (${order.discountValue}%):`;
+        } else {
+          discountLabel = "Discount:";
+        }
+      }
+      bill +=
+        splitLine(discountLabel, `- ${formatCurrency(order.discount)}`) + "\n";
+      bill +=
+        splitLine(
+          "After Discount:",
+          formatCurrency(order.subtotal - order.discount),
+        ) + "\n";
+    }
+
     bill += splitLine("GST (5%):", formatCurrency(order.tax)) + "\n";
     bill += separator("=") + "\n";
     bill += splitLine("TOTAL:", formatCurrency(order.total)) + "\n";

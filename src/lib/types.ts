@@ -100,6 +100,9 @@ export type Order = {
   customerPhone?: string;
   items: OrderItem[];
   subtotal: number;
+  discount?: number; // Discount amount applied
+  discountType?: "percentage" | "fixed"; // Type of discount
+  discountValue?: number; // Original discount value entered
   tax: number;
   total: number;
   status: OrderStatus;

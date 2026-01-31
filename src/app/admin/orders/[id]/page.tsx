@@ -297,6 +297,12 @@ export default function OrderDetailsPage() {
               Print Bill
             </Button>
           </Link>
+          <Link href={`/admin/orders/${orderId}/edit`}>
+            <Button variant="outline">
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Order
+            </Button>
+          </Link>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="destructive">
@@ -497,6 +503,37 @@ export default function OrderDetailsPage() {
                     Rs.{order.subtotal.toFixed(2)}
                   </span>
                 </div>
+                {/* Discount Display */}
+                {!!order.discount && order.discount > 0 && (
+                  <>
+                    <div className="flex justify-between text-sm text-green-600 dark:text-green-400">
+                      <span className="flex items-center gap-1">
+                        Discount
+                        {order.discountType && order.discountValue && (
+                          <span className="text-xs">
+                            (
+                            {order.discountType === "percentage"
+                              ? `${order.discountValue}%`
+                              : `Rs.${order.discountValue.toFixed(2)}`}
+                            )
+                          </span>
+                        )}
+                      </span>
+                      <span className="font-medium">
+                        - Rs.{order.discount.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">
+                        After Discount
+                      </span>
+                      <span className="font-medium">
+                        Rs.{(order.subtotal - order.discount).toFixed(2)}
+                      </span>
+                    </div>
+                  </>
+                )}
+
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Tax (GST 5%)</span>
                   <span className="font-medium">Rs.{order.tax.toFixed(2)}</span>
