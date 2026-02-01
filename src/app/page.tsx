@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Header } from "@/components/header";
 import { Hero } from "@/components/hero";
 import { MenuSection } from "@/components/menu-section";
@@ -5,12 +8,46 @@ import { OffersCarousel } from "@/components/offers-carousel";
 import { CartButton } from "@/components/cart-button";
 import { getRestaurant, getSectionItems } from "@/lib/data";
 import Link from "next/link";
+import { Restaurant, SectionItem } from "@/lib/types";
 
-export default async function Home() {
-  const restaurant = await getRestaurant();
-  const offers = await getSectionItems("offers");
-  const todaysSpecial = await getSectionItems("todaysSpecial");
-  const whatsNew = await getSectionItems("whatsNew");
+export default function Home() {
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
+  const [offers, setOffers] = useState<SectionItem[]>([]);
+  const [todaysSpecial, setTodaysSpecial] = useState<SectionItem[]>([]);
+  const [whatsNew, setWhatsNew] = useState<SectionItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [resData, offersData, specialData, newData] = await Promise.all([
+          getRestaurant(),
+          getSectionItems("offers"),
+          getSectionItems("todaysSpecial"),
+          getSectionItems("whatsNew"),
+        ]);
+
+        setRestaurant(resData);
+        setOffers(offersData);
+        setTodaysSpecial(specialData);
+        setWhatsNew(newData);
+      } catch (error) {
+        console.error("Error loading home data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
+
+  if (loading || !restaurant) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen">

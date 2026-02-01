@@ -1,16 +1,42 @@
-import { getCategories, getDishes } from "@/lib/data";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "./ui/accordion";
-import { DishListItem } from "./dish-list-item";
-import { MenuAccordionClient } from "./menu-accordion-client";
+"use client";
 
-export async function MenuSection() {
-  const categories = await getCategories();
-  const allDishes = await getDishes();
+import { useEffect, useState } from "react";
+import { getCategories, getDishes } from "@/lib/data";
+import { MenuAccordionClient } from "./menu-accordion-client";
+import { Category, Dish } from "@/lib/types";
+
+export function MenuSection() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [allDishes, setAllDishes] = useState<Dish[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadMenu() {
+      try {
+        const [categoriesData, dishesData] = await Promise.all([
+          getCategories(),
+          getDishes(),
+        ]);
+        setCategories(categoriesData);
+        setAllDishes(dishesData);
+      } catch (error) {
+        console.error("Error loading menu data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadMenu();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+        <p className="mt-4 text-sm text-muted-foreground">Loading menu...</p>
+      </div>
+    );
+  }
 
   if (!categories.length) {
     return (
