@@ -59,6 +59,13 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
   const handleCheckout = async () => {
     if (!showNameInput) {
       setShowNameInput(true);
+      // Scroll to bottom after state update to show inputs
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.documentElement.scrollHeight,
+          behavior: "smooth",
+        });
+      }, 100);
       return;
     }
 

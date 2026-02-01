@@ -128,12 +128,9 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
-  if (loading || !user) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+  // Don't show sidebar if we are definitely not logged in (redirecting)
+  if (!loading && !user) {
+    return null;
   }
 
   return (
@@ -145,7 +142,15 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
           </div>
         )}
         <AdminNav restaurant={restaurant} />
-        <SidebarInset className="flex-1">{children}</SidebarInset>
+        <SidebarInset className="flex-1">
+          {loading ? (
+            <div className="flex h-full min-h-[400px] w-full items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            children
+          )}
+        </SidebarInset>
       </div>
     </SidebarProvider>
   );

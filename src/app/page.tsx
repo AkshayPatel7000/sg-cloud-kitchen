@@ -4,6 +4,7 @@ import { MenuSection } from "@/components/menu-section";
 import { OffersCarousel } from "@/components/offers-carousel";
 import { CartButton } from "@/components/cart-button";
 import { getRestaurant, getSectionItems } from "@/lib/data";
+import Link from "next/link";
 
 export default async function Home() {
   const restaurant = await getRestaurant();
@@ -30,9 +31,9 @@ export default async function Home() {
             Reserved.
           </p>
           <div className="mt-2 text-[10px] opacity-20 hover:opacity-100 transition-opacity">
-            <a href="/admin" className="hover:underline">
+            <Link href="/admin" className="hover:underline">
               Admin Login
-            </a>
+            </Link>
           </div>
         </div>
       </footer>

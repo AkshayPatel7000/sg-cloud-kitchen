@@ -25,6 +25,7 @@ import {
 } from "../ui/sidebar";
 import { Logo } from "../logo";
 import type { AdminNavItem, Restaurant } from "@/lib/types";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -79,10 +80,10 @@ export function AdminNav({ restaurant }: { restaurant: Restaurant | null }) {
                   isActive={pathname === item.href}
                   className="justify-start"
                 >
-                  <a href={item.href}>
+                  <Link href={item.href}>
                     <item.icon className="h-4 w-4" />
                     <span>{item.label}</span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}

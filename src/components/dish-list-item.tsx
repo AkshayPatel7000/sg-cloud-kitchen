@@ -45,10 +45,10 @@ export function DishListItem({ dish }: { dish: Dish }) {
             size="sm"
             onClick={handleAddToCart}
             className="flex-shrink-0"
-            variant={justAdded ? "secondary" : "default"}
+            variant={isInCart || justAdded ? "secondary" : "default"}
             disabled={!isHydrated}
           >
-            {justAdded ? (
+            {isInCart || justAdded ? (
               <>
                 <Check className="mr-1 h-4 w-4" />
                 Added

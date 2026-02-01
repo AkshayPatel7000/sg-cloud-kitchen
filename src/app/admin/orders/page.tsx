@@ -380,7 +380,7 @@ export default function OrdersPage() {
                         <p className="font-medium text-primary">
                           Rs.{order.total.toFixed(2)}
                         </p>
-                        {order.discount && order.discount > 0 && (
+                        {!!order.discount && order.discount > 0 && (
                           <p className="text-xs text-green-600 dark:text-green-400">
                             (Discount: Rs.{order.discount.toFixed(2)})
                           </p>

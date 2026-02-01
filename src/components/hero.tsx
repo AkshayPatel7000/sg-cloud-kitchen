@@ -82,20 +82,32 @@ export function Hero({ restaurant }: { restaurant: Restaurant }) {
             </div>
             <div className="flex items-center gap-4">
               {restaurant.socialLinks.facebook && (
-                <a href={restaurant.socialLinks.facebook} aria-label="Facebook">
+                <a
+                  href={restaurant.socialLinks.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                >
                   <Facebook size={16} />
                 </a>
               )}
               {restaurant.socialLinks.instagram && (
                 <a
                   href={restaurant.socialLinks.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label="Instagram"
                 >
                   <Instagram size={16} />
                 </a>
               )}
               {restaurant.socialLinks.twitter && (
-                <a href={restaurant.socialLinks.twitter} aria-label="Twitter">
+                <a
+                  href={restaurant.socialLinks.twitter}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Twitter"
+                >
                   <Twitter size={16} />
                 </a>
               )}
