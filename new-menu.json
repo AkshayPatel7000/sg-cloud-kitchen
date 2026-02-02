@@ -1,0 +1,660 @@
+{
+  "categories": [
+    {
+      "name": "PIZZA",
+      "slug": "pizza",
+      "description": "",
+      "order": 1,
+      "isActive": true
+    },
+    {
+      "name": "PASTA",
+      "slug": "pasta",
+      "description": "",
+      "order": 2,
+      "isActive": true
+    },
+    {
+      "name": "BIRYANI",
+      "slug": "biryani",
+      "description": "",
+      "order": 3,
+      "isActive": true
+    },
+    {
+      "name": "RICE",
+      "slug": "rice",
+      "description": "",
+      "order": 4,
+      "isActive": true
+    },
+    {
+      "name": "[Veg preparation] Enjoy a wholesome, value for money special combo thali packed with ... read more",
+      "slug": "veg-preparation-enjoy-a-wholesome-value-for-money-special-combo-thali-packed-with-read-more",
+      "description": "",
+      "order": 5,
+      "isActive": true
+    },
+    {
+      "name": "FRIED RICE",
+      "slug": "fried-rice",
+      "description": "",
+      "order": 6,
+      "isActive": true
+    },
+    {
+      "name": "NOODLES",
+      "slug": "noodles",
+      "description": "",
+      "order": 7,
+      "isActive": true
+    },
+    {
+      "name": "[Veg preparation] Creamy cheesecake.",
+      "slug": "veg-preparation-creamy-cheesecake",
+      "description": "",
+      "order": 8,
+      "isActive": true
+    },
+    {
+      "name": "SG special rajma and jeera rice.",
+      "slug": "sg-special-rajma-and-jeera-rice",
+      "description": "",
+      "order": 11,
+      "isActive": true
+    },
+    {
+      "name": "Crispy vegetable balls tossed in a spicy and tangy Indo Chinese sauce for ... read more",
+      "slug": "crispy-vegetable-balls-tossed-in-a-spicy-and-tangy-indo-chinese-sauce-for-read-more",
+      "description": "",
+      "order": 12,
+      "isActive": true
+    },
+    {
+      "name": "Soft, golden paratha stuffed with spiced mashed potato, served with green chutney and ... read more",
+      "slug": "soft-golden-paratha-stuffed-with-spiced-mashed-potato-served-with-green-chutney-and-read-more",
+      "description": "",
+      "order": 13,
+      "isActive": true
+    },
+    {
+      "name": "Curry made with soft paneer cubes and tender green peas cooked in a ... read more",
+      "slug": "curry-made-with-soft-paneer-cubes-and-tender-green-peas-cooked-in-a-read-more",
+      "description": "",
+      "order": 14,
+      "isActive": true
+    }
+  ],
+  "dishes": [
+    {
+      "categoryId": "cat_pizza",
+      "name": "Delight Cheese Margherita Thin Crust Pizza",
+      "description": "Fresh dough, fresh marinara sauce. Marinara sauce, Mozzarella and fresh basil.",
+      "price": 217,
+      "isVeg": true,
+      "imageUrl": "https://b.zmtcdn.com/data/dish_photos/de4/30f52fedf8ddfc29594e132f3c50dde4.jpeg?fit=around|130:130&crop=130:130;*,*",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_pizza",
+      "name": "The Royal Thin Crust Pizza",
+      "description": "Fresh dough, fresh marinara sauce. Paneer, bell pepper, sweet corn and onion.",
+      "price": 263,
+      "isVeg": true,
+      "imageUrl": "https://b.zmtcdn.com/data/dish_photos/6fd/5f5cbb7f2daa504d51e5448465c2d6fd.jpeg?fit=around|130:130&crop=130:130;*,*",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_pizza",
+      "name": "SG Paneer Tikka Thin Crust Pizza",
+      "description": "Fresh dough, fresh marinara sauce. Special tikka sauce, tikka paneer and Mozzarella.",
+      "price": 275,
+      "isVeg": true,
+      "imageUrl": "https://b.zmtcdn.com/data/dish_photos/fb0/6acc5cfd6a15d0c49430a114c2193fb0.jpg?fit=around|130:130&crop=130:130;*,*",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_pizza",
+      "name": "All Veggie Delight Thin Crust Pizza",
+      "description": "Fresh dough and fresh marinara sauce. All veggies and cheese.",
+      "price": 309,
+      "isVeg": true,
+      "imageUrl": "https://b.zmtcdn.com/data/dish_photos/61a/8f9891dafc713b04a0e12b9c5111361a.jpg?fit=around|130:130&crop=130:130;*,*",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_pizza",
+      "name": "Exotic Cake Style Thin Crust Pizza",
+      "description": "Fresh dough, fresh marinara sauce. Cake style, exotic veggies and cheese.",
+      "price": 424,
+      "isVeg": true,
+      "imageUrl": "https://b.zmtcdn.com/data/dish_photos/33e/74007b057b9c2c4031b58d61cf79233e.jpg?fit=around|130:130&crop=130:130;*,*",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_pizza",
+      "name": "Five Cheese Lovers Thin Crust Pizza",
+      "description": "Fresh dough, fresh marinara sauce. Double base, filled cheese, Mozzarella, Indian cheese, english ...",
+      "price": 516,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_pizza",
+      "name": "The MBO Thin Crust Pizza",
+      "description": "Fresh dough and fresh marinara sauce. M - Mushroom, B- broccoli and O- black ...",
+      "price": 252,
+      "isVeg": true,
+      "imageUrl": "https://b.zmtcdn.com/data/dish_photos/75d/50ded0b543192ca52c268d0b6316f75d.jpg?fit=around|130:130&crop=130:130;*,*",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_pizza",
+      "name": "The CBO Thin Crust Pizza",
+      "description": "Fresh dough and fresh marinara sauce. C- Cherry Tomato, B-Broccoli and O - black ...",
+      "price": 252,
+      "isVeg": true,
+      "imageUrl": "https://b.zmtcdn.com/data/dish_photos/06e/fde28782725edd1fede512a45c8e606e.jpg?fit=around|130:130&crop=130:130;*,*",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_pasta",
+      "name": "Italian Red Sauce Pasta",
+      "description": "",
+      "price": 229,
+      "isVeg": true,
+      "imageUrl": "https://b.zmtcdn.com/data/dish_photos/87c/8ea485f3aba8e1c1d3d0eb0932c7987c.jpeg?fit=around|130:130&crop=130:130;*,*",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_pasta",
+      "name": "Aglio Olio Pasta",
+      "description": "Spaghetti, cherry tomato, fresh basil and parmesan cheese.",
+      "price": 252,
+      "isVeg": true,
+      "imageUrl": "https://b.zmtcdn.com/data/dish_photos/728/2bd4a47c09e085988a14e2a1bee24728.jpeg?fit=around|130:130&crop=130:130;*,*",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_pasta",
+      "name": "Alfredo White Sauce Pasta",
+      "description": "",
+      "price": 263,
+      "isVeg": true,
+      "imageUrl": "https://b.zmtcdn.com/data/dish_photos/29a/9660c37d31281888e26ec9b37fbdd29a.png?fit=around|130:130&crop=130:130;*,*",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_pasta",
+      "name": "Pink Sauce Pasta",
+      "description": "",
+      "price": 275,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_pasta",
+      "name": "SG Special Paneer Tikka Pasta",
+      "description": "Tikka special gravy, creamy, Indian cheese and penne pasta.",
+      "price": 309,
+      "isVeg": true,
+      "imageUrl": "https://b.zmtcdn.com/data/dish_photos/eba/b9d497e7c3893a51792b44c3e4fa0eba.png?fit=around|130:130&crop=130:130;*,*",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_pasta",
+      "name": "Double Cheese Bake Macaroni",
+      "description": "",
+      "price": 286,
+      "isVeg": true,
+      "imageUrl": "https://b.zmtcdn.com/data/dish_photos/076/86efcc613e5be664d2f3644d2a413076.jpg?fit=around|130:130&crop=130:130;*,*",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_biryani",
+      "name": "SG Special Soya Chaap Biryani (500ml)",
+      "description": "Fragrant basmati rice layered with juicy, spiced soya chaap, slow cooked to perfection ...",
+      "price": 399,
+      "isVeg": true,
+      "imageUrl": "https://b.zmtcdn.com/data/dish_photos/32f/02a3d2448e9c0454e1c8d6adaffb932f.jpeg?fit=around|130:130&crop=130:130;*,*",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_biryani",
+      "name": "Veg Biryani",
+      "description": "Aromatic basmati rice cooked with fresh garden vegetables, whole spices, herbs for a ...",
+      "price": 194,
+      "isVeg": true,
+      "imageUrl": "https://b.zmtcdn.com/data/dish_photos/00b/ac7e11185d90d61eca4e660c0620500b.png?fit=around|130:130&crop=130:130;*,*",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_rice",
+      "name": "Hing Tadka Khichdi",
+      "description": "Simple, nourishing lentils, rice tempered with aromatic hing, spices for a soothing and ...",
+      "price": 206,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_rice",
+      "name": "Butter Matar Khichdi",
+      "description": "Soft, wholesome lentils, rice cooked with peas, a touch of butter for a ...",
+      "price": 229,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_rice",
+      "name": "Spicy Paneer Double Tadka Khichdi",
+      "description": "Protein rich paneer, lentils cooked with rice, layered with double tempering of aromatic ...",
+      "price": 252,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_veg-preparation-enjoy-a-wholesome-value-for-money-special-combo-thali-packed-with-read-more",
+      "name": "SG Special Thali",
+      "description": "[Veg preparation] Enjoy a wholesome, value for money special combo thali packed with ...",
+      "price": 148,
+      "isVeg": true,
+      "imageUrl": "https://b.zmtcdn.com/data/dish_photos/896/9184c353330ff829208418a49b1a1896.png?fit=around|130:130&crop=130:130;*,*",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_veg-preparation-enjoy-a-wholesome-value-for-money-special-combo-thali-packed-with-read-more",
+      "name": "Thali - 199",
+      "description": "A complete North Indian thali with Jeera Rice, Dal Tadka, Matar Paneer gravy, ...",
+      "price": 198,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_veg-preparation-enjoy-a-wholesome-value-for-money-special-combo-thali-packed-with-read-more",
+      "name": "Thali -119",
+      "description": "Seasonal vegetable, slow-cooked dal, soft rotis (4pcs) or flaky parathas(2 pcs), and steamed ...",
+      "price": 119,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_veg-preparation-enjoy-a-wholesome-value-for-money-special-combo-thali-packed-with-read-more",
+      "name": "Sabji with Poori Thali",
+      "description": "Aloo Matar Sabji+6 Poori+Rice+Dal Fry+Achar+Papad+Gulab Jamun [1 Piece] [Subject to Availability]",
+      "price": 129,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_fried-rice",
+      "name": "Schezwan Fried Rice",
+      "description": "Fragrant rice stir fried with vegetables, fiery schezwan sauce for a spicy and ...",
+      "price": 206,
+      "isVeg": true,
+      "imageUrl": "https://www.zomato.com/indore/s-g-cloud-kitchen-vijay-nagar/order",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_noodles",
+      "name": "Veg Noodles",
+      "description": "Stir fried noodles tossed with fresh vegetables, savory sauce for a quick and ...",
+      "price": 171,
+      "isVeg": true,
+      "imageUrl": "https://www.zomato.com/indore/s-g-cloud-kitchen-vijay-nagar/order",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_noodles",
+      "name": "Schezwan Noodles",
+      "description": "Spicy, tangy noodles tossed with vegetables in bold schezwan sauce for a fiery ...",
+      "price": 183,
+      "isVeg": true,
+      "imageUrl": "https://www.zomato.com/indore/s-g-cloud-kitchen-vijay-nagar/order",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_veg-preparation-creamy-cheesecake",
+      "name": "Strawberry Cheesecake [1 Piece]",
+      "description": "[Veg preparation] Creamy cheesecake.",
+      "price": 321,
+      "isVeg": true,
+      "imageUrl": "https://www.zomato.com/indore/s-g-cloud-kitchen-vijay-nagar/order",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_veg-preparation-creamy-cheesecake",
+      "name": "Lotus Biscoff Cheesecake [1 Piece]",
+      "description": "[Veg preparation]",
+      "price": 321,
+      "isVeg": true,
+      "imageUrl": "https://www.zomato.com/indore/s-g-cloud-kitchen-vijay-nagar/order",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_veg-preparation-creamy-cheesecake",
+      "name": "Classic Cheesecake [1 Piece]",
+      "description": "[Veg preparation]",
+      "price": 286,
+      "isVeg": true,
+      "imageUrl": "https://www.zomato.com/indore/s-g-cloud-kitchen-vijay-nagar/order",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_veg-preparation-creamy-cheesecake",
+      "name": "Nutella Cheesecake [1 Piece]",
+      "description": "[Veg preparation]",
+      "price": 321,
+      "isVeg": true,
+      "imageUrl": "https://www.zomato.com/indore/s-g-cloud-kitchen-vijay-nagar/order",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_veg-preparation-creamy-cheesecake",
+      "name": "Blue Berry Cheesecake [1 Piece]",
+      "description": "Creamy cheesecake.",
+      "price": 321,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_veg-preparation-creamy-cheesecake",
+      "name": "Chocolate Cheesecake",
+      "description": "[Veg preparation]",
+      "price": 299,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_veg-preparation-creamy-cheesecake",
+      "name": "Gulab Jamun [2 Pcs]",
+      "description": "",
+      "price": 60,
+      "isVeg": true,
+      "imageUrl": "https://www.zomato.com/indore/s-g-cloud-kitchen-vijay-nagar/order",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_sg-special-rajma-and-jeera-rice",
+      "name": "Kidney Beans Rice Bowl",
+      "description": "SG special rajma and jeera rice.",
+      "price": 217,
+      "isVeg": true,
+      "imageUrl": "https://www.zomato.com/indore/s-g-cloud-kitchen-vijay-nagar/order",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_sg-special-rajma-and-jeera-rice",
+      "name": "Spicy Paneer Rice Bowl",
+      "description": "Fried rice, spicy paneer, chatpata curd and cucumber.",
+      "price": 286,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_sg-special-rajma-and-jeera-rice",
+      "name": "Plain Hummus and Pita Bowl",
+      "description": "Base of hummus served with pita bread and various toppings",
+      "price": 286,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_sg-special-rajma-and-jeera-rice",
+      "name": "Flavoured Hummus and Pita Bowl",
+      "description": "Hot spicy flavored. Base of hummus served with pita bread and various toppings.",
+      "price": 286,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_sg-special-rajma-and-jeera-rice",
+      "name": "Classic Hummus and Pita Bowl",
+      "description": "Base of hummus served with pita bread and various toppings.",
+      "price": 286,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_sg-special-rajma-and-jeera-rice",
+      "name": "Hot Spicy Hummus and Pita Bowl",
+      "description": "",
+      "price": 286,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_crispy-vegetable-balls-tossed-in-a-spicy-and-tangy-indo-chinese-sauce-for-read-more",
+      "name": "Veg Manchurian",
+      "description": "Crispy vegetable balls tossed in a spicy and tangy Indo Chinese sauce for ...",
+      "price": 217,
+      "isVeg": true,
+      "imageUrl": "https://www.zomato.com/indore/s-g-cloud-kitchen-vijay-nagar/order",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_crispy-vegetable-balls-tossed-in-a-spicy-and-tangy-indo-chinese-sauce-for-read-more",
+      "name": "Honey Chilli Potato",
+      "description": "Crispy potato strips tossed in a sweet and spicy sauce for a perfect ...",
+      "price": 217,
+      "isVeg": true,
+      "imageUrl": "https://www.zomato.com/indore/s-g-cloud-kitchen-vijay-nagar/order",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_crispy-vegetable-balls-tossed-in-a-spicy-and-tangy-indo-chinese-sauce-for-read-more",
+      "name": "Mushroom Chilli",
+      "description": "Crispy mushrooms tossed in a spicy, tangy Indo Chinese sauce for a bold ...",
+      "price": 229,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_crispy-vegetable-balls-tossed-in-a-spicy-and-tangy-indo-chinese-sauce-for-read-more",
+      "name": "Chilli Paneer",
+      "description": "Crispy paneer tossed in a spicy, tangy Indo Chinese sauce for a bold ...",
+      "price": 252,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_soft-golden-paratha-stuffed-with-spiced-mashed-potato-served-with-green-chutney-and-read-more",
+      "name": "Aloo Paratha",
+      "description": "Soft, golden paratha stuffed with spiced mashed potato, served with green chutney and ...",
+      "price": 68,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_soft-golden-paratha-stuffed-with-spiced-mashed-potato-served-with-green-chutney-and-read-more",
+      "name": "Gobi Paratha",
+      "description": "Wholesome paratha filled with mildly spiced grated cauliflower, served with green chutney, curd ...",
+      "price": 68,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_soft-golden-paratha-stuffed-with-spiced-mashed-potato-served-with-green-chutney-and-read-more",
+      "name": "Onion Sev Paratha",
+      "description": "Crispy onion, sev stuffed paratha packed with flavor, served with green chutney, curd ...",
+      "price": 68,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_soft-golden-paratha-stuffed-with-spiced-mashed-potato-served-with-green-chutney-and-read-more",
+      "name": "Paneer Paratha",
+      "description": "Rich, filling paratha stuffed with seasoned paneer, served with green chutney, curd and ...",
+      "price": 79,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_soft-golden-paratha-stuffed-with-spiced-mashed-potato-served-with-green-chutney-and-read-more",
+      "name": "Tawa Butter Roti",
+      "description": "",
+      "price": 15,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_soft-golden-paratha-stuffed-with-spiced-mashed-potato-served-with-green-chutney-and-read-more",
+      "name": "Plain Paratha",
+      "description": "",
+      "price": 25,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_curry-made-with-soft-paneer-cubes-and-tender-green-peas-cooked-in-a-read-more",
+      "name": "SG Special Matar Paneer",
+      "description": "Curry made with soft paneer cubes and tender green peas cooked in a ...",
+      "price": 199,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_curry-made-with-soft-paneer-cubes-and-tender-green-peas-cooked-in-a-read-more",
+      "name": "SG Special Chole Paneer",
+      "description": "",
+      "price": 189,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_curry-made-with-soft-paneer-cubes-and-tender-green-peas-cooked-in-a-read-more",
+      "name": "SG Special Mix Veg",
+      "description": "",
+      "price": 199,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_curry-made-with-soft-paneer-cubes-and-tender-green-peas-cooked-in-a-read-more",
+      "name": "Special Rajma",
+      "description": "",
+      "price": 159,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_curry-made-with-soft-paneer-cubes-and-tender-green-peas-cooked-in-a-read-more",
+      "name": "Dal Tadka",
+      "description": "",
+      "price": 129,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_curry-made-with-soft-paneer-cubes-and-tender-green-peas-cooked-in-a-read-more",
+      "name": "Dal Fry",
+      "description": "",
+      "price": 119,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_curry-made-with-soft-paneer-cubes-and-tender-green-peas-cooked-in-a-read-more",
+      "name": "SG Special Soya Chaap Masala",
+      "description": "",
+      "price": 199,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    },
+    {
+      "categoryId": "cat_curry-made-with-soft-paneer-cubes-and-tender-green-peas-cooked-in-a-read-more",
+      "name": "SG Special Sev Tamatar",
+      "description": "",
+      "price": 149,
+      "isVeg": true,
+      "imageUrl": "",
+      "isAvailable": true,
+      "tags": []
+    }
+  ]
+}

@@ -57,26 +57,28 @@ export async function getRestaurant(): Promise<Restaurant> {
       return toPlainObject(docSnap.data()) as Restaurant;
     } else {
       return {
-        name: "Gastronomic Gateway",
-        logoUrl: "/default-logo.png",
+        name: "SG Cloud Kitchen",
+        logoUrl: "/logo.png",
         tagline: "A delightful culinary experience.",
-        address: "123 Epicurean Ave, Flavor Town, 12345",
-        phone: "555-123-4567",
-        email: "contact@gastronomicgateway.com",
-        openingHours: "Mon-Sat: 11am - 10pm, Sun: 12pm - 9pm",
+        address:
+          "Plot 213, Shraddha Shri Colony, New Malviya Nagar, Near Vijay Nagar, Indore",
+        phone: "744-044-0128",
+        email: "sgclaidk2025@gmail.com",
+        openingHours: "Mon-Sat: 11am - 3am",
         socialLinks: { facebook: "#", instagram: "#", twitter: "#" },
       };
     }
   } catch (error) {
     console.error("Error fetching restaurant data, returning fallback.", error);
     return {
-      name: "Gastronomic Gateway",
-      logoUrl: "/default-logo.png",
+      name: "SG Cloud Kitchen",
+      logoUrl: "/logo.png",
       tagline: "A delightful culinary experience.",
-      address: "123 Epicurean Ave, Flavor Town, 12345",
-      phone: "555-123-4567",
-      email: "contact@gastronomicgateway.com",
-      openingHours: "Mon-Sat: 11am - 10pm, Sun: 12pm - 9pm",
+      address:
+        "Plot 213, Shraddha Shri Colony, New Malviya Nagar, Near Vijay Nagar, Indore",
+      phone: "744-044-0128",
+      email: "sgclaidk2025@gmail.com",
+      openingHours: "Mon-Sat: 11am - 3am",
       socialLinks: { facebook: "#", instagram: "#", twitter: "#" },
     };
   }
