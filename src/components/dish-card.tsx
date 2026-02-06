@@ -29,7 +29,9 @@ export function DishCard({ dish }: { dish: Dish }) {
           <div className="flex items-center gap-2">
             <VegNonVegIcon isVeg={dish.isVeg} />
             <p className="text-lg font-bold text-primary whitespace-nowrap">
-              Rs.{dish.price.toFixed(2)}
+              {dish.variants && dish.variants.length > 0
+                ? `Starts Rs.${Math.min(...dish.variants.map((v) => v.price)).toFixed(2)}`
+                : `Rs.${dish.price.toFixed(2)}`}
             </p>
           </div>
         </div>

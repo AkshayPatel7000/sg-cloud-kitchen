@@ -66,7 +66,7 @@ const categorySchema = z.object({
   slug: z
     .string()
     .min(1, "Slug is required")
-    .regex(/^[a-z0-9-]+$/, "Slug must be lowercase with dashes"),
+    .regex(/^[a-z0-9-_]+$/, "Slug must be lowercase with dashes"),
   description: z.string().optional(),
   order: z.coerce.number().int(),
   isActive: z.boolean(),

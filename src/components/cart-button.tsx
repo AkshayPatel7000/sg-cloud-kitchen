@@ -60,9 +60,9 @@ export function CartButton() {
             <>
               {/* Cart Items */}
               <div className="space-y-4">
-                {cart.items.map((item) => (
+                {cart.items.map((item, index) => (
                   <div
-                    key={item.dish.id}
+                    key={`${item.dish.id}-${item.variantId || "default"}-${index}`}
                     className="flex gap-4 p-4 border rounded-lg relative"
                   >
                     <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md">
@@ -77,9 +77,17 @@ export function CartButton() {
                     <div className="flex-grow">
                       <h4 className="font-semibold text-sm">
                         {item.dish.name}
+                        {item.variantName && (
+                          <Badge
+                            variant="outline"
+                            className="ml-1 text-[10px] h-4 px-1"
+                          >
+                            {item.variantName}
+                          </Badge>
+                        )}
                       </h4>
                       <p className="text-sm text-primary font-bold mt-1">
-                        Rs.{item.dish.price.toFixed(2)}
+                        Rs.{item.price.toFixed(2)}
                       </p>
                       <div className="flex items-center gap-2 mt-2">
                         <Button
@@ -87,7 +95,11 @@ export function CartButton() {
                           size="icon"
                           className="h-7 w-7"
                           onClick={() =>
-                            updateQuantity(item.dish.id, item.quantity - 1)
+                            updateQuantity(
+                              item.dish.id,
+                              item.quantity - 1,
+                              item.variantId,
+                            )
                           }
                         >
                           <Minus className="h-3 w-3" />
@@ -100,7 +112,11 @@ export function CartButton() {
                           size="icon"
                           className="h-7 w-7"
                           onClick={() =>
-                            updateQuantity(item.dish.id, item.quantity + 1)
+                            updateQuantity(
+                              item.dish.id,
+                              item.quantity + 1,
+                              item.variantId,
+                            )
                           }
                         >
                           <Plus className="h-3 w-3" />
@@ -112,12 +128,14 @@ export function CartButton() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8"
-                        onClick={() => removeFromCart(item.dish.id)}
+                        onClick={() =>
+                          removeFromCart(item.dish.id, item.variantId)
+                        }
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
                       <p className="text-sm font-bold">
-                        Rs.{(item.dish.price * item.quantity).toFixed(2)}
+                        Rs.{(item.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   </div>

@@ -469,7 +469,14 @@ export default function OrderDetailsPage() {
                   >
                     <div className="flex-grow">
                       <div className="flex items-center gap-2">
-                        <h4 className="font-semibold">{item.dishName}</h4>
+                        <h4 className="font-semibold">
+                          {item.dishName}
+                          {item.variantName && (
+                            <span className="ml-1 text-xs text-muted-foreground font-normal">
+                              ({item.variantName})
+                            </span>
+                          )}
+                        </h4>
                         <Badge
                           variant={item.isVeg ? "secondary" : "destructive"}
                           className="text-xs"
@@ -594,7 +601,9 @@ export default function OrderDetailsPage() {
                     className="flex justify-between text-xs text-muted-foreground"
                   >
                     <span>
-                      {item.dishName} × {item.quantity}
+                      {item.dishName}
+                      {item.variantName ? ` (${item.variantName})` : ""} ×{" "}
+                      {item.quantity}
                     </span>
                     <span>Rs.{(item.price * item.quantity).toFixed(2)}</span>
                   </div>

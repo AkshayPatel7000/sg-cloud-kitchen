@@ -25,6 +25,7 @@ import {
   Search,
   Flame,
   Star,
+  X,
 } from "lucide-react";
 import Image from "next/image";
 import { useState, useMemo } from "react";
@@ -45,7 +46,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
@@ -75,15 +76,22 @@ import { ImageUpload } from "@/components/image-upload";
 import { Checkbox } from "@/components/ui/checkbox";
 import { sanitizeImageUrl } from "@/lib/image-utils";
 
+const variantSchema = z.object({
+  id: z.string().min(1, "ID is required"),
+  name: z.string().min(1, "Variant name is required"),
+  price: z.coerce.number().positive("Price must be positive"),
+});
+
 const dishSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().min(1, "Description is required"),
   imageUrl: z.string().url("Must be a valid URL"),
-  price: z.coerce.number().positive("Price must be positive"),
+  price: z.coerce.number().min(0, "Price must be 0 or more"),
   categoryId: z.string().min(1, "Category is required"),
   isVeg: z.boolean(),
   isAvailable: z.boolean(),
   tags: z.array(z.enum(["spicy", "bestseller"])).optional(),
+  variants: z.array(variantSchema).optional(),
 });
 
 type DishFormValues = z.infer<typeof dishSchema>;
@@ -110,7 +118,13 @@ function DishForm({
       isVeg: currentDish?.isVeg ?? true,
       isAvailable: currentDish?.isAvailable ?? true,
       tags: currentDish?.tags ?? [],
+      variants: currentDish?.variants ?? [],
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "variants",
   });
 
   const onSubmit = async (data: DishFormValues) => {
@@ -304,7 +318,81 @@ function DishForm({
             )}
           />
         </div>
-        <Button type="submit">Save</Button>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <FormLabel className="text-base">Variants</FormLabel>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                append({
+                  id: Math.random().toString(36).substr(2, 9),
+                  name: "",
+                  price: 0,
+                })
+              }
+            >
+              <PlusCircle className="mr-2 h-4 w-4" /> Add Variant
+            </Button>
+          </div>
+          <p className="text-[0.8rem] text-muted-foreground">
+            Add variants like size, quantity, etc. (e.g., 8", 10", Half, Full)
+          </p>
+          <div className="space-y-3">
+            {fields.map((field, index) => (
+              <div
+                key={field.id}
+                className="flex gap-4 items-end border p-3 rounded-lg relative group"
+              >
+                <FormField
+                  control={form.control}
+                  name={`variants.${index}.name`}
+                  render={({ field }) => (
+                    <FormItem className="flex-grow">
+                      <FormLabel className="text-xs">Variant Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. 8 inches" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={`variants.${index}.price`}
+                  render={({ field }) => (
+                    <FormItem className="w-24">
+                      <FormLabel className="text-xs">Price</FormLabel>
+                      <FormControl>
+                        <Input type="number" step="1" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 text-muted-foreground hover:text-destructive"
+                  onClick={() => remove(index)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+            {fields.length === 0 && (
+              <div className="text-center py-4 border border-dashed rounded-lg text-muted-foreground text-sm">
+                No variants added.
+              </div>
+            )}
+          </div>
+        </div>
+
+        <Button type="submit" className="w-full">
+          Save Dish
+        </Button>
       </form>
     </Form>
   );
@@ -478,6 +566,16 @@ export function DishesClient({
                           )}
                         </div>
                       </div>
+                      {dish.variants && dish.variants.length > 0 && (
+                        <div className="flex gap-1 items-center">
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] h-4 py-0 px-1"
+                          >
+                            {dish.variants.length} variants
+                          </Badge>
+                        </div>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell>{getCategoryName(dish.categoryId)}</TableCell>
@@ -489,8 +587,22 @@ export function DishesClient({
                       {dish.isAvailable ? "Available" : "Unavailable"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right">
-                    Rs.{dish.price.toFixed(2)}
+                  <TableCell className="text-right whitespace-nowrap">
+                    {dish.variants && dish.variants.length > 0 ? (
+                      <div className="flex flex-col items-end">
+                        <span className="text-[10px] text-muted-foreground leading-none mb-0.5">
+                          Starts from
+                        </span>
+                        <span>
+                          Rs.
+                          {Math.min(
+                            ...dish.variants.map((v) => v.price),
+                          ).toFixed(2)}
+                        </span>
+                      </div>
+                    ) : (
+                      `Rs.${dish.price.toFixed(2)}`
+                    )}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>

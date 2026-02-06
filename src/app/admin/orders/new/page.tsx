@@ -13,6 +13,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Minus, Trash2, ArrowLeft, Save, Percent } from "lucide-react";
@@ -53,6 +60,9 @@ export default function NewOrderPage() {
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [discountValue, setDiscountValue] = useState<string>("");
 
+  const [selectedDishForVariants, setSelectedDishForVariants] =
+    useState<Dish | null>(null);
+
   const router = useRouter();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -92,13 +102,21 @@ export default function NewOrderPage() {
     }
   };
 
-  const addDishToOrder = (dish: Dish) => {
-    const existingItem = orderItems.find((item) => item.dishId === dish.id);
+  const addDishToOrder = (dish: Dish, variant?: any) => {
+    // If dish has variants and none is selected, don't add yet (handled by UI calling this with variant)
+    if (dish.variants && dish.variants.length > 0 && !variant) {
+      setSelectedDishForVariants(dish);
+      return;
+    }
+
+    const existingItem = orderItems.find(
+      (item) => item.dishId === dish.id && item.variantId === variant?.id,
+    );
 
     if (existingItem) {
       setOrderItems(
         orderItems.map((item) =>
-          item.dishId === dish.id
+          item.dishId === dish.id && item.variantId === variant?.id
             ? { ...item, quantity: item.quantity + 1 }
             : item,
         ),
@@ -110,27 +128,32 @@ export default function NewOrderPage() {
           dishId: dish.id,
           dishName: dish.name,
           quantity: 1,
-          price: dish.price,
+          price: variant ? variant.price : dish.price,
           isVeg: dish.isVeg,
+          variantId: variant?.id,
+          variantName: variant?.name,
         },
       ]);
     }
+
+    // Close variants dialog if it was open
+    if (selectedDishForVariants) {
+      setSelectedDishForVariants(null);
+    }
   };
 
-  const updateQuantity = (dishId: string, quantity: number) => {
+  const updateQuantity = (index: number, quantity: number) => {
     if (quantity <= 0) {
-      removeItem(dishId);
+      removeItem(index);
       return;
     }
     setOrderItems(
-      orderItems.map((item) =>
-        item.dishId === dishId ? { ...item, quantity } : item,
-      ),
+      orderItems.map((item, i) => (i === index ? { ...item, quantity } : item)),
     );
   };
 
-  const removeItem = (dishId: string) => {
-    setOrderItems(orderItems.filter((item) => item.dishId !== dishId));
+  const removeItem = (index: number) => {
+    setOrderItems(orderItems.filter((_, i) => i !== index));
   };
 
   const calculateTotals = () => {
@@ -314,10 +337,10 @@ export default function NewOrderPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[600px] overflow-y-auto">
                   {filteredDishes.map((dish) => {
-                    const selectedItem = orderItems.find(
-                      (item) => item.dishId === dish.id,
-                    );
-                    const isSelected = !!selectedItem;
+                    const itemCount = orderItems
+                      .filter((item) => item.dishId === dish.id)
+                      .reduce((sum, item) => sum + item.quantity, 0);
+                    const isSelected = itemCount > 0;
 
                     return (
                       <Card
@@ -341,7 +364,7 @@ export default function NewOrderPage() {
                               />
                               {isSelected && (
                                 <div className="absolute top-0 right-0 bg-green-500 text-white text-xs font-bold rounded-bl px-1.5 py-0.5">
-                                  {selectedItem.quantity}
+                                  {itemCount}
                                 </div>
                               )}
                             </div>
@@ -372,7 +395,9 @@ export default function NewOrderPage() {
                                   {dish.isVeg ? "🟢 Veg" : "🔴 Non-Veg"}
                                 </Badge>
                                 <span className="text-sm font-bold text-primary">
-                                  Rs.{dish.price.toFixed(2)}
+                                  {dish.variants && dish.variants.length > 0
+                                    ? `Starts Rs.${Math.min(...dish.variants.map((v) => v.price)).toFixed(2)}`
+                                    : `Rs.${dish.price.toFixed(2)}`}
                                 </span>
                               </div>
                             </div>
@@ -386,6 +411,40 @@ export default function NewOrderPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Variant Selection Dialog */}
+        <Dialog
+          open={!!selectedDishForVariants}
+          onOpenChange={(open: boolean) =>
+            !open && setSelectedDishForVariants(null)
+          }
+        >
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Select Variant</DialogTitle>
+              <DialogDescription>
+                Choose a size or option for {selectedDishForVariants?.name}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              {selectedDishForVariants?.variants?.map((variant) => (
+                <Button
+                  key={variant.id}
+                  variant="outline"
+                  className="flex justify-between items-center h-14"
+                  onClick={() =>
+                    addDishToOrder(selectedDishForVariants, variant)
+                  }
+                >
+                  <span className="font-semibold">{variant.name}</span>
+                  <span className="text-primary">
+                    Rs.{variant.price.toFixed(2)}
+                  </span>
+                </Button>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Right: Order Summary */}
         <div className="space-y-4">
@@ -469,13 +528,20 @@ export default function NewOrderPage() {
                 </p>
               ) : (
                 <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                  {orderItems.map((item) => (
+                  {orderItems.map((item, index) => (
                     <div
-                      key={item.dishId}
+                      key={`${item.dishId}-${item.variantId || "default"}-${index}`}
                       className="flex items-center justify-between p-2 border rounded"
                     >
                       <div className="flex-grow">
-                        <p className="font-medium text-sm">{item.dishName}</p>
+                        <p className="font-medium text-sm">
+                          {item.dishName}
+                          {item.variantName && (
+                            <span className="ml-1 text-xs text-muted-foreground">
+                              ({item.variantName})
+                            </span>
+                          )}
+                        </p>
                         <p className="text-xs text-muted-foreground">
                           Rs.{item.price.toFixed(2)} each
                         </p>
@@ -486,7 +552,7 @@ export default function NewOrderPage() {
                           size="icon"
                           className="h-7 w-7"
                           onClick={() =>
-                            updateQuantity(item.dishId, item.quantity - 1)
+                            updateQuantity(index, item.quantity - 1)
                           }
                         >
                           <Minus className="h-3 w-3" />
@@ -499,7 +565,7 @@ export default function NewOrderPage() {
                           size="icon"
                           className="h-7 w-7"
                           onClick={() =>
-                            updateQuantity(item.dishId, item.quantity + 1)
+                            updateQuantity(index, item.quantity + 1)
                           }
                         >
                           <Plus className="h-3 w-3" />
@@ -508,7 +574,7 @@ export default function NewOrderPage() {
                           variant="ghost"
                           size="icon"
                           className="h-7 w-7"
-                          onClick={() => removeItem(item.dishId)}
+                          onClick={() => removeItem(index)}
                         >
                           <Trash2 className="h-3 w-3 text-destructive" />
                         </Button>

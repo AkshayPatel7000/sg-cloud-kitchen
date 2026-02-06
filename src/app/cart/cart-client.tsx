@@ -102,13 +102,17 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
         orderNumber,
         customerName: userName || "Customer",
         customerPhone: userPhone || null,
-        items: cart.items.map((item) => ({
-          dishId: item.dish.id,
-          dishName: item.dish.name,
-          quantity: item.quantity,
-          price: item.dish.price,
-          isVeg: item.dish.isVeg,
-        })),
+        items: cart.items.map((item) => {
+          return {
+            dishId: item.dish.id,
+            dishName: item.dish.name,
+            quantity: item.quantity,
+            price: item.price,
+            isVeg: item.dish.isVeg,
+            variantId: item.variantId,
+            variantName: item.variantName,
+          };
+        }),
         subtotal: cart.subtotal,
         discount: 0,
         tax: cart.tax,
@@ -246,90 +250,109 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
             </div>
 
             <div className="space-y-4">
-              {cart.items.map((item) => (
-                <Card key={item.dish.id}>
-                  <CardContent className="p-4">
-                    <div className="flex gap-4">
-                      <div className="relative h-24 w-24 sm:h-32 sm:w-32 flex-shrink-0 overflow-hidden rounded-md">
-                        <Image
-                          src={sanitizeImageUrl(item.dish.imageUrl, "dish")}
-                          alt={item.dish.name}
-                          fill
-                          sizes="(max-width: 640px) 96px, 128px"
-                          className="object-cover"
-                        />
-                      </div>
-                      <div className="flex-grow">
-                        <div className="flex justify-between items-start gap-4">
-                          <div>
-                            <h3 className="font-semibold text-lg">
-                              {item.dish.name}
-                            </h3>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {item.dish.description}
-                            </p>
-                            <div className="flex items-center gap-2 mt-2">
-                              <VegNonVegIcon isVeg={item.dish.isVeg} />
-                              {item.dish.tags.map((tag) => (
-                                <Badge
-                                  key={tag}
-                                  variant="secondary"
-                                  className="text-xs"
-                                >
-                                  {tag}
-                                </Badge>
-                              ))}
+              {cart.items.map((item, index) => {
+                return (
+                  <Card
+                    key={`${item.dish.id}-${item.variantId || "default"}-${index}`}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex gap-4">
+                        <div className="relative h-24 w-24 sm:h-32 sm:w-32 flex-shrink-0 overflow-hidden rounded-md">
+                          <Image
+                            src={sanitizeImageUrl(item.dish.imageUrl, "dish")}
+                            alt={item.dish.name}
+                            fill
+                            sizes="(max-width: 640px) 96px, 128px"
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex-grow">
+                          <div className="flex justify-between items-start gap-4">
+                            <div>
+                              <h3 className="font-semibold text-lg flex items-center gap-2">
+                                {item.dish.name}
+                                {item.variantName && (
+                                  <Badge variant="outline" className="text-xs">
+                                    {item.variantName}
+                                  </Badge>
+                                )}
+                              </h3>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {item.dish.description}
+                              </p>
+                              <div className="flex items-center gap-2 mt-2">
+                                <VegNonVegIcon isVeg={item.dish.isVeg} />
+                                {item.dish.tags.map((tag) => (
+                                  <Badge
+                                    key={tag}
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
+                                    {tag}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() =>
+                                removeFromCart(item.dish.id, item.variantId)
+                              }
+                              className="flex-shrink-0"
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                          <div className="flex justify-between items-center mt-4">
+                            <div className="flex items-center gap-3">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() =>
+                                  updateQuantity(
+                                    item.dish.id,
+                                    item.quantity - 1,
+                                    item.variantId,
+                                  )
+                                }
+                              >
+                                <Minus className="h-4 w-4" />
+                              </Button>
+                              <span className="font-medium w-12 text-center">
+                                {item.quantity}
+                              </span>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() =>
+                                  updateQuantity(
+                                    item.dish.id,
+                                    item.quantity + 1,
+                                    item.variantId,
+                                  )
+                                }
+                              >
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm text-muted-foreground">
+                                Rs.{item.price.toFixed(2)} × {item.quantity}
+                              </p>
+                              <p className="text-lg font-bold text-primary">
+                                Rs.{(item.price * item.quantity).toFixed(2)}
+                              </p>
                             </div>
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeFromCart(item.dish.id)}
-                            className="flex-shrink-0"
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
-                        <div className="flex justify-between items-center mt-4">
-                          <div className="flex items-center gap-3">
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() =>
-                                updateQuantity(item.dish.id, item.quantity - 1)
-                              }
-                            >
-                              <Minus className="h-4 w-4" />
-                            </Button>
-                            <span className="font-medium w-12 text-center">
-                              {item.quantity}
-                            </span>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() =>
-                                updateQuantity(item.dish.id, item.quantity + 1)
-                              }
-                            >
-                              <Plus className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm text-muted-foreground">
-                              Rs.{item.dish.price.toFixed(2)} × {item.quantity}
-                            </p>
-                            <p className="text-lg font-bold text-primary">
-                              Rs.{(item.dish.price * item.quantity).toFixed(2)}
-                            </p>
-                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </div>
 
@@ -375,16 +398,24 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                 <div className="space-y-2">
                   <h4 className="font-semibold text-sm">Items Breakdown</h4>
                   <div className="space-y-1 text-xs text-muted-foreground">
-                    {cart.items.map((item) => (
-                      <div key={item.dish.id} className="flex justify-between">
-                        <span>
-                          {item.dish.name} × {item.quantity}
-                        </span>
-                        <span>
-                          Rs.{(item.dish.price * item.quantity).toFixed(2)}
-                        </span>
-                      </div>
-                    ))}
+                    {cart.items.map((item, index) => {
+                      return (
+                        <div
+                          key={`${item.dish.id}-${item.variantId || "default"}-${index}`}
+                          className="flex justify-between"
+                        >
+                          <span>
+                            {item.dish.name}
+                            {item.variantName
+                              ? ` (${item.variantName})`
+                              : ""} × {item.quantity}
+                          </span>
+                          <span>
+                            Rs.{(item.price * item.quantity).toFixed(2)}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 

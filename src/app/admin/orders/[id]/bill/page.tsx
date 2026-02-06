@@ -143,7 +143,10 @@ export default function BillPage() {
     // Items
     order.items.forEach((item) => {
       // Wrap item name to fit in 13 characters
-      const nameLines = wrapText(item.dishName, 13);
+      const displayName = item.variantName
+        ? `${item.dishName} (${item.variantName})`
+        : item.dishName;
+      const nameLines = wrapText(displayName, 13);
       const qtyStr = `${item.quantity}`.padStart(5);
       const amountStr = formatCurrency(item.price * item.quantity).padStart(10);
 

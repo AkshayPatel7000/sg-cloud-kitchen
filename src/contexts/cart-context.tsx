@@ -13,9 +13,13 @@ import { getRestaurant } from "@/lib/data-client";
 
 type CartContextType = {
   cart: Cart;
-  addToCart: (dish: Dish, quantity?: number) => void;
-  removeFromCart: (dishId: string) => void;
-  updateQuantity: (dishId: string, quantity: number) => void;
+  addToCart: (dish: Dish, variantId?: string, quantity?: number) => void;
+  removeFromCart: (dishId: string, variantId?: string) => void;
+  updateQuantity: (
+    dishId: string,
+    quantity: number,
+    variantId?: string,
+  ) => void;
   clearCart: () => void;
   itemCount: number;
   isHydrated: boolean;
@@ -33,7 +37,12 @@ function loadCartFromStorage(): CartItem[] {
   try {
     const stored = localStorage.getItem(CART_STORAGE_KEY);
     if (stored) {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored) as CartItem[];
+      // Migrate old cart items that don't have price field
+      return parsed.map((item) => ({
+        ...item,
+        price: item.price ?? item.dish.price,
+      }));
     }
   } catch (error) {
     console.error("Error loading cart from localStorage:", error);
@@ -77,7 +86,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const cart = useMemo(() => {
     const subtotal = items.reduce(
-      (sum, item) => sum + item.dish.price * item.quantity,
+      (sum, item) => sum + item.price * item.quantity,
       0,
     );
 
@@ -101,38 +110,60 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return items.reduce((sum, item) => sum + item.quantity, 0);
   }, [items]);
 
-  const addToCart = useCallback((dish: Dish, quantity: number = 1) => {
-    setItems((prevItems) => {
-      const existingItem = prevItems.find((item) => item.dish.id === dish.id);
-
-      if (existingItem) {
-        return prevItems.map((item) =>
-          item.dish.id === dish.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item,
+  const addToCart = useCallback(
+    (dish: Dish, variantId?: string, quantity: number = 1) => {
+      setItems((prevItems) => {
+        const existingItem = prevItems.find(
+          (item) => item.dish.id === dish.id && item.variantId === variantId,
         );
-      }
 
-      return [...prevItems, { dish, quantity }];
-    });
-  }, []);
+        if (existingItem) {
+          return prevItems.map((item) =>
+            item.dish.id === dish.id && item.variantId === variantId
+              ? { ...item, quantity: item.quantity + quantity }
+              : item,
+          );
+        }
 
-  const removeFromCart = useCallback((dishId: string) => {
+        const variant = variantId
+          ? dish.variants?.find((v) => v.id === variantId)
+          : undefined;
+
+        return [
+          ...prevItems,
+          {
+            dish,
+            quantity,
+            variantId,
+            variantName: variant?.name,
+            price: variant ? variant.price : dish.price,
+          },
+        ];
+      });
+    },
+    [],
+  );
+
+  const removeFromCart = useCallback((dishId: string, variantId?: string) => {
     setItems((prevItems) =>
-      prevItems.filter((item) => item.dish.id !== dishId),
+      prevItems.filter(
+        (item) => !(item.dish.id === dishId && item.variantId === variantId),
+      ),
     );
   }, []);
 
   const updateQuantity = useCallback(
-    (dishId: string, quantity: number) => {
+    (dishId: string, quantity: number, variantId?: string) => {
       if (quantity <= 0) {
-        removeFromCart(dishId);
+        removeFromCart(dishId, variantId);
         return;
       }
 
       setItems((prevItems) =>
         prevItems.map((item) =>
-          item.dish.id === dishId ? { ...item, quantity } : item,
+          item.dish.id === dishId && item.variantId === variantId
+            ? { ...item, quantity }
+            : item,
         ),
       );
     },

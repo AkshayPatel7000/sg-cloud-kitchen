@@ -109,7 +109,10 @@ export default function KOTPage() {
 
     order.items.forEach((item, index) => {
       // Item number and name
-      kot += `${index + 1}. ${item.dishName}\n`;
+      const displayName = item.variantName
+        ? `${item.dishName} (${item.variantName})`
+        : item.dishName;
+      kot += `${index + 1}. ${displayName}\n`;
 
       // Veg/Non-Veg indicator
       const vegIndicator = item.isVeg ? "[VEG]" : "[NON-VEG]";

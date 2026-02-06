@@ -40,6 +40,12 @@ export type Category = {
   isActive: boolean;
 };
 
+export type DishVariant = {
+  id: string;
+  name: string;
+  price: number;
+};
+
 export type Dish = {
   id: string;
   name: string;
@@ -50,6 +56,7 @@ export type Dish = {
   isVeg: boolean;
   isAvailable: boolean;
   tags: ("spicy" | "bestseller")[];
+  variants?: DishVariant[];
 };
 
 export type AdminUser = {
@@ -69,6 +76,9 @@ export type AdminNavItem = {
 export type CartItem = {
   dish: Dish;
   quantity: number;
+  variantId?: string;
+  variantName?: string;
+  price: number;
 };
 
 export type Cart = {
@@ -93,6 +103,8 @@ export type OrderItem = {
   price: number;
   isVeg: boolean;
   notes?: string;
+  variantId?: string;
+  variantName?: string;
 };
 
 export type Order = {
