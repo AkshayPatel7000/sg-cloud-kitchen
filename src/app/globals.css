@@ -2,26 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  font-family: "PT Sans", sans-serif;
+  font-family: "Outfit", sans-serif;
 }
 
 @layer base {
   :root {
-    --background: 60 56% 91%;
-    --foreground: 29 31% 20%;
-    --card: 60 56% 93%;
-    --card-foreground: 29 31% 20%;
-    --popover: 60 56% 93%;
-    --popover-foreground: 29 31% 20%;
-    --primary: 29 31% 38%;
-    --primary-foreground: 60 33% 97%;
-    --secondary: 40 20% 88%;
-    --secondary-foreground: 29 31% 20%;
-    --muted: 40 20% 88%;
-    --muted-foreground: 29 25% 40%;
-    --accent: 45 93% 38%;
-    --accent-foreground: 60 33% 97%;
+    --background: 20 20% 97%;
+    --foreground: 20 10% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 20 10% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 10% 10%;
+    --primary: 15 80% 45%;
+    --primary-foreground: 20 20% 98%;
+    --secondary: 15 10% 90%;
+    --secondary-foreground: 15 80% 45%;
+    --muted: 15 10% 90%;
+    --muted-foreground: 20 10% 40%;
+    --accent: 45 90% 45%;
+    --accent-foreground: 20 20% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 60 20% 80%;
