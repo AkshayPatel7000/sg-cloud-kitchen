@@ -12,7 +12,7 @@ export function isValidImageUrl(url: string): boolean {
   ) {
     return false;
   }
-
+  //https://ik.imagekit.io/
   // Check if it has a valid image extension or is from a known image CDN
   const validImagePatterns = [
     /\.(jpg|jpeg|png|gif|webp|svg|avif)(\?.*)?$/i,
@@ -20,6 +20,7 @@ export function isValidImageUrl(url: string): boolean {
     /firebasestorage\.googleapis\.com/,
     /cloudinary\.com/,
     /imgur\.com/,
+    /ik\.imagekit\.io/,
   ];
 
   return validImagePatterns.some((pattern) => pattern.test(url));
