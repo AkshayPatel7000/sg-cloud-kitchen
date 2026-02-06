@@ -33,7 +33,7 @@ export function NotificationProvider({
   useEffect(() => {
     if (typeof window !== "undefined") {
       // Use the existing notification sound file
-      audioRef.current = new Audio("/notfy.wav");
+      audioRef.current = new Audio("/ringtone.mp3");
       audioRef.current.loop = true;
       audioRef.current.preload = "auto";
     }
