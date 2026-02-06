@@ -18,7 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Minus, Trash2, ArrowLeft, Save, Percent } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { Dish, OrderItem } from "@/lib/types";
+import type { Dish, OrderItem, Restaurant } from "@/lib/types";
 import {
   collection,
   getDocs,
@@ -30,6 +30,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { sanitizeImageUrl } from "@/lib/image-utils";
+import { getRestaurant } from "@/lib/data-client";
 
 const TAX_RATE = 0.05;
 
@@ -49,6 +50,7 @@ export default function NewOrderPage() {
   const [discountType, setDiscountType] = useState<"percentage" | "fixed">(
     "percentage",
   );
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [discountValue, setDiscountValue] = useState<string>("");
 
   const router = useRouter();
@@ -57,7 +59,17 @@ export default function NewOrderPage() {
 
   useEffect(() => {
     fetchDishes();
+    fetchRestaurantDetails();
   }, []);
+
+  const fetchRestaurantDetails = async () => {
+    try {
+      const data = await getRestaurant();
+      setRestaurant(data);
+    } catch (error) {
+      console.error("Error fetching restaurant:", error);
+    }
+  };
 
   const fetchDishes = async () => {
     try {
@@ -143,7 +155,13 @@ export default function NewOrderPage() {
     }
 
     const afterDiscount = subtotal - discountAmount;
-    const tax = afterDiscount * TAX_RATE;
+
+    // Calculate tax only if GST is enabled and GST number is provided
+    let tax = 0;
+    if (restaurant?.isGstEnabled && restaurant?.gstNumber) {
+      tax = afterDiscount * TAX_RATE;
+    }
+
     const total = afterDiscount + tax;
 
     return { subtotal, discount: discountAmount, afterDiscount, tax, total };
@@ -206,6 +224,7 @@ export default function NewOrderPage() {
         updatedAt: serverTimestamp(),
         createdBy: user.uid,
         isPaid: false,
+        isViewed: false,
         paymentMethod: null,
       };
 
@@ -558,10 +577,12 @@ export default function NewOrderPage() {
                   </div>
                 )}
 
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Tax (GST 5%)</span>
-                  <span className="font-medium">Rs.{tax.toFixed(2)}</span>
-                </div>
+                {tax > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Tax (GST 5%)</span>
+                    <span className="font-medium">Rs.{tax.toFixed(2)}</span>
+                  </div>
+                )}
                 <Separator />
                 <div className="flex justify-between text-lg font-bold">
                   <span>Total</span>

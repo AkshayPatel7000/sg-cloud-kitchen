@@ -6,7 +6,7 @@ import { sanitizeImageUrl } from "@/lib/image-utils";
 export function Logo({
   href = "/",
   logoUrl,
-  restaurantName = "Gastronomic Gateway",
+  restaurantName = "SG Cloud Kitchen",
   showText = true,
 }: {
   href?: string;

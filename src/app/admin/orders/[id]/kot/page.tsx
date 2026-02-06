@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Printer } from "lucide-react";
 import Link from "next/link";
 import type { Order, Restaurant } from "@/lib/types";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/firestore";
 import { format } from "date-fns";
 import {
@@ -41,13 +41,24 @@ export default function KOTPage() {
       const orderSnap = await getDoc(orderRef);
 
       if (orderSnap.exists()) {
+        const data = orderSnap.data();
         const orderData = {
           id: orderSnap.id,
-          ...orderSnap.data(),
-          createdAt: orderSnap.data().createdAt?.toDate() || new Date(),
-          updatedAt: orderSnap.data().updatedAt?.toDate() || new Date(),
+          ...data,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date(),
         } as Order;
         setOrder(orderData);
+
+        // Mark as viewed if not already viewed
+        if (!data.isViewed) {
+          updateDoc(orderRef, {
+            isViewed: true,
+            updatedAt: new Date(),
+          }).catch((err) =>
+            console.error("Error marking order as viewed:", err),
+          );
+        }
       }
 
       // Fetch restaurant
@@ -193,9 +204,9 @@ export default function KOTPage() {
 
       {/* Preview */}
       <Card>
-        <CardContent className="p-6">
-          <div className="bg-white text-black p-6 rounded-lg max-w-md mx-auto">
-            <pre className="font-mono text-xs leading-relaxed whitespace-pre-wrap">
+        <CardContent className="p-4">
+          <div className="bg-white text-black p-4 rounded-lg border shadow-inner max-w-[300px] mx-auto overflow-hidden">
+            <pre className="font-mono text-[10px] leading-tight whitespace-pre">
               {kotContent}
             </pre>
           </div>

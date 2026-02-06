@@ -8,7 +8,8 @@ import React, {
   useMemo,
   useEffect,
 } from "react";
-import type { Dish, CartItem, Cart } from "@/lib/types";
+import type { Dish, CartItem, Cart, Restaurant } from "@/lib/types";
+import { getRestaurant } from "@/lib/data-client";
 
 type CartContextType = {
   cart: Cart;
@@ -22,24 +23,8 @@ type CartContextType = {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const TAX_RATE = 0.05; // 5% tax
 const CART_STORAGE_KEY = "kitchen-cart";
-
-function calculateCart(items: CartItem[]): Cart {
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.dish.price * item.quantity,
-    0,
-  );
-  const tax = subtotal * TAX_RATE;
-  const total = subtotal + tax;
-
-  return {
-    items,
-    subtotal,
-    tax,
-    total,
-  };
-}
+const TAX_RATE = 0.05;
 
 // Load cart from localStorage
 function loadCartFromStorage(): CartItem[] {
@@ -70,11 +55,16 @@ function saveCartToStorage(items: CartItem[]): void {
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
 
-  // Load cart from localStorage on mount
+  // Load cart and restaurant from storage/server on mount
   useEffect(() => {
     const loadedItems = loadCartFromStorage();
     setItems(loadedItems);
+
+    // Fetch restaurant details
+    getRestaurant().then(setRestaurant).catch(console.error);
+
     setIsHydrated(true);
   }, []);
 
@@ -85,7 +75,27 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [items, isHydrated]);
 
-  const cart = useMemo(() => calculateCart(items), [items]);
+  const cart = useMemo(() => {
+    const subtotal = items.reduce(
+      (sum, item) => sum + item.dish.price * item.quantity,
+      0,
+    );
+
+    // Calculate tax only if GST is enabled and GST number is provided
+    let tax = 0;
+    if (restaurant?.isGstEnabled && restaurant?.gstNumber) {
+      tax = subtotal * 0.05; // Using 5% rate
+    }
+
+    const total = subtotal + tax;
+
+    return {
+      items,
+      subtotal,
+      tax,
+      total,
+    };
+  }, [items, restaurant]);
 
   const itemCount = useMemo(() => {
     return items.reduce((sum, item) => sum + item.quantity, 0);

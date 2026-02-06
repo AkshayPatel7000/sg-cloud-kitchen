@@ -120,6 +120,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
         updatedAt: serverTimestamp(),
         createdBy: "customer", // Mark as customer order
         isPaid: false,
+        isViewed: false,
         paymentMethod: null,
       };
 
@@ -349,12 +350,16 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                       Rs.{cart.subtotal.toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Tax (GST 5%)</span>
-                    <span className="font-medium">
-                      Rs.{cart.tax.toFixed(2)}
-                    </span>
-                  </div>
+                  {cart.tax > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">
+                        Tax (GST 5%)
+                      </span>
+                      <span className="font-medium">
+                        Rs.{cart.tax.toFixed(2)}
+                      </span>
+                    </div>
+                  )}
                   <Separator />
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total Amount</span>

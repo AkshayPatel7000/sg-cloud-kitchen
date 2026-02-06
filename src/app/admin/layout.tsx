@@ -2,7 +2,11 @@
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import {
+  NotificationProvider,
+  useNotification,
+} from "@/contexts/notification-context";
+import { Loader2, XCircle } from "lucide-react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { getRestaurant } from "@/lib/data-client";
@@ -30,35 +34,17 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
     }
   }, [user, loading, router, pathname]);
 
-  const [isAudioEnabled, setIsAudioEnabled] = useState(false);
+  const { startRinging, unlockAudio, isAudioEnabled, isRinging, stopRinging } =
+    useNotification();
 
   useEffect(() => {
     let unsubscribe: any;
     const notificationChannel = new BroadcastChannel("fcm_notifications");
 
-    // Hidden audio element for consistent playback
-    const audio =
-      typeof window !== "undefined" ? new Audio("/notfy.wav") : null;
-    if (audio) {
-      audio.load();
-    }
-
-    const playSound = () => {
-      if (audio) {
-        audio.currentTime = 0;
-        audio.play().catch((e) => {
-          console.log(
-            "📢 [FCM] Audio play failed (likely background/no interaction):",
-            e,
-          );
-        });
-      }
-    };
-
     // Listen for messages from Service Worker (when tab is backgrounded)
     notificationChannel.onmessage = (event) => {
       console.log("📢 [FCM] Message from BroadcastChannel:", event.data);
-      playSound();
+      startRinging();
     };
 
     if (user) {
@@ -72,7 +58,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
           });
 
           // Play custom notification sound
-          playSound();
+          startRinging();
 
           // Fallback: Browser notification even in foreground
           if (Notification.permission === "granted") {
@@ -88,18 +74,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
     // Attempt to enable audio on first click
     const handleFirstClick = () => {
       if (!isAudioEnabled) {
-        setIsAudioEnabled(true);
-        // Play and immediately pause to "unlock" audio on mobile/strict browsers
-        if (audio) {
-          audio
-            .play()
-            .then(() => {
-              audio.pause();
-              audio.currentTime = 0;
-              console.log("🔊 [FCM] Audio unlocked");
-            })
-            .catch((e) => console.log("Audio unlock failed:", e));
-        }
+        unlockAudio();
         window.removeEventListener("click", handleFirstClick);
       }
     };
@@ -112,7 +87,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       notificationChannel.close();
       window.removeEventListener("click", handleFirstClick);
     };
-  }, [user, toast, isAudioEnabled]);
+  }, [user, toast, isAudioEnabled, startRinging, unlockAudio]);
 
   useEffect(() => {
     async function fetchRestaurant() {
@@ -141,6 +116,25 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
             📣 Click anywhere to enable order sounds
           </div>
         )}
+        {isRinging && (
+          <div className="fixed top-4 right-4 z-[100] bg-red-600 text-white px-6 py-3 rounded-lg shadow-2xl flex items-center gap-3 animate-bounce">
+            <div className="relative">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <div className="absolute inset-0 bg-white rounded-full animate-ping opacity-25"></div>
+            </div>
+            <div className="flex flex-col">
+              <span className="font-bold text-sm">New Order Ringing!</span>
+              <span className="text-[10px] opacity-90">View order to stop</span>
+            </div>
+            <button
+              onClick={() => stopRinging()}
+              className="ml-2 bg-white/20 hover:bg-white/30 p-1 rounded transition-colors"
+              title="Stop sound"
+            >
+              <XCircle className="h-4 w-4" />
+            </button>
+          </div>
+        )}
         <AdminNav restaurant={restaurant} />
         <SidebarInset className="flex-1">
           {loading ? (
@@ -163,7 +157,9 @@ export default function AdminLayout({
 }) {
   return (
     <AuthProvider>
-      <AdminLayoutContent>{children}</AdminLayoutContent>
+      <NotificationProvider>
+        <AdminLayoutContent>{children}</AdminLayoutContent>
+      </NotificationProvider>
     </AuthProvider>
   );
 }

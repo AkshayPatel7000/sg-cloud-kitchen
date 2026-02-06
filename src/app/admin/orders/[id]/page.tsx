@@ -41,11 +41,13 @@ import {
   Trash2,
 } from "lucide-react";
 import Link from "next/link";
-import type { Order, OrderStatus } from "@/lib/types";
+import type { Order, OrderStatus, Restaurant } from "@/lib/types";
 import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { getRestaurant } from "@/lib/data-client";
+import { useNotification } from "@/contexts/notification-context";
 
 const statusConfig: Record<
   OrderStatus,
@@ -92,17 +94,31 @@ export default function OrderDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
+  const { stopRinging } = useNotification();
   const orderId = params.id as string;
 
   const [order, setOrder] = useState<Order | null>(null);
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     if (orderId) {
       fetchOrder();
+      fetchRestaurantDetails();
+      // Stop notification ringing when an order is viewed
+      stopRinging();
     }
-  }, [orderId]);
+  }, [orderId, stopRinging]);
+
+  const fetchRestaurantDetails = async () => {
+    try {
+      const data = await getRestaurant();
+      setRestaurant(data);
+    } catch (error) {
+      console.error("Error fetching restaurant:", error);
+    }
+  };
 
   const fetchOrder = async () => {
     try {
@@ -110,13 +126,24 @@ export default function OrderDetailsPage() {
       const orderSnap = await getDoc(orderRef);
 
       if (orderSnap.exists()) {
+        const data = orderSnap.data();
         const orderData = {
           id: orderSnap.id,
-          ...orderSnap.data(),
-          createdAt: orderSnap.data().createdAt?.toDate() || new Date(),
-          updatedAt: orderSnap.data().updatedAt?.toDate() || new Date(),
+          ...data,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date(),
         } as Order;
         setOrder(orderData);
+
+        // Mark as viewed if not already viewed
+        if (!data.isViewed) {
+          updateDoc(orderRef, {
+            isViewed: true,
+            updatedAt: new Date(),
+          }).catch((err) =>
+            console.error("Error marking order as viewed:", err),
+          );
+        }
       } else {
         toast({
           title: "Error",
@@ -534,10 +561,19 @@ export default function OrderDetailsPage() {
                   </>
                 )}
 
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Tax (GST 5%)</span>
-                  <span className="font-medium">Rs.{order.tax.toFixed(2)}</span>
-                </div>
+                {order.tax > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Tax (GST 5%)</span>
+                    <span className="font-medium">
+                      Rs.{order.tax.toFixed(2)}
+                    </span>
+                  </div>
+                )}
+                {order.tax > 0 && restaurant?.gstNumber && (
+                  <div className="flex justify-between text-[10px] text-muted-foreground italic">
+                    <span>GSTIN: {restaurant.gstNumber}</span>
+                  </div>
+                )}
                 <Separator />
                 <div className="flex justify-between text-lg font-bold">
                   <span>Total</span>

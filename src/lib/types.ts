@@ -14,6 +14,8 @@ export type Restaurant = {
     instagram?: string;
     twitter?: string;
   };
+  isGstEnabled?: boolean;
+  gstNumber?: string;
 };
 
 export type SectionType = "offers" | "todaysSpecial" | "whatsNew";
@@ -113,5 +115,6 @@ export type Order = {
   updatedAt: Date;
   createdBy: string; // Admin user ID
   isPaid: boolean;
+  isViewed: boolean;
   paymentMethod?: "cash" | "card" | "upi" | "online";
 };

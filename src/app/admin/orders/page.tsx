@@ -32,7 +32,7 @@ import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase/firestore";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-import { createNotificationSound } from "@/lib/notification-sound";
+import { useNotification } from "@/contexts/notification-context";
 
 const statusConfig: Record<
   OrderStatus,
@@ -58,15 +58,9 @@ export default function OrdersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const previousOrderIdsRef = useRef<Set<string>>(new Set());
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const isInitialLoad = useRef(true);
   const { toast } = useToast();
-
-  // Initialize audio on component mount
-  useEffect(() => {
-    // Create audio element for notification sound using Web Audio API
-    audioRef.current = createNotificationSound();
-  }, []);
+  const { startRinging } = useNotification();
 
   useEffect(() => {
     // Set up real-time listener
@@ -153,11 +147,8 @@ export default function OrdersPage() {
   }, [notificationsEnabled, toast]);
 
   const playNotificationSound = () => {
-    if (audioRef.current && notificationsEnabled) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play().catch((error) => {
-        console.error("Error playing notification sound:", error);
-      });
+    if (notificationsEnabled) {
+      startRinging();
     }
   };
 
@@ -205,6 +196,7 @@ export default function OrdersPage() {
     }
 
     setFilteredOrders(filtered);
+    console.log("🚀 ~ filterOrders ~ filtered:", filtered);
   };
 
   const getStatusBadge = (status: OrderStatus) => {
@@ -335,7 +327,21 @@ export default function OrdersPage() {
           </Card>
         ) : (
           filteredOrders.map((order) => (
-            <Card key={order.id} className="hover:shadow-md transition-shadow">
+            <Card
+              key={order.id}
+              className={`hover:shadow-md transition-shadow relative overflow-hidden ${
+                order.isViewed === false
+                  ? "border-2 border-primary shadow-[0_0_15px_rgba(var(--primary),0.1)]"
+                  : "border"
+              }`}
+            >
+              {order.isViewed === false && (
+                <div className="absolute top-0 left-0">
+                  <div className="bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-br-lg animate-pulse">
+                    NEW
+                  </div>
+                </div>
+              )}
               <CardContent className="p-6">
                 <div className="flex justify-between items-start">
                   <div className="space-y-2 flex-grow">
@@ -350,6 +356,11 @@ export default function OrdersPage() {
                       {order.tableNumber && (
                         <Badge variant="secondary">
                           Table {order.tableNumber}
+                        </Badge>
+                      )}
+                      {order.isViewed === false && (
+                        <Badge className="bg-primary hover:bg-primary/90">
+                          New Order
                         </Badge>
                       )}
                     </div>

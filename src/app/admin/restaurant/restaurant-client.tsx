@@ -25,6 +25,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { updateRestaurant } from "@/lib/data-client";
 import { ImageUpload } from "@/components/image-upload";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
 
 const restaurantSchema = z.object({
   name: z.string().min(1, "Restaurant name is required"),
@@ -34,6 +36,8 @@ const restaurantSchema = z.object({
   phone: z.string().min(1, "Phone number is required"),
   email: z.string().email("Invalid email address"),
   openingHours: z.string().min(1, "Opening hours are required"),
+  isGstEnabled: z.boolean().default(false),
+  gstNumber: z.string().default(""),
   socialLinks: z.object({
     facebook: z.string().url().optional().or(z.literal("")),
     instagram: z.string().url().optional().or(z.literal("")),
@@ -59,6 +63,8 @@ export function RestaurantClientPage({
       phone: "",
       email: "",
       openingHours: "",
+      isGstEnabled: false,
+      gstNumber: "",
       socialLinks: { facebook: "", instagram: "", twitter: "" },
     },
   });
@@ -72,7 +78,9 @@ export function RestaurantClientPage({
   async function onSubmit(values: z.infer<typeof restaurantSchema>) {
     setIsLoading(true);
     try {
-      await updateRestaurant(values);
+      // Ensure no undefined values are sent to Firestore
+      const cleanedValues = JSON.parse(JSON.stringify(values));
+      await updateRestaurant(cleanedValues);
       toast({
         title: "Success",
         description: "Restaurant details have been updated.",
@@ -116,7 +124,7 @@ export function RestaurantClientPage({
                   <FormItem>
                     <FormLabel>Restaurant Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Gastronomic Gateway" {...field} />
+                      <Input placeholder="SG Cloud Kitchen" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -253,6 +261,53 @@ export function RestaurantClientPage({
                   </FormItem>
                 )}
               />
+            </div>
+
+            <Separator className="my-8" />
+
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Taxation Settings</h3>
+              <div className="grid md:grid-cols-2 gap-8 items-end">
+                <FormField
+                  control={form.control}
+                  name="isGstEnabled"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Enable GST</FormLabel>
+                        <CardDescription>
+                          Enable GST calculations for all orders and bills.
+                        </CardDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                {form.watch("isGstEnabled") && (
+                  <FormField
+                    control={form.control}
+                    name="gstNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>GST Number</FormLabel>
+                        <FormControl>
+                          <Input placeholder="22AAAAA0000A1Z5" {...field} />
+                        </FormControl>
+                        <CardDescription>
+                          Required for GST calculations.
+                        </CardDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </div>
             </div>
             <Button type="submit" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

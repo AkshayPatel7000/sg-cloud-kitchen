@@ -32,7 +32,7 @@ export function getFallbackImageUrl(
   context: "dish" | "offer" | "special" | "hero" = "dish",
 ): string {
   const fallbacks = {
-    dish: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=400&fit=crop",
+    dish: "https://ik.imagekit.io/4b6bfmrdo/restaurant/586789985_17847308862606961_3110687156587654615_n_h2aAY_Pfzp.jpg",
     offer:
       "https://images.unsplash.com/photo-1541832676-9b763b0239ab?w=800&h=600&fit=crop",
     special:

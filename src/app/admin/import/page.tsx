@@ -85,36 +85,24 @@ export default function ImportPage() {
       }
 
       const batch = writeBatch(db);
-
-      const categoryMapping: Record<string, string> = {
-        "Pizza and Pasta": "cat_pizza_pasta",
-        "Rice and Biryani": "cat_rice_biryani",
-        Thali: "cat_thali",
-        "Main Course": "cat_main_course",
-        Starters: "cat_starters",
-        "Fried Rice and Noodles": "cat_fried_rice_noodles",
-        Breads: "cat_breads",
-        Snacks: "cat_snacks",
-        Desserts: "cat_desserts",
-        "Drinks (Beverages)": "cat_drinks",
-        Bowls: "cat_bowls",
-      };
+      const categoriesCollection = collection(db, "categories");
 
       for (const cat of categories) {
-        const id = cat.id || categoryMapping[cat.name];
-        if (!id) {
-          console.warn(`No ID found for category: ${cat.name}`);
-          continue;
-        }
+        // Use provided ID or generate a new one from Firebase
+        const categoryRef = cat.id
+          ? doc(db, "categories", cat.id)
+          : doc(categoriesCollection);
 
-        const categoryRef = doc(db, "categories", id);
+        const finalId = categoryRef.id;
+
         batch.set(categoryRef, {
-          name: cat.name,
-          slug: cat.slug,
+          ...cat,
+          id: finalId,
+          updatedAt: new Date(),
+          isActive: cat.isActive !== undefined ? cat.isActive : true,
           description: cat.description || "",
           order: cat.order || 0,
-          isActive: cat.isActive !== undefined ? cat.isActive : true,
-          updatedAt: new Date(),
+          slug: cat.slug || cat.name.toLowerCase().replace(/\s+/g, "-"),
         });
       }
 

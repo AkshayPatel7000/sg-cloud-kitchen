@@ -73,6 +73,7 @@ import { VegNonVegIcon } from "@/components/veg-non-veg-icon";
 import { addDish, updateDish, deleteDish } from "@/lib/data-client";
 import { ImageUpload } from "@/components/image-upload";
 import { Checkbox } from "@/components/ui/checkbox";
+import { sanitizeImageUrl } from "@/lib/image-utils";
 
 const dishSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -106,7 +107,7 @@ function DishForm({
       imageUrl: currentDish?.imageUrl ?? "",
       price: currentDish?.price ?? 0,
       categoryId: currentDish?.categoryId ?? "",
-      isVeg: currentDish?.isVeg ?? false,
+      isVeg: currentDish?.isVeg ?? true,
       isAvailable: currentDish?.isAvailable ?? true,
       tags: currentDish?.tags ?? [],
     },
@@ -324,7 +325,6 @@ export function DishesClient({
   // Search and Filter State
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-
   const { toast } = useToast();
 
   const handleSave = async (data: DishFormValues, id?: string) => {
@@ -458,7 +458,7 @@ export function DishesClient({
                   <TableCell>
                     <div className="relative h-12 w-12 overflow-hidden rounded-md border">
                       <Image
-                        src={dish.imageUrl}
+                        src={sanitizeImageUrl(dish.imageUrl, "dish")}
                         alt={dish.name}
                         fill
                         className="object-cover"

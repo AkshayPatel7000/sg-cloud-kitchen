@@ -1,7 +1,7 @@
 {
-  "name": "Gastronomic Gateway Admin",
-  "short_name": "GG Admin",
-  "description": "Admin Dashboard for Gastronomic Gateway Cloud Kitchen",
+  "name": "SG Cloud Kitchen",
+  "short_name": "SG Kitchen",
+  "description": "Admin Dashboard for SG Cloud Kitchen",
   "start_url": "/admin",
   "display": "standalone",
   "background_color": "#000000",

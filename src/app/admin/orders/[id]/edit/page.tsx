@@ -18,7 +18,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Minus, Trash2, ArrowLeft, Save, Percent } from "lucide-react";
 import Link from "next/link";
-import type { Dish, OrderItem, Order } from "@/lib/types";
+import type { Dish, OrderItem, Order, Restaurant } from "@/lib/types";
 import {
   collection,
   getDocs,
@@ -32,6 +32,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { sanitizeImageUrl } from "@/lib/image-utils";
+import { getRestaurant } from "@/lib/data-client";
+import { useNotification } from "@/contexts/notification-context";
 
 const TAX_RATE = 0.05;
 
@@ -55,17 +57,31 @@ export default function EditOrderPage() {
   const [discountType, setDiscountType] = useState<"percentage" | "fixed">(
     "percentage",
   );
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [discountValue, setDiscountValue] = useState<string>("");
 
   const router = useRouter();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { stopRinging } = useNotification();
 
   useEffect(() => {
     if (orderId) {
       fetchOrderAndDishes();
+      fetchRestaurantDetails();
+      // Stop notification ringing when editing an order
+      stopRinging();
     }
-  }, [orderId]);
+  }, [orderId, stopRinging]);
+
+  const fetchRestaurantDetails = async () => {
+    try {
+      const data = await getRestaurant();
+      setRestaurant(data);
+    } catch (error) {
+      console.error("Error fetching restaurant:", error);
+    }
+  };
 
   const fetchOrderAndDishes = async () => {
     try {
@@ -83,11 +99,12 @@ export default function EditOrderPage() {
         return;
       }
 
+      const data = orderSnap.data();
       const orderData = {
         id: orderSnap.id,
-        ...orderSnap.data(),
-        createdAt: orderSnap.data().createdAt?.toDate() || new Date(),
-        updatedAt: orderSnap.data().updatedAt?.toDate() || new Date(),
+        ...data,
+        createdAt: data.createdAt?.toDate() || new Date(),
+        updatedAt: data.updatedAt?.toDate() || new Date(),
       } as Order;
 
       setOrder(orderData);
@@ -97,6 +114,14 @@ export default function EditOrderPage() {
       setOrderType(orderData.orderType);
       setTableNumber(orderData.tableNumber || "");
       setNotes(orderData.notes || "");
+
+      // Mark as viewed if not already viewed
+      if (!data.isViewed) {
+        updateDoc(orderRef, {
+          isViewed: true,
+          updatedAt: new Date(),
+        }).catch((err) => console.error("Error marking order as viewed:", err));
+      }
 
       // Set discount values if they exist
       if (orderData.discount && orderData.discount > 0) {
@@ -185,7 +210,13 @@ export default function EditOrderPage() {
     }
 
     const afterDiscount = subtotal - discountAmount;
-    const tax = afterDiscount * TAX_RATE;
+
+    // Calculate tax only if GST is enabled and GST number is provided
+    let tax = 0;
+    if (restaurant?.isGstEnabled && restaurant?.gstNumber) {
+      tax = afterDiscount * TAX_RATE;
+    }
+
     const total = afterDiscount + tax;
 
     return { subtotal, discount: discountAmount, afterDiscount, tax, total };
@@ -568,10 +599,12 @@ export default function EditOrderPage() {
                   </div>
                 )}
 
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Tax (GST 5%)</span>
-                  <span className="font-medium">Rs.{tax.toFixed(2)}</span>
-                </div>
+                {tax > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Tax (GST 5%)</span>
+                    <span className="font-medium">Rs.{tax.toFixed(2)}</span>
+                  </div>
+                )}
                 <Separator />
                 <div className="flex justify-between text-lg font-bold">
                   <span>Total</span>

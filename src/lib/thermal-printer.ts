@@ -137,7 +137,7 @@ export function generatePrintHTML(content: string): string {
         body {
           padding: 1mm 2mm;
           font-family: 'DejaVu Sans Mono', 'Consolas', 'Monaco', 'Liberation Mono', 'Courier New', monospace;
-          font-size: 9pt;
+          font-size: 8pt;
           line-height: 1.2;
           color: black;
           background: white;
@@ -146,7 +146,7 @@ export function generatePrintHTML(content: string): string {
           margin: 0;
           padding: 0;
           font-family: 'DejaVu Sans Mono', 'Consolas', 'Monaco', 'Liberation Mono', 'Courier New', monospace;
-          font-size: 9pt;
+          font-size: 8pt;
           line-height: 1.2;
           white-space: pre;
           overflow-x: hidden;

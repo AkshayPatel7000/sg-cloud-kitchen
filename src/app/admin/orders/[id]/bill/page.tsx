@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Printer } from "lucide-react";
 import Link from "next/link";
 import type { Order, Restaurant } from "@/lib/types";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/firestore";
 import { format } from "date-fns";
 import {
@@ -44,13 +44,24 @@ export default function BillPage() {
       const orderSnap = await getDoc(orderRef);
 
       if (orderSnap.exists()) {
+        const data = orderSnap.data();
         const orderData = {
           id: orderSnap.id,
-          ...orderSnap.data(),
-          createdAt: orderSnap.data().createdAt?.toDate() || new Date(),
-          updatedAt: orderSnap.data().updatedAt?.toDate() || new Date(),
+          ...data,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date(),
         } as Order;
         setOrder(orderData);
+
+        // Mark as viewed if not already viewed
+        if (!data.isViewed) {
+          updateDoc(orderRef, {
+            isViewed: true,
+            updatedAt: new Date(),
+          }).catch((err) =>
+            console.error("Error marking order as viewed:", err),
+          );
+        }
       }
 
       // Fetch restaurant
@@ -101,6 +112,11 @@ export default function BillPage() {
     bill += splitLine("Date:", format(order.createdAt, "dd/MM/yyyy")) + "\n";
     bill += splitLine("Time:", format(order.createdAt, "hh:mm a")) + "\n";
 
+    // GST Number if enabled
+    if (restaurant?.isGstEnabled && restaurant?.gstNumber) {
+      bill += splitLine("GSTIN:", restaurant.gstNumber) + "\n";
+    }
+
     // Order type
     bill += splitLine("Type:", order.orderType.toUpperCase()) + "\n";
     if (order.tableNumber) {
@@ -121,38 +137,29 @@ export default function BillPage() {
     bill += separator("=") + "\n";
 
     // Items header
-    bill += "Item              Qty   Amount\n";
+    bill += "Item         Qty    Amount\n"; // 13 + 5 + 10 = 28
     bill += separator("-") + "\n";
 
     // Items
     order.items.forEach((item) => {
-      // Item name (truncate if too long)
-      const itemName =
-        item.dishName.length > 18
-          ? item.dishName.substring(0, 15) + "..."
-          : item.dishName;
+      // Wrap item name to fit in 13 characters
+      const nameLines = wrapText(item.dishName, 13);
+      const qtyStr = `${item.quantity}`.padStart(5);
+      const amountStr = formatCurrency(item.price * item.quantity).padStart(10);
 
-      bill += itemName + "\n";
+      nameLines.forEach((line, idx) => {
+        if (idx === 0) {
+          // First line: Name + Qty + Amount
+          bill += line.padEnd(13) + qtyStr + amountStr + "\n";
+        } else {
+          // Subsequent lines: Just the wrapped name
+          bill += line.padEnd(13) + "\n";
+        }
+      });
 
-      // Veg/Non-Veg indicator
+      // Price details line (Veg/Non-Veg + unit price)
       const vegTag = item.isVeg ? "[V]" : "[N]";
-
-      // Price line: veg tag, quantity, and amount
-      const qtyStr = `${item.quantity}`;
-      const amountStr = formatCurrency(item.price * item.quantity);
-      const priceLine = `${vegTag} @${formatCurrency(item.price)}`;
-
-      // Calculate spacing
-      const spacing1 = 18 - priceLine.length;
-      const spacing2 = 5 - qtyStr.length;
-
-      bill +=
-        priceLine +
-        " ".repeat(Math.max(1, spacing1)) +
-        qtyStr +
-        " ".repeat(Math.max(1, spacing2)) +
-        amountStr +
-        "\n";
+      bill += `  ${vegTag} @${formatCurrency(item.price)}\n`;
     });
 
     bill += separator("-") + "\n";
@@ -179,7 +186,10 @@ export default function BillPage() {
         ) + "\n";
     }
 
-    bill += splitLine("GST (5%):", formatCurrency(order.tax)) + "\n";
+    if (restaurant?.isGstEnabled && restaurant?.gstNumber && order.tax > 0) {
+      bill += splitLine("GST (5%):", formatCurrency(order.tax)) + "\n";
+    }
+
     bill += separator("=") + "\n";
     bill += splitLine("TOTAL:", formatCurrency(order.total)) + "\n";
     bill += separator("=") + "\n";
@@ -262,9 +272,9 @@ export default function BillPage() {
 
       {/* Preview */}
       <Card>
-        <CardContent className="p-6">
-          <div className="bg-white text-black p-6 rounded-lg max-w-md mx-auto">
-            <pre className="font-mono text-xs leading-relaxed whitespace-pre-wrap">
+        <CardContent className="p-4">
+          <div className="bg-white text-black p-4 rounded-lg border shadow-inner max-w-[200px] mx-auto overflow-hidden">
+            <pre className="font-mono text-[10px] leading-tight whitespace-pre">
               {billContent}
             </pre>
           </div>
