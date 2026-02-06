@@ -46,6 +46,20 @@ export type DishVariant = {
   price: number;
 };
 
+export type CustomizationOption = {
+  id: string;
+  name: string;
+  price: number;
+};
+
+export type CustomizationGroup = {
+  id: string;
+  name: string;
+  minSelection: number;
+  maxSelection: number;
+  options: CustomizationOption[];
+};
+
 export type Dish = {
   id: string;
   name: string;
@@ -57,6 +71,7 @@ export type Dish = {
   isAvailable: boolean;
   tags: ("spicy" | "bestseller")[];
   variants?: DishVariant[];
+  customizations?: CustomizationGroup[];
 };
 
 export type AdminUser = {
@@ -78,6 +93,13 @@ export type CartItem = {
   quantity: number;
   variantId?: string;
   variantName?: string;
+  selectedCustomizations?: {
+    groupId: string;
+    groupName: string;
+    optionId: string;
+    optionName: string;
+    price: number;
+  }[];
   price: number;
 };
 
@@ -105,6 +127,13 @@ export type OrderItem = {
   notes?: string;
   variantId?: string;
   variantName?: string;
+  selectedCustomizations?: {
+    groupId: string;
+    groupName: string;
+    optionId: string;
+    optionName: string;
+    price: number;
+  }[];
 };
 
 export type Order = {

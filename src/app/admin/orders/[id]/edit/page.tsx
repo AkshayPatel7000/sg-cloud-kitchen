@@ -14,16 +14,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { DishConfigDialog } from "@/components/dish-config-dialog";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Minus, Trash2, ArrowLeft, Save, Percent } from "lucide-react";
+import {
+  Plus,
+  Minus,
+  Trash2,
+  ArrowLeft,
+  Save,
+  Percent,
+  Edit,
+} from "lucide-react";
 import Link from "next/link";
 import type { Dish, OrderItem, Order, Restaurant } from "@/lib/types";
 import {
@@ -66,8 +68,9 @@ export default function EditOrderPage() {
   );
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [discountValue, setDiscountValue] = useState<string>("");
-  const [selectedDishForVariants, setSelectedDishForVariants] =
+  const [selectedDishForConfig, setSelectedDishForConfig] =
     useState<Dish | null>(null);
+  const [editingItemIndex, setEditingItemIndex] = useState<number | null>(null);
 
   const router = useRouter();
   const { user } = useAuth();
@@ -158,42 +161,101 @@ export default function EditOrderPage() {
     }
   };
 
-  const addDishToOrder = (dish: Dish, variant?: any) => {
-    // If dish has variants and none is selected, don't add yet
-    if (dish.variants && dish.variants.length > 0 && !variant) {
-      setSelectedDishForVariants(dish);
+  const addDishToOrder = (
+    dish: Dish,
+    variantId?: string,
+    selectedCustomizations?: any[],
+  ) => {
+    const hasOptions =
+      (dish.variants && dish.variants.length > 0) ||
+      (dish.customizations && dish.customizations.length > 0);
+
+    if (
+      hasOptions &&
+      !variantId &&
+      !selectedCustomizations &&
+      editingItemIndex === null
+    ) {
+      setSelectedDishForConfig(dish);
       return;
     }
 
-    const existingItem = orderItems.find(
-      (item) => item.dishId === dish.id && item.variantId === variant?.id,
-    );
+    const variant = variantId
+      ? dish.variants?.find((v) => v.id === variantId)
+      : undefined;
 
-    if (existingItem) {
-      setOrderItems(
-        orderItems.map((item) =>
-          item.dishId === dish.id && item.variantId === variant?.id
-            ? { ...item, quantity: item.quantity + 1 }
+    const getCustomizationKey = (cust?: any[]) =>
+      cust
+        ?.map((c) => `${c.optionId}`)
+        .sort()
+        .join(",") || "";
+
+    const newCustKey = getCustomizationKey(selectedCustomizations);
+
+    if (editingItemIndex !== null) {
+      const customizationsPrice =
+        selectedCustomizations?.reduce((sum, c) => sum + c.price, 0) || 0;
+      const basePrice = variant ? variant.price : dish.price;
+
+      setOrderItems((prev) =>
+        prev.map((item, i) =>
+          i === editingItemIndex
+            ? {
+                ...item,
+                variantId: variantId,
+                variantName: variant?.name,
+                price: basePrice + customizationsPrice,
+                selectedCustomizations: selectedCustomizations,
+              }
             : item,
         ),
       );
+      setEditingItemIndex(null);
     } else {
-      setOrderItems([
-        ...orderItems,
-        {
-          dishId: dish.id,
-          dishName: dish.name,
-          quantity: 1,
-          price: variant ? variant.price : dish.price,
-          isVeg: dish.isVeg,
-          variantId: variant?.id,
-          variantName: variant?.name,
-        },
-      ]);
+      const existingItemIndex = orderItems.findIndex(
+        (item) =>
+          item.dishId === dish.id &&
+          item.variantId === variantId &&
+          getCustomizationKey(item.selectedCustomizations) === newCustKey,
+      );
+
+      if (existingItemIndex > -1) {
+        updateQuantity(
+          existingItemIndex,
+          orderItems[existingItemIndex].quantity + 1,
+        );
+      } else {
+        const customizationsPrice =
+          selectedCustomizations?.reduce((sum, c) => sum + c.price, 0) || 0;
+        const basePrice = variant ? variant.price : dish.price;
+
+        setOrderItems([
+          ...orderItems,
+          {
+            dishId: dish.id,
+            dishName: dish.name,
+            quantity: 1,
+            price: basePrice + customizationsPrice,
+            isVeg: dish.isVeg,
+            variantId: variantId,
+            variantName: variant?.name,
+            selectedCustomizations: selectedCustomizations,
+          },
+        ]);
+      }
     }
 
-    if (selectedDishForVariants) {
-      setSelectedDishForVariants(null);
+    if (selectedDishForConfig) {
+      setSelectedDishForConfig(null);
+    }
+  };
+
+  const handleEditItem = (index: number) => {
+    const item = orderItems[index];
+    const dish = dishes.find((d) => d.id === item.dishId);
+    if (dish) {
+      setEditingItemIndex(index);
+      setSelectedDishForConfig(dish);
     }
   };
 
@@ -271,7 +333,12 @@ export default function EditOrderPage() {
       const orderData = {
         customerName: customerName || null,
         customerPhone: customerPhone || null,
-        items: orderItems,
+        items: orderItems.map((item) => ({
+          ...item,
+          variantId: item.variantId || null,
+          variantName: item.variantName || null,
+          selectedCustomizations: item.selectedCustomizations || null,
+        })),
         subtotal,
         discount: discount || 0,
         discountType: discount > 0 ? discountType : null,
@@ -432,39 +499,41 @@ export default function EditOrderPage() {
           </Card>
         </div>
 
-        {/* Variant Selection Dialog */}
-        <Dialog
-          open={!!selectedDishForVariants}
-          onOpenChange={(open: boolean) =>
-            !open && setSelectedDishForVariants(null)
+        <DishConfigDialog
+          dish={selectedDishForConfig}
+          open={!!selectedDishForConfig}
+          onOpenChange={(open) => {
+            if (!open) {
+              setSelectedDishForConfig(null);
+              setEditingItemIndex(null);
+            }
+          }}
+          initialVariantId={
+            editingItemIndex !== null
+              ? orderItems[editingItemIndex].variantId
+              : undefined
           }
-        >
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>Select Variant</DialogTitle>
-              <DialogDescription>
-                Choose a size or option for {selectedDishForVariants?.name}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              {selectedDishForVariants?.variants?.map((variant) => (
-                <Button
-                  key={variant.id}
-                  variant="outline"
-                  className="flex justify-between items-center h-14"
-                  onClick={() =>
-                    addDishToOrder(selectedDishForVariants, variant)
-                  }
-                >
-                  <span className="font-semibold">{variant.name}</span>
-                  <span className="text-primary">
-                    Rs.{variant.price.toFixed(2)}
-                  </span>
-                </Button>
-              ))}
-            </div>
-          </DialogContent>
-        </Dialog>
+          initialSelections={
+            editingItemIndex !== null
+              ? orderItems[editingItemIndex].selectedCustomizations?.reduce(
+                  (acc, curr) => {
+                    if (!acc[curr.groupId]) acc[curr.groupId] = [];
+                    acc[curr.groupId].push(curr.optionId);
+                    return acc;
+                  },
+                  {} as Record<string, string[]>,
+                )
+              : undefined
+          }
+          onConfirm={(variantId, selectedCustomizations) =>
+            selectedDishForConfig &&
+            addDishToOrder(
+              selectedDishForConfig,
+              variantId,
+              selectedCustomizations,
+            )
+          }
+        />
 
         {/* Right: Order Summary */}
         <div className="space-y-4">
@@ -562,6 +631,19 @@ export default function EditOrderPage() {
                             </span>
                           )}
                         </p>
+                        {item.selectedCustomizations &&
+                          item.selectedCustomizations.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-0.5 mb-1 text-[10px] text-muted-foreground">
+                              {item.selectedCustomizations.map((c, i) => (
+                                <span
+                                  key={i}
+                                  className="bg-muted px-1 rounded border"
+                                >
+                                  {c.optionName}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         <p className="text-xs text-muted-foreground">
                           Rs.{item.price.toFixed(2)} each
                         </p>
@@ -589,6 +671,14 @@ export default function EditOrderPage() {
                           }
                         >
                           <Plus className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => handleEditItem(index)}
+                        >
+                          <Edit className="h-3 w-3" />
                         </Button>
                         <Button
                           variant="ghost"

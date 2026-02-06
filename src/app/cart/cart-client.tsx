@@ -109,8 +109,9 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
             quantity: item.quantity,
             price: item.price,
             isVeg: item.dish.isVeg,
-            variantId: item.variantId,
-            variantName: item.variantName,
+            variantId: item.variantId || null,
+            variantName: item.variantName || null,
+            selectedCustomizations: item.selectedCustomizations || null,
           };
         }),
         subtotal: cart.subtotal,
@@ -277,6 +278,19 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                                   </Badge>
                                 )}
                               </h3>
+                              {item.selectedCustomizations &&
+                                item.selectedCustomizations.length > 0 && (
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                    {item.selectedCustomizations.map((c, i) => (
+                                      <span
+                                        key={i}
+                                        className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground border"
+                                      >
+                                        {c.optionName}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
                               <p className="text-sm text-muted-foreground mt-1">
                                 {item.dish.description}
                               </p>
@@ -296,9 +310,18 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() =>
-                                removeFromCart(item.dish.id, item.variantId)
-                              }
+                              onClick={() => {
+                                const key =
+                                  item.selectedCustomizations
+                                    ?.map((c) => c.optionId)
+                                    .sort()
+                                    .join(",") || "";
+                                removeFromCart(
+                                  item.dish.id,
+                                  item.variantId,
+                                  key,
+                                );
+                              }}
                               className="flex-shrink-0"
                             >
                               <Trash2 className="h-4 w-4 text-destructive" />
@@ -310,13 +333,19 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                                 variant="outline"
                                 size="icon"
                                 className="h-8 w-8"
-                                onClick={() =>
+                                onClick={() => {
+                                  const key =
+                                    item.selectedCustomizations
+                                      ?.map((c) => c.optionId)
+                                      .sort()
+                                      .join(",") || "";
                                   updateQuantity(
                                     item.dish.id,
                                     item.quantity - 1,
                                     item.variantId,
-                                  )
-                                }
+                                    key,
+                                  );
+                                }}
                               >
                                 <Minus className="h-4 w-4" />
                               </Button>
@@ -327,13 +356,19 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                                 variant="outline"
                                 size="icon"
                                 className="h-8 w-8"
-                                onClick={() =>
+                                onClick={() => {
+                                  const key =
+                                    item.selectedCustomizations
+                                      ?.map((c) => c.optionId)
+                                      .sort()
+                                      .join(",") || "";
                                   updateQuantity(
                                     item.dish.id,
                                     item.quantity + 1,
                                     item.variantId,
-                                  )
-                                }
+                                    key,
+                                  );
+                                }}
                               >
                                 <Plus className="h-4 w-4" />
                               </Button>
@@ -406,9 +441,12 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                         >
                           <span>
                             {item.dish.name}
-                            {item.variantName
-                              ? ` (${item.variantName})`
-                              : ""} × {item.quantity}
+                            {item.variantName ? ` (${item.variantName})` : ""}
+                            {item.selectedCustomizations &&
+                            item.selectedCustomizations.length > 0
+                              ? ` [${item.selectedCustomizations.map((c) => c.optionName).join(", ")}]`
+                              : ""}{" "}
+                            × {item.quantity}
                           </span>
                           <span>
                             Rs.{(item.price * item.quantity).toFixed(2)}

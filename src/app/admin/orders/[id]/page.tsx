@@ -484,6 +484,20 @@ export default function OrderDetailsPage() {
                           {item.isVeg ? "🟢" : "🔴"}
                         </Badge>
                       </div>
+                      {item.selectedCustomizations &&
+                        item.selectedCustomizations.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {item.selectedCustomizations.map((c, i) => (
+                              <Badge
+                                key={i}
+                                variant="outline"
+                                className="text-[10px] h-5 py-0"
+                              >
+                                {c.optionName}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
                       <p className="text-sm text-muted-foreground mt-1">
                         Rs.{item.price.toFixed(2)} × {item.quantity}
                       </p>
@@ -602,8 +616,12 @@ export default function OrderDetailsPage() {
                   >
                     <span>
                       {item.dishName}
-                      {item.variantName ? ` (${item.variantName})` : ""} ×{" "}
-                      {item.quantity}
+                      {item.variantName ? ` (${item.variantName})` : ""}
+                      {item.selectedCustomizations &&
+                      item.selectedCustomizations.length > 0
+                        ? ` [${item.selectedCustomizations.map((c) => c.optionName).join(", ")}]`
+                        : ""}{" "}
+                      × {item.quantity}
                     </span>
                     <span>Rs.{(item.price * item.quantity).toFixed(2)}</span>
                   </div>

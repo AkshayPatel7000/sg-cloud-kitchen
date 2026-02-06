@@ -160,6 +160,19 @@ export default function BillPage() {
         }
       });
 
+      // Customizations
+      if (
+        item.selectedCustomizations &&
+        item.selectedCustomizations.length > 0
+      ) {
+        item.selectedCustomizations.forEach((c) => {
+          const custLines = wrapText(`+ ${c.optionName}`, 28);
+          custLines.forEach((cl) => {
+            bill += `  ${cl}\n`;
+          });
+        });
+      }
+
       // Price details line (Veg/Non-Veg + unit price)
       const vegTag = item.isVeg ? "[V]" : "[N]";
       bill += `  ${vegTag} @${formatCurrency(item.price)}\n`;

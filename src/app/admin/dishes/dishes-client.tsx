@@ -9,14 +9,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Dish, Category } from "@/lib/types";
-import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import type { Dish, Category } from "@/lib/types";
 import {
   MoreHorizontal,
   PlusCircle,
@@ -26,6 +26,7 @@ import {
   Flame,
   Star,
   X,
+  Settings2,
 } from "lucide-react";
 import Image from "next/image";
 import { useState, useMemo } from "react";
@@ -75,11 +76,28 @@ import { addDish, updateDish, deleteDish } from "@/lib/data-client";
 import { ImageUpload } from "@/components/image-upload";
 import { Checkbox } from "@/components/ui/checkbox";
 import { sanitizeImageUrl } from "@/lib/image-utils";
+import { Separator } from "@/components/ui/separator";
 
 const variantSchema = z.object({
   id: z.string().min(1, "ID is required"),
   name: z.string().min(1, "Variant name is required"),
-  price: z.coerce.number().positive("Price must be positive"),
+  price: z.coerce.number().min(0, "Price must be 0 or more"),
+});
+
+const customizationOptionSchema = z.object({
+  id: z.string().min(1, "ID is required"),
+  name: z.string().min(1, "Option name is required"),
+  price: z.coerce.number().min(0, "Price must be 0 or more"),
+});
+
+const customizationGroupSchema = z.object({
+  id: z.string().min(1, "ID is required"),
+  name: z.string().min(1, "Group name is required"),
+  minSelection: z.coerce.number().min(0),
+  maxSelection: z.coerce.number().min(1),
+  options: z
+    .array(customizationOptionSchema)
+    .min(1, "At least one option is required"),
 });
 
 const dishSchema = z.object({
@@ -92,6 +110,7 @@ const dishSchema = z.object({
   isAvailable: z.boolean(),
   tags: z.array(z.enum(["spicy", "bestseller"])).optional(),
   variants: z.array(variantSchema).optional(),
+  customizations: z.array(customizationGroupSchema).optional(),
 });
 
 type DishFormValues = z.infer<typeof dishSchema>;
@@ -119,12 +138,22 @@ function DishForm({
       isAvailable: currentDish?.isAvailable ?? true,
       tags: currentDish?.tags ?? [],
       variants: currentDish?.variants ?? [],
+      customizations: currentDish?.customizations ?? [],
     },
   });
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "variants",
+  });
+
+  const {
+    fields: customizationFields,
+    append: appendCustomization,
+    remove: removeCustomization,
+  } = useFieldArray({
+    control: form.control,
+    name: "customizations",
   });
 
   const onSubmit = async (data: DishFormValues) => {
@@ -389,6 +418,202 @@ function DishForm({
             )}
           </div>
         </div>
+        <Separator className="my-6" />
+
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <FormLabel className="text-base">Customizations</FormLabel>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                appendCustomization({
+                  id: Math.random().toString(36).substr(2, 9),
+                  name: "",
+                  minSelection: 0,
+                  maxSelection: 1,
+                  options: [
+                    {
+                      id: Math.random().toString(36).substr(2, 9),
+                      name: "",
+                      price: 0,
+                    },
+                  ],
+                })
+              }
+            >
+              <PlusCircle className="mr-2 h-4 w-4" /> Add Group
+            </Button>
+          </div>
+          <p className="text-[0.8rem] text-muted-foreground">
+            Add customization groups like "Choose Bread", "Select Spice Level",
+            etc.
+          </p>
+
+          <div className="space-y-6">
+            {customizationFields.map((group, groupIndex) => (
+              <div
+                key={group.id}
+                className="border p-4 rounded-xl space-y-4 bg-muted/30 relative"
+              >
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-2 right-2 h-8 w-8 text-muted-foreground hover:text-destructive"
+                  onClick={() => removeCustomization(groupIndex)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <FormField
+                    control={form.control}
+                    name={`customizations.${groupIndex}.name`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Group Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g. Choose Bread" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`customizations.${groupIndex}.minSelection`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Min Selection</FormLabel>
+                        <FormControl>
+                          <Input type="number" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`customizations.${groupIndex}.maxSelection`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Max Selection</FormLabel>
+                        <FormControl>
+                          <Input type="number" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between px-1">
+                    <FormLabel className="text-xs font-semibold">
+                      Options
+                    </FormLabel>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-[10px]"
+                      onClick={() => {
+                        const currentOptions =
+                          form.getValues(
+                            `customizations.${groupIndex}.options`,
+                          ) || [];
+                        form.setValue(`customizations.${groupIndex}.options`, [
+                          ...currentOptions,
+                          {
+                            id: Math.random().toString(36).substr(2, 9),
+                            name: "",
+                            price: 0,
+                          },
+                        ]);
+                      }}
+                    >
+                      <PlusCircle className="mr-1 h-3 w-3" /> Add Option
+                    </Button>
+                  </div>
+
+                  <div className="grid gap-2">
+                    {form
+                      .watch(`customizations.${groupIndex}.options`)
+                      ?.map((option, optionIndex) => (
+                        <div
+                          key={option.id}
+                          className="flex gap-2 items-center"
+                        >
+                          <FormField
+                            control={form.control}
+                            name={`customizations.${groupIndex}.options.${optionIndex}.name`}
+                            render={({ field }) => (
+                              <FormItem className="flex-grow">
+                                <FormControl>
+                                  <Input
+                                    placeholder="Option name"
+                                    className="h-8 text-xs"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`customizations.${groupIndex}.options.${optionIndex}.price`}
+                            render={({ field }) => (
+                              <FormItem className="w-20">
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    placeholder="Price"
+                                    className="h-8 text-xs"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            onClick={() => {
+                              const currentOptions = form.getValues(
+                                `customizations.${groupIndex}.options`,
+                              );
+                              if (currentOptions.length > 1) {
+                                form.setValue(
+                                  `customizations.${groupIndex}.options`,
+                                  currentOptions.filter(
+                                    (_, idx) => idx !== optionIndex,
+                                  ),
+                                );
+                              }
+                            }}
+                          >
+                            <Trash className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {customizationFields.length === 0 && (
+              <div className="text-center py-4 border border-dashed rounded-lg text-muted-foreground text-sm">
+                No customizations added.
+              </div>
+            )}
+          </div>
+        </div>
 
         <Button type="submit" className="w-full">
           Save Dish
@@ -420,6 +645,8 @@ export function DishesClient({
       const formattedData = {
         ...data,
         tags: data.tags || [],
+        variants: data.variants || [],
+        customizations: data.customizations || [],
       };
       if (id) {
         await updateDish(id, formattedData as any);

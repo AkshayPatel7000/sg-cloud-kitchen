@@ -13,12 +13,22 @@ import { getRestaurant } from "@/lib/data-client";
 
 type CartContextType = {
   cart: Cart;
-  addToCart: (dish: Dish, variantId?: string, quantity?: number) => void;
-  removeFromCart: (dishId: string, variantId?: string) => void;
+  addToCart: (
+    dish: Dish,
+    variantId?: string,
+    quantity?: number,
+    selectedCustomizations?: CartItem["selectedCustomizations"],
+  ) => void;
+  removeFromCart: (
+    dishId: string,
+    variantId?: string,
+    customizationsKey?: string,
+  ) => void;
   updateQuantity: (
     dishId: string,
     quantity: number,
     variantId?: string,
+    customizationsKey?: string,
   ) => void;
   clearCart: () => void;
   itemCount: number;
@@ -111,15 +121,36 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [items]);
 
   const addToCart = useCallback(
-    (dish: Dish, variantId?: string, quantity: number = 1) => {
+    (
+      dish: Dish,
+      variantId?: string,
+      quantity: number = 1,
+      selectedCustomizations?: CartItem["selectedCustomizations"],
+    ) => {
       setItems((prevItems) => {
+        // Create a unique key for matching (dish + variant + customizations)
+        const getCustomizationKey = (
+          cust?: CartItem["selectedCustomizations"],
+        ) =>
+          cust
+            ?.map((c) => `${c.optionId}`)
+            .sort()
+            .join(",") || "";
+
+        const newCustKey = getCustomizationKey(selectedCustomizations);
+
         const existingItem = prevItems.find(
-          (item) => item.dish.id === dish.id && item.variantId === variantId,
+          (item) =>
+            item.dish.id === dish.id &&
+            item.variantId === variantId &&
+            getCustomizationKey(item.selectedCustomizations) === newCustKey,
         );
 
         if (existingItem) {
           return prevItems.map((item) =>
-            item.dish.id === dish.id && item.variantId === variantId
+            item.dish.id === dish.id &&
+            item.variantId === variantId &&
+            getCustomizationKey(item.selectedCustomizations) === newCustKey
               ? { ...item, quantity: item.quantity + quantity }
               : item,
           );
@@ -129,6 +160,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           ? dish.variants?.find((v) => v.id === variantId)
           : undefined;
 
+        const basePrice = variant ? variant.price : dish.price;
+        const customizationsPrice =
+          selectedCustomizations?.reduce((sum, c) => sum + c.price, 0) || 0;
+
         return [
           ...prevItems,
           {
@@ -136,7 +171,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             quantity,
             variantId,
             variantName: variant?.name,
-            price: variant ? variant.price : dish.price,
+            selectedCustomizations,
+            price: basePrice + customizationsPrice,
           },
         ];
       });
@@ -144,28 +180,63 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
-  const removeFromCart = useCallback((dishId: string, variantId?: string) => {
-    setItems((prevItems) =>
-      prevItems.filter(
-        (item) => !(item.dish.id === dishId && item.variantId === variantId),
-      ),
-    );
-  }, []);
+  const removeFromCart = useCallback(
+    (dishId: string, variantId?: string, customizationsKey?: string) => {
+      setItems((prevItems) => {
+        const getCustomizationKey = (
+          cust?: CartItem["selectedCustomizations"],
+        ) =>
+          cust
+            ?.map((c) => `${c.optionId}`)
+            .sort()
+            .join(",") || "";
+
+        return prevItems.filter(
+          (item) =>
+            !(
+              item.dish.id === dishId &&
+              item.variantId === variantId &&
+              (customizationsKey === undefined ||
+                getCustomizationKey(item.selectedCustomizations) ===
+                  customizationsKey)
+            ),
+        );
+      });
+    },
+    [],
+  );
 
   const updateQuantity = useCallback(
-    (dishId: string, quantity: number, variantId?: string) => {
+    (
+      dishId: string,
+      quantity: number,
+      variantId?: string,
+      customizationsKey?: string,
+    ) => {
       if (quantity <= 0) {
-        removeFromCart(dishId, variantId);
+        removeFromCart(dishId, variantId, customizationsKey);
         return;
       }
 
-      setItems((prevItems) =>
-        prevItems.map((item) =>
-          item.dish.id === dishId && item.variantId === variantId
+      setItems((prevItems) => {
+        const getCustomizationKey = (
+          cust?: CartItem["selectedCustomizations"],
+        ) =>
+          cust
+            ?.map((c) => `${c.optionId}`)
+            .sort()
+            .join(",") || "";
+
+        return prevItems.map((item) =>
+          item.dish.id === dishId &&
+          item.variantId === variantId &&
+          (customizationsKey === undefined ||
+            getCustomizationKey(item.selectedCustomizations) ===
+              customizationsKey)
             ? { ...item, quantity }
             : item,
-        ),
-      );
+        );
+      });
     },
     [removeFromCart],
   );

@@ -114,6 +114,16 @@ export default function KOTPage() {
         : item.dishName;
       kot += `${index + 1}. ${displayName}\n`;
 
+      // Customizations
+      if (
+        item.selectedCustomizations &&
+        item.selectedCustomizations.length > 0
+      ) {
+        item.selectedCustomizations.forEach((c) => {
+          kot += `   + ${c.optionName}\n`;
+        });
+      }
+
       // Veg/Non-Veg indicator
       const vegIndicator = item.isVeg ? "[VEG]" : "[NON-VEG]";
       kot += `   ${vegIndicator}\n`;

@@ -9,29 +9,31 @@ import type { Dish } from "@/lib/types";
 import { sanitizeImageUrl } from "@/lib/image-utils";
 import { useCart } from "@/contexts/cart-context";
 import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "./ui/dialog";
+import { DishConfigDialog } from "./dish-config-dialog";
 
 export function DishListItem({ dish }: { dish: Dish }) {
   const { addToCart, cart, isHydrated } = useCart();
-  const [showVariants, setShowVariants] = useState(false);
+  const [showConfig, setShowConfig] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
 
   const isInCart = cart.items.some((item) => item.dish.id === dish.id);
 
-  const handleAddToCart = (variantId?: string) => {
-    if (dish.variants && dish.variants.length > 0 && !variantId) {
-      setShowVariants(true);
+  const handleAddToCart = (
+    variantId?: string,
+    selectedCustomizations?: any[],
+  ) => {
+    const hasOptions =
+      (dish.variants && dish.variants.length > 0) ||
+      (dish.customizations && dish.customizations.length > 0);
+
+    if (hasOptions && !variantId && !selectedCustomizations) {
+      setShowConfig(true);
       return;
     }
-    addToCart(dish, variantId);
+
+    addToCart(dish, variantId, 1, selectedCustomizations);
     setJustAdded(true);
-    setShowVariants(false);
+    setShowConfig(false);
     setTimeout(() => setJustAdded(false), 2000);
   };
 
@@ -95,33 +97,12 @@ export function DishListItem({ dish }: { dish: Dish }) {
             </div>
           )}
         </div>
-        <Dialog open={showVariants} onOpenChange={setShowVariants}>
-          <DialogContent className="max-w-[90vw] sm:max-w-md rounded-t-2xl sm:rounded-lg">
-            <DialogHeader>
-              <DialogTitle>Select Variant</DialogTitle>
-              <DialogDescription>
-                Choose an option for {dish.name}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-3 py-4">
-              {dish.variants?.map((variant) => (
-                <Button
-                  key={variant.id}
-                  variant="outline"
-                  className="flex justify-between items-center h-16 px-4"
-                  onClick={() => handleAddToCart(variant.id)}
-                >
-                  <span className="font-semibold text-base">
-                    {variant.name}
-                  </span>
-                  <span className="text-primary font-bold">
-                    Rs.{variant.price.toFixed(2)}
-                  </span>
-                </Button>
-              ))}
-            </div>
-          </DialogContent>
-        </Dialog>
+        <DishConfigDialog
+          dish={dish}
+          open={showConfig}
+          onOpenChange={setShowConfig}
+          onConfirm={handleAddToCart}
+        />
       </div>
     </div>
   );
