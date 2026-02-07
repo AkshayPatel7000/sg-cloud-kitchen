@@ -14,6 +14,8 @@ import {
   ShoppingCart,
   ArrowLeft,
   MessageCircle,
+  MapPin,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import { VegNonVegIcon } from "@/components/veg-non-veg-icon";
@@ -33,6 +35,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
 
   const [userName, setUserName] = useState("");
   const [userPhone, setUserPhone] = useState("");
+  const [userAddress, setUserAddress] = useState("");
   const [showNameInput, setShowNameInput] = useState(false);
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
 
@@ -40,9 +43,46 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
   useEffect(() => {
     const savedName = localStorage.getItem("customer_name");
     const savedPhone = localStorage.getItem("customer_phone");
+    const savedAddress = localStorage.getItem("customer_address");
     if (savedName) setUserName(savedName);
     if (savedPhone) setUserPhone(savedPhone);
+    if (savedAddress) setUserAddress(savedAddress);
+
+    // Only request location if address is empty
+    if (!savedAddress) {
+      handleAutoLocation();
+    }
   }, []);
+
+  const handleAutoLocation = () => {
+    if (!("geolocation" in navigator)) return;
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          // Use free Nominatim API for reverse geocoding
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`,
+          );
+          const data = await response.json();
+          if (data.display_name) {
+            setUserAddress(data.display_name);
+            toast({
+              title: "Location Detected",
+              description: "Your delivery address has been auto-filled.",
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching address:", error);
+        }
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+      },
+      { enableHighAccuracy: true },
+    );
+  };
 
   const generateOrderNumber = () => {
     // Generate order number using timestamp + random suffix
@@ -69,10 +109,30 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
       return;
     }
 
-    if (!userName.trim() || !userPhone.trim()) {
+    if (!userName.trim()) {
       toast({
-        title: "Information Required",
-        description: "Please enter your name and mobile number to proceed.",
+        title: "Name Required",
+        description: "Please enter your name to proceed.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!userPhone.trim()) {
+      toast({
+        title: "Mobile Number Required",
+        description: "Please enter your mobile number to proceed.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Mobile number validation (simple 10-digit check)
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(userPhone.replace(/\s/g, ""))) {
+      toast({
+        title: "Invalid Mobile Number",
+        description: "Please enter a valid 10-digit mobile number.",
         variant: "destructive",
       });
       return;
@@ -102,6 +162,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
         orderNumber,
         customerName: userName || "Customer",
         customerPhone: userPhone || null,
+        customerAddress: userAddress || null,
         items: cart.items.map((item) => {
           return {
             dishId: item.dish.id,
@@ -135,6 +196,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
       // Save to localStorage for future orders
       localStorage.setItem("customer_name", userName);
       localStorage.setItem("customer_phone", userPhone);
+      localStorage.setItem("customer_address", userAddress);
 
       // Send notification to admin
       try {
@@ -170,6 +232,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
         whatsappNumber,
         userName || undefined,
         userPhone || undefined,
+        userAddress || undefined,
         orderNumber,
       );
 
@@ -459,11 +522,13 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
 
                 <Separator />
 
-                {/* Name & Phone Input (conditional) */}
+                {/* Name & Phone & Address Input (conditional) */}
                 {showNameInput && (
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="userName">Your Name</Label>
+                      <Label htmlFor="userName">
+                        Your Name <span className="text-destructive">*</span>
+                      </Label>
                       <Input
                         id="userName"
                         placeholder="Enter your name"
@@ -474,15 +539,52 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="userPhone">Mobile Number</Label>
+                      <Label htmlFor="userPhone">
+                        Mobile Number{" "}
+                        <span className="text-destructive">*</span>
+                      </Label>
                       <Input
                         id="userPhone"
                         type="tel"
-                        placeholder="Enter your mobile number"
+                        placeholder="Enter 10-digit mobile number"
                         value={userPhone}
                         onChange={(e) => setUserPhone(e.target.value)}
                         required
                       />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="userAddress">
+                          Delivery Address{" "}
+                          <span className="text-muted-foreground text-[10px] font-normal">
+                            (Optional)
+                          </span>
+                        </Label>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 px-2 text-[10px] gap-1 hover:text-primary"
+                          onClick={handleAutoLocation}
+                          type="button"
+                        >
+                          <MapPin className="h-3 w-3" />
+                          Detect Location
+                        </Button>
+                      </div>
+                      <div className="relative">
+                        <Input
+                          id="userAddress"
+                          placeholder="Enter your delivery address"
+                          value={userAddress}
+                          onChange={(e) => setUserAddress(e.target.value)}
+                          className="pr-10"
+                        />
+                        {userAddress && (
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <MapPin className="h-4 w-4 text-primary opacity-50" />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}

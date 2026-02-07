@@ -141,6 +141,7 @@ export type Order = {
   orderNumber: string; // e.g., "ORD-001"
   customerName?: string;
   customerPhone?: string;
+  customerAddress?: string;
   items: OrderItem[];
   subtotal: number;
   discount?: number; // Discount amount applied

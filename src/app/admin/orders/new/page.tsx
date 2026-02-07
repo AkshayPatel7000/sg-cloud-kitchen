@@ -48,6 +48,7 @@ export default function NewOrderPage() {
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
+  const [customerAddress, setCustomerAddress] = useState("");
   const [orderType, setOrderType] = useState<
     "dine-in" | "takeaway" | "delivery"
   >("dine-in");
@@ -289,6 +290,7 @@ export default function NewOrderPage() {
         orderNumber,
         customerName: customerName || null,
         customerPhone: customerPhone || null,
+        customerAddress: customerAddress || null,
         items: orderItems.map((item) => ({
           ...item,
           variantId: item.variantId || null,
@@ -535,6 +537,18 @@ export default function NewOrderPage() {
                   placeholder="Enter phone"
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="customerAddress">
+                  Delivery Address (Optional)
+                </Label>
+                <Input
+                  id="customerAddress"
+                  placeholder="Enter address"
+                  value={customerAddress}
+                  onChange={(e) => setCustomerAddress(e.target.value)}
                 />
               </div>
 

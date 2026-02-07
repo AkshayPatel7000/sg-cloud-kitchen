@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,6 +40,7 @@ import {
   Calendar,
   Edit,
   Trash2,
+  Settings2,
 } from "lucide-react";
 import Link from "next/link";
 import type { Order, OrderStatus, Restaurant } from "@/lib/types";
@@ -362,98 +364,126 @@ export default function OrderDetailsPage() {
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Left Column - Order Details */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Status Card */}
+          {/* Status & Payment Card */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <StatusIcon
-                  className={`h-5 w-5 ${statusConfig[order.status].color}`}
-                />
-                Order Status
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg font-bold flex items-center gap-2">
+                <Settings2 className="h-5 w-5" />
+                Order & Payment Status
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-4">
-                <Badge
-                  variant={statusConfig[order.status].variant}
-                  className="text-base px-4 py-2"
-                >
-                  {statusConfig[order.status].label}
-                </Badge>
-                <Select
-                  value={order.status}
-                  onValueChange={(value: OrderStatus) =>
-                    updateOrderStatus(value)
-                  }
-                  disabled={isUpdating}
-                >
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="preparing">Preparing</SelectItem>
-                    <SelectItem value="ready">Ready</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
-                  </SelectContent>
-                </Select>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-8">
+                {/* Order Status Section */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Order Status
+                    </span>
+                    <Badge
+                      variant={statusConfig[order.status].variant}
+                      className="px-3"
+                    >
+                      {statusConfig[order.status].label}
+                    </Badge>
+                  </div>
+                  <Select
+                    value={order.status}
+                    onValueChange={(value: OrderStatus) =>
+                      updateOrderStatus(value)
+                    }
+                    disabled={isUpdating}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="preparing">Preparing</SelectItem>
+                      <SelectItem value="ready">Ready</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Payment Status Section */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Payment Status
+                    </span>
+                    <Badge variant={order.isPaid ? "secondary" : "destructive"}>
+                      {order.isPaid ? "Paid" : "Unpaid"}
+                    </Badge>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant={order.isPaid ? "outline" : "default"}
+                      className="flex-grow h-10"
+                      onClick={togglePaymentStatus}
+                      disabled={isUpdating}
+                    >
+                      {order.isPaid ? "Mark Unpaid" : "Mark Paid"}
+                    </Button>
+                    <Select
+                      value={order.paymentMethod || "none"}
+                      onValueChange={updatePaymentMethod}
+                      disabled={isUpdating}
+                    >
+                      <SelectTrigger className="w-[120px]">
+                        <SelectValue placeholder="Method" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">N/A</SelectItem>
+                        <SelectItem value="cash">Cash</SelectItem>
+                        <SelectItem value="card">Card</SelectItem>
+                        <SelectItem value="upi">UPI</SelectItem>
+                        <SelectItem value="online">Online</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <Separator className="my-4" />
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
-                  <span className="text-muted-foreground">Order Type:</span>
-                  <p className="font-medium capitalize">
+                  <span className="text-muted-foreground text-xs">
+                    Order Type:
+                  </span>
+                  <p className="font-medium capitalize text-xs">
                     {order.orderType.replace("-", " ")}
                   </p>
                 </div>
                 {order.tableNumber && (
                   <div>
-                    <span className="text-muted-foreground">Table:</span>
-                    <p className="font-medium">{order.tableNumber}</p>
+                    <span className="text-muted-foreground text-xs">
+                      Table:
+                    </span>
+                    <p className="font-medium text-xs">{order.tableNumber}</p>
                   </div>
                 )}
                 <div>
-                  <span className="text-muted-foreground">Created:</span>
-                  <p className="font-medium">
+                  <span className="text-muted-foreground text-xs">
+                    Created:
+                  </span>
+                  <p className="font-medium text-[10px]">
                     {format(order.createdAt, "PPp")}
                   </p>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Updated:</span>
-                  <p className="font-medium">
+                  <span className="text-muted-foreground text-xs">
+                    Updated:
+                  </span>
+                  <p className="font-medium text-[10px]">
                     {format(order.updatedAt, "PPp")}
                   </p>
                 </div>
               </div>
             </CardContent>
           </Card>
-
-          {/* Customer Details */}
-          {(order.customerName || order.customerPhone) && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Customer Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {order.customerName && (
-                  <div className="flex items-center gap-2">
-                    <User className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">{order.customerName}</span>
-                  </div>
-                )}
-                {order.customerPhone && (
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">{order.customerPhone}</span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
 
           {/* Order Items */}
           <Card>
@@ -630,54 +660,58 @@ export default function OrderDetailsPage() {
             </CardContent>
           </Card>
 
-          {/* Payment Status */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
-                Payment
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Payment Status:</span>
-                <Badge variant={order.isPaid ? "secondary" : "destructive"}>
-                  {order.isPaid ? "Paid" : "Unpaid"}
-                </Badge>
-              </div>
-
-              <Button
-                variant={order.isPaid ? "outline" : "default"}
-                className="w-full"
-                onClick={togglePaymentStatus}
-                disabled={isUpdating}
-              >
-                {order.isPaid ? "Mark as Unpaid" : "Mark as Paid"}
-              </Button>
-
-              <Separator />
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Payment Method:</label>
-                <Select
-                  value={order.paymentMethod || "none"}
-                  onValueChange={updatePaymentMethod}
-                  disabled={isUpdating}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select method" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Not specified</SelectItem>
-                    <SelectItem value="cash">Cash</SelectItem>
-                    <SelectItem value="card">Card</SelectItem>
-                    <SelectItem value="upi">UPI</SelectItem>
-                    <SelectItem value="online">Online</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Customer Details */}
+          {(order.customerName ||
+            order.customerPhone ||
+            order.customerAddress) && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <User className="h-5 w-5" />
+                  Customer Details
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {order.customerName && (
+                  <div className="flex items-center gap-3">
+                    <div className="bg-muted p-2 rounded-full">
+                      <User className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Name</p>
+                      <p className="font-medium">{order.customerName}</p>
+                    </div>
+                  </div>
+                )}
+                {order.customerPhone && (
+                  <div className="flex items-center gap-3">
+                    <div className="bg-muted p-2 rounded-full">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Mobile</p>
+                      <p className="font-medium">{order.customerPhone}</p>
+                    </div>
+                  </div>
+                )}
+                {order.customerAddress && (
+                  <div className="flex items-start gap-3">
+                    <div className="bg-muted p-2 rounded-full">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        Delivery Address
+                      </p>
+                      <p className="font-medium text-sm leading-snug">
+                        {order.customerAddress}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>

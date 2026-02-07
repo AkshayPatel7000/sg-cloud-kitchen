@@ -65,6 +65,11 @@ export default function Home() {
         setOffers(offersData);
         setTodaysSpecial(specialData);
         setWhatsNew(newData);
+
+        // Request location permission on load if not already saved
+        if (!localStorage.getItem("customer_address")) {
+          requestLocation();
+        }
       } catch (error) {
         console.error("Error loading home data:", error);
       } finally {
@@ -74,6 +79,31 @@ export default function Home() {
 
     loadData();
   }, []);
+
+  const requestLocation = () => {
+    if (typeof window !== "undefined" && "geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const { latitude, longitude } = position.coords;
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`,
+            );
+            const data = await response.json();
+            if (data.display_name) {
+              localStorage.setItem("customer_address", data.display_name);
+            }
+          } catch (error) {
+            console.error("Error fetching address on home:", error);
+          }
+        },
+        (error) => {
+          console.error("Geolocation error on home:", error);
+        },
+        { enableHighAccuracy: true },
+      );
+    }
+  };
 
   if (loading || !restaurant) {
     return (
@@ -171,14 +201,7 @@ export default function Home() {
                     Our Menu
                   </Link>
                 </li>
-                <li>
-                  <Link
-                    href="#offers"
-                    className="hover:text-primary transition-colors"
-                  >
-                    Special Offers
-                  </Link>
-                </li>
+
                 <li>
                   <Link
                     href="#contact"
@@ -191,25 +214,9 @@ export default function Home() {
             </div>
             <div className="space-y-6">
               <h4 className="text-sm font-bold uppercase tracking-widest text-foreground/50">
-                Support
+                Admin
               </h4>
               <ul className="space-y-4">
-                <li>
-                  <Link
-                    href="/privacy"
-                    className="hover:text-primary transition-colors"
-                  >
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/terms"
-                    className="hover:text-primary transition-colors"
-                  >
-                    Terms of Service
-                  </Link>
-                </li>
                 <li>
                   <Link
                     href="/admin"
@@ -225,7 +232,7 @@ export default function Home() {
           <div className="pt-8 border-t border-primary/5 text-center">
             <p className="text-sm text-muted-foreground italic">
               &copy; {new Date().getFullYear()} {restaurant.name}. Crafted with
-              passion for fine dining.
+              passion for premium takeaway and express delivery.
             </p>
           </div>
         </div>

@@ -132,6 +132,13 @@ export default function BillPage() {
       if (order.customerPhone) {
         bill += splitLine("Phone:", order.customerPhone) + "\n";
       }
+      if (order.customerAddress) {
+        bill += "Address:\n";
+        const addressLines = wrapText(order.customerAddress, PRINTER_WIDTH);
+        addressLines.forEach((line) => {
+          bill += `  ${line}\n`;
+        });
+      }
     }
 
     bill += separator("=") + "\n";

@@ -102,8 +102,8 @@ const customizationGroupSchema = z.object({
 
 const dishSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  description: z.string().min(1, "Description is required"),
-  imageUrl: z.string().url("Must be a valid URL"),
+  description: z.string().optional(),
+  imageUrl: z.string().optional(),
   price: z.coerce.number().min(0, "Price must be 0 or more"),
   categoryId: z.string().min(1, "Category is required"),
   isVeg: z.boolean(),
@@ -185,7 +185,12 @@ function DishForm({
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>
+                Description{" "}
+                <span className="text-muted-foreground text-[10px] font-normal">
+                  (Optional)
+                </span>
+              </FormLabel>
               <FormControl>
                 <Textarea {...field} />
               </FormControl>
@@ -199,7 +204,12 @@ function DishForm({
             name="imageUrl"
             render={({ field }) => (
               <FormItem className="flex-shrink-0">
-                <FormLabel>Image</FormLabel>
+                <FormLabel>
+                  Image{" "}
+                  <span className="text-muted-foreground text-[10px] font-normal">
+                    (Optional)
+                  </span>
+                </FormLabel>
                 <FormControl>
                   <ImageUpload
                     value={field.value}

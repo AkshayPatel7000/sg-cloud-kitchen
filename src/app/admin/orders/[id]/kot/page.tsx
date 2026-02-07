@@ -17,6 +17,7 @@ import {
   PRINTER_WIDTH,
   generatePrintHTML,
   printContent,
+  wrapText,
 } from "@/lib/thermal-printer";
 
 export default function KOTPage() {
@@ -153,6 +154,13 @@ export default function KOTPage() {
     // Customer info (if available)
     if (order.customerName) {
       kot += splitLine("Customer:", order.customerName) + "\n";
+    }
+    if (order.customerAddress) {
+      kot += "Address:\n";
+      const addressLines = wrapText(order.customerAddress, PRINTER_WIDTH);
+      addressLines.forEach((line) => {
+        kot += `  ${line}\n`;
+      });
     }
 
     // Footer

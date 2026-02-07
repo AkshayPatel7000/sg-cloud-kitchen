@@ -7,12 +7,14 @@ export function generateWhatsAppMessage(
   cart: Cart,
   userName?: string,
   userPhone?: string,
+  userAddress?: string,
   orderNumber?: string,
 ): string {
   const greeting = userName ? `Hi, I'm ${userName}!` : "Hi!";
   const phoneInfo = userPhone ? ` (Phone: ${userPhone})` : "";
+  const addressInfo = userAddress ? `\n📍 *Address: ${userAddress}*` : "";
 
-  let message = `${greeting}${phoneInfo}\n\n`;
+  let message = `${greeting}${phoneInfo}${addressInfo}\n\n`;
 
   if (orderNumber) {
     message += `🆔 *Order ID: ${orderNumber}*\n`;
@@ -32,7 +34,9 @@ export function generateWhatsAppMessage(
   message += `*Bill Summary*\n`;
   message += `${"=".repeat(30)}\n`;
   message += `Subtotal: Rs.${cart.subtotal.toFixed(2)}\n`;
-  message += `Tax (GST 5%): Rs.${cart.tax.toFixed(2)}\n`;
+  if (cart.tax > 0) {
+    message += `Tax (GST 5%): Rs.${cart.tax.toFixed(2)}\n`;
+  }
   message += `${"─".repeat(30)}\n`;
   message += `*Total Amount: Rs.${cart.total.toFixed(2)}*\n\n`;
 
@@ -71,12 +75,14 @@ export function sendCartViaWhatsApp(
   restaurantPhone: string,
   userName?: string,
   userPhone?: string,
+  userAddress?: string,
   orderNumber?: string,
 ): void {
   const message = generateWhatsAppMessage(
     cart,
     userName,
     userPhone,
+    userAddress,
     orderNumber,
   );
   sendWhatsAppMessage(restaurantPhone, message);
