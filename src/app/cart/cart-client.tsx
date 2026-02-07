@@ -173,6 +173,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
             variantId: item.variantId || null,
             variantName: item.variantName || null,
             selectedCustomizations: item.selectedCustomizations || null,
+            notes: item.notes || null,
           };
         }),
         subtotal: cart.subtotal,
@@ -369,6 +370,14 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                                   </Badge>
                                 ))}
                               </div>
+                              {item.notes && (
+                                <p className="text-xs text-muted-foreground mt-2 italic flex items-start gap-1">
+                                  <span className="font-semibold not-italic">
+                                    Note:
+                                  </span>{" "}
+                                  {item.notes}
+                                </p>
+                              )}
                             </div>
                             <Button
                               variant="ghost"
@@ -509,7 +518,8 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                             item.selectedCustomizations.length > 0
                               ? ` [${item.selectedCustomizations.map((c) => c.optionName).join(", ")}]`
                               : ""}{" "}
-                            × {item.quantity}
+                            {item.notes ? ` (Note: ${item.notes})` : ""} ×{" "}
+                            {item.quantity}
                           </span>
                           <span>
                             Rs.{(item.price * item.quantity).toFixed(2)}

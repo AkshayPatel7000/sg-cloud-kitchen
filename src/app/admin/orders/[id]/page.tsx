@@ -652,7 +652,8 @@ export default function OrderDetailsPage() {
                       item.selectedCustomizations.length > 0
                         ? ` [${item.selectedCustomizations.map((c) => c.optionName).join(", ")}]`
                         : ""}{" "}
-                      × {item.quantity}
+                      {item.notes ? ` (Note: ${item.notes})` : ""} ×{" "}
+                      {item.quantity}
                     </span>
                     <span>Rs.{(item.price * item.quantity).toFixed(2)}</span>
                   </div>

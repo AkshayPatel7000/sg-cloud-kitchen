@@ -4,12 +4,13 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Printer } from "lucide-react";
+import { ArrowLeft, Printer, Copy, Check } from "lucide-react";
 import Link from "next/link";
 import type { Order, Restaurant } from "@/lib/types";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/firestore";
 import { format } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 import {
   centerText,
   separator,
@@ -28,6 +29,8 @@ export default function KOTPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (orderId) {
@@ -134,7 +137,7 @@ export default function KOTPage() {
 
       // Notes if any
       if (item.notes) {
-        kot += `   ** ${item.notes} **\n`;
+        kot += `   NOTE: ${item.notes.toUpperCase()}\n`;
       }
 
       kot += "\n";
@@ -177,6 +180,26 @@ export default function KOTPage() {
     printContent(html);
   };
 
+  const handleCopy = async () => {
+    const kotContent = generateKOT();
+    try {
+      await navigator.clipboard.writeText(kotContent);
+      setCopied(true);
+      toast({
+        title: "Copied!",
+        description: "KOT content copied to clipboard.",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+      toast({
+        title: "Error",
+        description: "Failed to copy content.",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -217,16 +240,26 @@ export default function KOTPage() {
           </div>
         </div>
 
-        <Button size="lg" onClick={handlePrint}>
-          <Printer className="mr-2 h-5 w-5" />
-          Print KOT
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="lg" onClick={handleCopy}>
+            {copied ? (
+              <Check className="mr-2 h-5 w-5 text-green-600" />
+            ) : (
+              <Copy className="mr-2 h-5 w-5" />
+            )}
+            {copied ? "Copied" : "Copy KOT"}
+          </Button>
+          <Button size="lg" onClick={handlePrint}>
+            <Printer className="mr-2 h-5 w-5" />
+            Print KOT
+          </Button>
+        </div>
       </div>
 
       {/* Preview */}
       <Card>
         <CardContent className="p-4">
-          <div className="bg-white text-black p-4 rounded-lg border shadow-inner max-w-[300px] mx-auto overflow-hidden">
+          <div className="bg-white text-black p-4 rounded-lg border shadow-inner max-w-[200px] mx-auto overflow-hidden">
             <pre className="font-mono text-[10px] leading-tight whitespace-pre">
               {kotContent}
             </pre>
@@ -244,9 +277,11 @@ export default function KOTPage() {
             </li>
             <li>Click the "Print KOT" button above</li>
             <li>Select your thermal printer from the print dialog</li>
-            <li>
-              Adjust print settings if needed (usually default works best)
+            <li className="font-bold text-primary">
+              IMPORTANT: In the print dialog, set "Margins" to "None" and
+              uncheck "Headers and Footers"
             </li>
+            <li>Set "Scale" to "100" (Default)</li>
             <li>Click Print to send to kitchen</li>
           </ol>
         </CardContent>

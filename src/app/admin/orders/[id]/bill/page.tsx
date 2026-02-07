@@ -4,12 +4,13 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Printer } from "lucide-react";
+import { ArrowLeft, Printer, Copy, Check } from "lucide-react";
 import Link from "next/link";
 import type { Order, Restaurant } from "@/lib/types";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/firestore";
 import { format } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 import {
   centerText,
   separator,
@@ -30,6 +31,8 @@ export default function BillPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (orderId) {
@@ -183,6 +186,14 @@ export default function BillPage() {
       // Price details line (Veg/Non-Veg + unit price)
       const vegTag = item.isVeg ? "[V]" : "[N]";
       bill += `  ${vegTag} @${formatCurrency(item.price)}\n`;
+
+      // Notes if any
+      // if (item.notes) {
+      //   const noteLines = wrapText(`Note: ${item.notes}`, 26);
+      //   noteLines.forEach((nl) => {
+      //     bill += `  ${nl}\n`;
+      //   });
+      // }
     });
 
     bill += separator("-") + "\n";
@@ -247,6 +258,26 @@ export default function BillPage() {
     printContent(html);
   };
 
+  const handleCopy = async () => {
+    const billContent = generateBill();
+    try {
+      await navigator.clipboard.writeText(billContent);
+      setCopied(true);
+      toast({
+        title: "Copied!",
+        description: "Bill content copied to clipboard.",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+      toast({
+        title: "Error",
+        description: "Failed to copy content.",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -287,10 +318,20 @@ export default function BillPage() {
           </div>
         </div>
 
-        <Button size="lg" onClick={handlePrint}>
-          <Printer className="mr-2 h-5 w-5" />
-          Print Bill
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="lg" onClick={handleCopy}>
+            {copied ? (
+              <Check className="mr-2 h-5 w-5 text-green-600" />
+            ) : (
+              <Copy className="mr-2 h-5 w-5" />
+            )}
+            {copied ? "Copied" : "Copy Bill"}
+          </Button>
+          <Button size="lg" onClick={handlePrint}>
+            <Printer className="mr-2 h-5 w-5" />
+            Print Bill
+          </Button>
+        </div>
       </div>
 
       {/* Preview */}
@@ -314,17 +355,27 @@ export default function BillPage() {
             </li>
             <li>Click the "Print Bill" button above</li>
             <li>Select your thermal printer from the print dialog</li>
-            <li>Verify the preview looks correct</li>
+            <li className="font-bold text-primary">
+              IMPORTANT: In the print dialog, set "Margins" to "None" and
+              uncheck "Headers and Footers"
+            </li>
             <li>Click Print to generate customer bill</li>
           </ol>
 
-          <div className="mt-4 p-3 bg-muted rounded-lg">
-            <p className="text-sm font-medium">Printer Settings:</p>
+          <div className="mt-4 p-3 bg-muted rounded-lg border-l-4 border-primary">
+            <p className="text-sm font-bold">
+              Recommended Settings (Chrome/Edge):
+            </p>
             <ul className="text-xs text-muted-foreground mt-2 space-y-1">
-              <li>• Paper Size: 58mm (2.28 inches)</li>
-              <li>• Orientation: Portrait</li>
-              <li>• Margins: Minimal or None</li>
-              <li>• Scale: 100%</li>
+              <li>• Paper Size: 58mm x 210mm (or Roll)</li>
+              <li>
+                • Margins: <span className="text-primary font-bold">NONE</span>
+              </li>
+              <li>
+                • Headers & Footers:{" "}
+                <span className="text-primary font-bold">UNCHECKED</span>
+              </li>
+              <li>• Scale: 100% (Default)</li>
             </ul>
           </div>
         </CardContent>

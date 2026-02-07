@@ -24,10 +24,19 @@ export function generateWhatsAppMessage(
 
   // Add each item
   cart.items.forEach((item, index) => {
-    message += `${index + 1}. *${item.dish.name}*\n`;
+    message += `${index + 1}. *${item.dish.name}*${item.variantName ? ` (${item.variantName})` : ""}\n`;
     message += `   ${item.dish.isVeg ? "🟢" : "🔴"} ${item.dish.isVeg ? "Veg" : "Non-Veg"}\n`;
-    message += `   Qty: ${item.quantity} × Rs.${item.dish.price.toFixed(2)}\n`;
-    message += `   Subtotal: Rs.${(item.dish.price * item.quantity).toFixed(2)}\n\n`;
+
+    if (item.selectedCustomizations && item.selectedCustomizations.length > 0) {
+      message += `   Customizations: ${item.selectedCustomizations.map((c) => c.optionName).join(", ")}\n`;
+    }
+
+    if (item.notes) {
+      message += `   Note: _${item.notes}_\n`;
+    }
+
+    message += `   Qty: ${item.quantity} × Rs.${item.price.toFixed(2)}\n`;
+    message += `   Subtotal: Rs.${(item.price * item.quantity).toFixed(2)}\n\n`;
   });
 
   message += `${"=".repeat(30)}\n`;

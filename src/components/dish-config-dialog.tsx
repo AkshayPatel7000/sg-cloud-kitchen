@@ -14,6 +14,7 @@ import { Label } from "./ui/label";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Checkbox } from "./ui/checkbox";
 import { Separator } from "./ui/separator";
+import { Textarea } from "./ui/textarea";
 import type {
   Dish,
   DishVariant,
@@ -26,9 +27,14 @@ interface DishConfigDialogProps {
   dish: Dish | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: (variantId?: string, selectedCustomizations?: any[]) => void;
+  onConfirm: (
+    variantId?: string,
+    selectedCustomizations?: any[],
+    notes?: string,
+  ) => void;
   initialVariantId?: string;
   initialSelections?: Record<string, string[]>;
+  initialNotes?: string;
 }
 
 export function DishConfigDialog({
@@ -38,11 +44,13 @@ export function DishConfigDialog({
   onConfirm,
   initialVariantId,
   initialSelections: providedInitialSelections,
+  initialNotes,
 }: DishConfigDialogProps) {
   const [selectedVariantId, setSelectedVariantId] = useState<
     string | undefined
   >();
   const [selections, setSelections] = useState<Record<string, string[]>>({});
+  const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -58,9 +66,10 @@ export function DishConfigDialog({
         });
         setSelections(initialSelections);
       }
+      setNotes(initialNotes || "");
       setError(null);
     }
-  }, [open, dish, initialVariantId, providedInitialSelections]);
+  }, [open, dish, initialVariantId, providedInitialSelections, initialNotes]);
 
   if (!dish) return null;
 
@@ -113,7 +122,7 @@ export function DishConfigDialog({
       }
     }
 
-    onConfirm(selectedVariantId, formattedCustomizations);
+    onConfirm(selectedVariantId, formattedCustomizations, notes);
     onOpenChange(false);
   };
 
@@ -242,6 +251,19 @@ export function DishConfigDialog({
               </div>
             </div>
           ))}
+
+          <Separator />
+
+          {/* Notes */}
+          <div className="space-y-3">
+            <Label className="text-sm font-bold">Special Instructions</Label>
+            <Textarea
+              placeholder="E.g. Make it extra spicy / No onions"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="resize-none"
+            />
+          </div>
         </div>
 
         {error && (

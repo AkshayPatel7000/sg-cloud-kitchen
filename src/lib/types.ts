@@ -101,6 +101,7 @@ export type CartItem = {
     price: number;
   }[];
   price: number;
+  notes?: string;
 };
 
 export type Cart = {

@@ -110,6 +110,7 @@ export default function NewOrderPage() {
     dish: Dish,
     variantId?: string,
     selectedCustomizations?: any[],
+    itemNotes?: string,
   ) => {
     const hasOptions =
       (dish.variants && dish.variants.length > 0) ||
@@ -147,6 +148,7 @@ export default function NewOrderPage() {
                 variantName: variant?.name,
                 price: basePrice + customizationsPrice,
                 selectedCustomizations: selectedCustomizations,
+                notes: itemNotes,
               }
             : item,
         ),
@@ -157,7 +159,8 @@ export default function NewOrderPage() {
         (item) =>
           item.dishId === dish.id &&
           item.variantId === variantId &&
-          getCustomizationKey(item.selectedCustomizations) === newCustKey,
+          getCustomizationKey(item.selectedCustomizations) === newCustKey &&
+          item.notes === itemNotes, // Also check notes for uniqueness
       );
 
       if (existingItemIndex > -1) {
@@ -181,6 +184,7 @@ export default function NewOrderPage() {
             variantId: variantId || undefined,
             variantName: variant?.name,
             selectedCustomizations: selectedCustomizations,
+            notes: itemNotes,
           },
         ]);
       }
@@ -296,6 +300,7 @@ export default function NewOrderPage() {
           variantId: item.variantId || null,
           variantName: item.variantName || null,
           selectedCustomizations: item.selectedCustomizations || null,
+          notes: item.notes || null,
         })),
         subtotal,
         discount: discount || 0,
@@ -502,12 +507,18 @@ export default function NewOrderPage() {
                 )
               : undefined
           }
-          onConfirm={(variantId, selectedCustomizations) =>
+          initialNotes={
+            editingItemIndex !== null
+              ? orderItems[editingItemIndex].notes
+              : undefined
+          }
+          onConfirm={(variantId, selectedCustomizations, itemNotes) =>
             selectedDishForConfig &&
             addDishToOrder(
               selectedDishForConfig,
               variantId,
               selectedCustomizations,
+              itemNotes,
             )
           }
         />

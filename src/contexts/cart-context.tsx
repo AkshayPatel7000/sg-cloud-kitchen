@@ -18,6 +18,7 @@ type CartContextType = {
     variantId?: string,
     quantity?: number,
     selectedCustomizations?: CartItem["selectedCustomizations"],
+    notes?: string,
   ) => void;
   removeFromCart: (
     dishId: string,
@@ -126,6 +127,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       variantId?: string,
       quantity: number = 1,
       selectedCustomizations?: CartItem["selectedCustomizations"],
+      notes?: string,
     ) => {
       setItems((prevItems) => {
         // Create a unique key for matching (dish + variant + customizations)
@@ -143,14 +145,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           (item) =>
             item.dish.id === dish.id &&
             item.variantId === variantId &&
-            getCustomizationKey(item.selectedCustomizations) === newCustKey,
+            getCustomizationKey(item.selectedCustomizations) === newCustKey &&
+            item.notes === notes,
         );
 
         if (existingItem) {
           return prevItems.map((item) =>
             item.dish.id === dish.id &&
             item.variantId === variantId &&
-            getCustomizationKey(item.selectedCustomizations) === newCustKey
+            getCustomizationKey(item.selectedCustomizations) === newCustKey &&
+            item.notes === notes
               ? { ...item, quantity: item.quantity + quantity }
               : item,
           );
@@ -173,6 +177,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             variantName: variant?.name,
             selectedCustomizations,
             price: basePrice + customizationsPrice,
+            notes,
           },
         ];
       });

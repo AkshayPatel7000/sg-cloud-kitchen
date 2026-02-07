@@ -116,12 +116,19 @@ export function generatePrintHTML(content: string): string {
     <html>
     <head>
       <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Print</title>
       <style>
         @page {
-          size: 58mm auto;
-          margin: 0;
+          margin: 0 !important;
+        }
+        @media print {
+          *, *:before, *:after {
+            background: transparent !important;
+            color: #000 !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+          }
+          header, footer, nav { display: none !important; }
+          body { margin: 0 !important; padding: 0 !important; width: auto !important; }
         }
         * {
           margin: 0;
@@ -129,38 +136,23 @@ export function generatePrintHTML(content: string): string {
           box-sizing: border-box;
         }
         html, body {
-          width: 58mm;
+          width: 100%;
           margin: 0;
           padding: 0;
           background: white;
-        }
-        body {
-          padding: 1mm 2mm;
-          font-family: 'DejaVu Sans Mono', 'Consolas', 'Monaco', 'Liberation Mono', 'Courier New', monospace;
-          font-size: 8pt;
-          line-height: 1.2;
-          color: black;
-          background: white;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
         }
         pre {
           margin: 0;
-          padding: 0;
-          font-family: 'DejaVu Sans Mono', 'Consolas', 'Monaco', 'Liberation Mono', 'Courier New', monospace;
-          font-size: 8pt;
+          padding: 4mm 2mm;
+          font-family: 'Courier New', Courier, 'Lucida Sans Typewriter', 'Lucida Console', monospace;
+          font-size: 9pt;
           line-height: 1.2;
-          white-space: pre;
-          overflow-x: hidden;
+          white-space: pre-wrap;
           word-wrap: break-word;
-        }
-        @media print {
-          html, body {
-            width: 58mm;
-            margin: 0;
-            padding: 0;
-          }
-          body {
-            padding: 1mm 2mm;
-          }
+          color: black;
+          background: white;
         }
       </style>
     </head>
