@@ -23,7 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, PlusCircle, Trash, Edit } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Trash, Edit, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import {
@@ -106,9 +106,15 @@ function OfferForm({
     },
   });
 
+  const [isSaving, setIsSaving] = useState(false);
   const onSubmit = async (data: OfferFormValues) => {
-    await onSave(data, currentOffer?.id);
-    closeDialog();
+    setIsSaving(true);
+    try {
+      await onSave(data, currentOffer?.id);
+      closeDialog();
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -215,7 +221,16 @@ function OfferForm({
             </FormItem>
           )}
         />
-        <Button type="submit">Save</Button>
+        <Button type="submit" disabled={isSaving} className="w-full">
+          {isSaving ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            "Save Offer"
+          )}
+        </Button>
       </form>
     </Form>
   );

@@ -23,7 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, PlusCircle, Trash, Edit } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Trash, Edit, Loader2 } from "lucide-react";
 import { useState } from "react";
 import {
   Dialog,
@@ -94,9 +94,15 @@ function CategoryForm({
     },
   });
 
-  const onSubmit = (data: CategoryFormValues) => {
-    onSave(data, currentCategory?.id);
-    closeDialog();
+  const [isSaving, setIsSaving] = useState(false);
+  const onSubmit = async (data: CategoryFormValues) => {
+    setIsSaving(true);
+    try {
+      await onSave(data, currentCategory?.id);
+      closeDialog();
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -174,7 +180,16 @@ function CategoryForm({
             </FormItem>
           )}
         />
-        <Button type="submit">Save</Button>
+        <Button type="submit" disabled={isSaving} className="w-full">
+          {isSaving ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            "Save Category"
+          )}
+        </Button>
       </form>
     </Form>
   );

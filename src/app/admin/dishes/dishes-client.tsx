@@ -27,6 +27,7 @@ import {
   Star,
   X,
   Settings2,
+  Loader2,
 } from "lucide-react";
 import Image from "next/image";
 import { useState, useMemo } from "react";
@@ -156,9 +157,16 @@ function DishForm({
     name: "customizations",
   });
 
+  const [isSaving, setIsSaving] = useState(false);
+
   const onSubmit = async (data: DishFormValues) => {
-    await onSave(data, currentDish?.id);
-    closeDialog();
+    setIsSaving(true);
+    try {
+      await onSave(data, currentDish?.id);
+      closeDialog();
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -625,8 +633,15 @@ function DishForm({
           </div>
         </div>
 
-        <Button type="submit" className="w-full">
-          Save Dish
+        <Button type="submit" className="w-full" disabled={isSaving}>
+          {isSaving ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            "Save Dish"
+          )}
         </Button>
       </form>
     </Form>

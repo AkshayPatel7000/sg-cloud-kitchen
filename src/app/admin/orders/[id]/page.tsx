@@ -41,6 +41,7 @@ import {
   Edit,
   Trash2,
   Settings2,
+  MessageCircle,
 } from "lucide-react";
 import Link from "next/link";
 import type { Order, OrderStatus, Restaurant } from "@/lib/types";
@@ -684,14 +685,32 @@ export default function OrderDetailsPage() {
                   </div>
                 )}
                 {order.customerPhone && (
-                  <div className="flex items-center gap-3">
-                    <div className="bg-muted p-2 rounded-full">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-muted p-2 rounded-full">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Mobile</p>
+                        <p className="font-medium">{order.customerPhone}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Mobile</p>
-                      <p className="font-medium">{order.customerPhone}</p>
-                    </div>
+                    <a
+                      href={`https://web.whatsapp.com/send?phone=${
+                        order.customerPhone
+                          .replace(/\D/g, "")
+                          .startsWith("91") ||
+                        order.customerPhone.replace(/\D/g, "").length > 10
+                          ? order.customerPhone.replace(/\D/g, "")
+                          : `91${order.customerPhone.replace(/\D/g, "")}`
+                      }`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center text-green-600 hover:text-green-700 hover:bg-green-50 h-9 w-9 rounded-md transition-colors"
+                      title="Contact on WhatsApp"
+                    >
+                      <MessageCircle className="h-5 w-5 fill-current opacity-80" />
+                    </a>
                   </div>
                 )}
                 {order.customerAddress && (

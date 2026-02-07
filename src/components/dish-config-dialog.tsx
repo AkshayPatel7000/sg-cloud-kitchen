@@ -170,11 +170,13 @@ export function DishConfigDialog({
                   <div
                     key={variant.id}
                     className="flex items-center space-x-2 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => setSelectedVariantId(variant.id)}
                   >
                     <RadioGroupItem value={variant.id} id={variant.id} />
                     <Label
                       htmlFor={variant.id}
                       className="flex-grow font-medium cursor-pointer"
+                      onClick={(e) => e.stopPropagation()}
                     >
                       {variant.name}
                     </Label>
@@ -225,6 +227,7 @@ export function DishConfigDialog({
                       <Label
                         htmlFor={option.id}
                         className="flex-grow font-medium cursor-pointer"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         {option.name}
                       </Label>
