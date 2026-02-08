@@ -716,66 +716,67 @@ export function DishesClient({
 
   return (
     <>
-      <div className="flex flex-col gap-6 mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight">Dishes</h2>
-            <p className="text-muted-foreground">
-              Manage all the dishes on your menu.
-            </p>
-          </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => setCurrentDish(null)}>
-                <PlusCircle className="mr-2 h-4 w-4" /> Add Dish
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-xl">
-              <DialogHeader>
-                <DialogTitle>{currentDish ? "Edit" : "Add"} Dish</DialogTitle>
-                <DialogDescription>
-                  Fill in the details for the menu dish.
-                </DialogDescription>
-              </DialogHeader>
-              <DishForm
-                currentDish={currentDish}
-                categories={categories}
-                onSave={handleSave}
-                closeDialog={() => setIsDialogOpen(false)}
-              />
-            </DialogContent>
-          </Dialog>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+            Dishes
+          </h2>
+          <p className="text-muted-foreground hidden sm:block">
+            Manage all the dishes on your menu.
+          </p>
         </div>
-
-        {/* Filters and Search */}
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="relative flex-grow">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search dishes by name..."
-              className="pl-9"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <div className="w-full md:w-[200px]">
-            <Select
-              value={selectedCategory}
-              onValueChange={setSelectedCategory}
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button
+              className="w-full sm:w-auto h-10 w-10 p-0 sm:h-11 sm:w-auto sm:px-4"
+              onClick={() => setCurrentDish(null)}
             >
-              <SelectTrigger>
-                <SelectValue placeholder="All Categories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((cat) => (
-                  <SelectItem key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+              <PlusCircle className="h-5 w-5 sm:mr-2" />
+              <span className="hidden sm:inline">Add Dish</span>
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-xl">
+            <DialogHeader>
+              <DialogTitle>{currentDish ? "Edit" : "Add"} Dish</DialogTitle>
+              <DialogDescription>
+                Fill in the details for the menu dish.
+              </DialogDescription>
+            </DialogHeader>
+            <DishForm
+              currentDish={currentDish}
+              categories={categories}
+              onSave={handleSave}
+              closeDialog={() => setIsDialogOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Filters and Search */}
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="relative flex-grow">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search dishes by name..."
+            className="pl-9"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <div className="w-full md:w-[200px]">
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger>
+              <SelectValue placeholder="All Categories" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} value={cat.id}>
+                  {cat.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
       <Card>

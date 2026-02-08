@@ -224,35 +224,40 @@ export default function OrdersPage() {
   return (
     <div className="space-y-6 p-4 md:p-8">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Orders</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold">Orders</h1>
+          <p className="text-sm text-muted-foreground invisible sm:visible h-0 sm:h-auto">
             Manage restaurant orders, KOT, and bills
           </p>
         </div>
         <div className="flex gap-2">
           <Button
             variant={notificationsEnabled ? "default" : "outline"}
-            size="lg"
+            className="h-10 w-10 p-0 sm:h-11 sm:w-auto sm:px-4"
             onClick={toggleNotifications}
+            title={
+              notificationsEnabled
+                ? "Disable Notifications"
+                : "Enable Notifications"
+            }
           >
             {notificationsEnabled ? (
               <>
-                <Bell className="mr-2 h-5 w-5" />
-                Notifications On
+                <Bell className="h-5 w-5 sm:mr-2" />
+                <span className="hidden sm:inline">Notifications On</span>
               </>
             ) : (
               <>
-                <BellOff className="mr-2 h-5 w-5" />
-                Notifications Off
+                <BellOff className="h-5 w-5 sm:mr-2" />
+                <span className="hidden sm:inline">Notifications Off</span>
               </>
             )}
           </Button>
           <Link href="/admin/orders/new">
-            <Button size="lg">
-              <Plus className="mr-2 h-5 w-5" />
-              New Order
+            <Button className="h-10 w-10 p-0 sm:h-11 sm:w-auto sm:px-4">
+              <Plus className="h-5 w-5 sm:mr-2" />
+              <span className="hidden sm:inline">New Order</span>
             </Button>
           </Link>
         </div>
@@ -342,89 +347,146 @@ export default function OrdersPage() {
                   </div>
                 </div>
               )}
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start">
-                  <div className="space-y-2 flex-grow">
-                    <div className="flex items-center gap-3">
-                      <h3 className="text-lg font-semibold">
+              <CardContent className="p-4 md:p-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                  <div className="space-y-3 flex-grow w-full">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-lg font-semibold whitespace-nowrap">
                         {order.orderNumber}
                       </h3>
-                      {getStatusBadge(order.status)}
-                      <Badge variant="outline" className="capitalize">
-                        {order.orderType.replace("-", " ")}
-                      </Badge>
-                      {order.tableNumber && (
-                        <Badge variant="secondary">
-                          Table {order.tableNumber}
+                      <div className="flex flex-wrap gap-1">
+                        {getStatusBadge(order.status)}
+                        <Badge
+                          variant="outline"
+                          className="capitalize text-[10px] h-5 py-0"
+                        >
+                          {order.orderType.replace("-", " ")}
                         </Badge>
-                      )}
-                      {order.isViewed === false && (
-                        <Badge className="bg-primary hover:bg-primary/90">
-                          New Order
-                        </Badge>
-                      )}
+                        {order.tableNumber && (
+                          <Badge
+                            variant="secondary"
+                            className="text-[10px] h-5 py-0"
+                          >
+                            T-{order.tableNumber}
+                          </Badge>
+                        )}
+                        {order.isViewed === false && (
+                          <Badge className="bg-primary hover:bg-primary/90 text-[10px] h-5 py-0">
+                            New
+                          </Badge>
+                        )}
+                      </div>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-3 text-sm">
                       {order.customerName && (
                         <div>
-                          <span className="text-muted-foreground">
-                            Customer:
+                          <span className="text-[10px] uppercase tracking-wider text-muted-foreground block mb-0.5">
+                            Customer
                           </span>
-                          <p className="font-medium">{order.customerName}</p>
+                          <p className="font-medium truncate">
+                            {order.customerName}
+                          </p>
                         </div>
                       )}
                       {order.customerPhone && (
                         <div>
-                          <span className="text-muted-foreground">Phone:</span>
+                          <span className="text-[10px] uppercase tracking-wider text-muted-foreground block mb-0.5">
+                            Phone
+                          </span>
                           <p className="font-medium">{order.customerPhone}</p>
                         </div>
                       )}
                       <div>
-                        <span className="text-muted-foreground">Items:</span>
+                        <span className="text-[10px] uppercase tracking-wider text-muted-foreground block mb-0.5">
+                          Items
+                        </span>
                         <p className="font-medium">
                           {order.items.length} items
                         </p>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">Total:</span>
-                        <p className="font-medium text-primary">
-                          Rs.{order.total.toFixed(2)}
-                        </p>
-                        {!!order.discount && order.discount > 0 && (
-                          <p className="text-xs text-green-600 dark:text-green-400">
-                            (Discount: Rs.{order.discount.toFixed(2)})
+                        <span className="text-[10px] uppercase tracking-wider text-muted-foreground block mb-0.5">
+                          Total
+                        </span>
+                        <div className="flex flex-col">
+                          <p className="font-bold text-primary">
+                            Rs.{order.total.toFixed(2)}
                           </p>
-                        )}
+                          {!!order.discount && order.discount > 0 && (
+                            <p className="text-[10px] text-green-600 dark:text-green-400 font-medium">
+                              -Rs.{order.discount.toFixed(2)}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
 
-                    <div className="text-xs text-muted-foreground">
-                      Created: {format(order.createdAt, "PPp")}
+                    <div className="text-[10px] text-muted-foreground pt-1 flex items-center gap-1.5 font-medium">
+                      <Clock className="h-3 w-3" />
+                      {format(order.createdAt, "PPp")}
                     </div>
                   </div>
 
-                  <div className="flex gap-2 ml-4">
-                    <Link href={`/admin/orders/${order.id}`}>
-                      <Button variant="outline" size="sm">
-                        <Eye className="h-4 w-4" />
+                  <div className="flex gap-2 w-full sm:w-auto sm:ml-4 pt-4 sm:pt-0 border-t sm:border-0">
+                    <Link
+                      href={`/admin/orders/${order.id}`}
+                      className="flex-1 sm:flex-none"
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full h-9"
+                      >
+                        <Eye className="h-4 w-4 sm:mr-1" />
+                        <span className="sm:hidden lg:inline text-xs">
+                          View
+                        </span>
                       </Button>
                     </Link>
-                    <Link href={`/admin/orders/${order.id}/edit`}>
-                      <Button variant="outline" size="sm">
-                        <Edit className="h-4 w-4" />
+                    <Link
+                      href={`/admin/orders/${order.id}/edit`}
+                      className="flex-1 sm:flex-none"
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full h-9"
+                      >
+                        <Edit className="h-4 w-4 sm:mr-1" />
+                        <span className="sm:hidden lg:inline text-xs">
+                          Edit
+                        </span>
                       </Button>
                     </Link>
-                    <Link href={`/admin/orders/${order.id}/kot`}>
-                      <Button variant="outline" size="sm">
-                        <Printer className="h-4 w-4 mr-1" />
-                        KOT
+                    <Link
+                      href={`/admin/orders/${order.id}/kot`}
+                      className="flex-1 sm:flex-none"
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full h-9"
+                      >
+                        <Printer className="h-4 w-4 sm:mr-1" />
+                        <span className="sm:hidden lg:inline text-xs font-bold">
+                          KOT
+                        </span>
                       </Button>
                     </Link>
-                    <Link href={`/admin/orders/${order.id}/bill`}>
-                      <Button variant="outline" size="sm">
-                        <Printer className="h-4 w-4 mr-1" />
-                        Bill
+                    <Link
+                      href={`/admin/orders/${order.id}/bill`}
+                      className="flex-1 sm:flex-none"
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full h-9"
+                      >
+                        <Printer className="h-4 w-4 sm:mr-1 text-primary" />
+                        <span className="sm:hidden lg:inline text-xs font-bold">
+                          BILL
+                        </span>
                       </Button>
                     </Link>
                   </div>
