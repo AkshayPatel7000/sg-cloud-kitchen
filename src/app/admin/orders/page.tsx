@@ -370,6 +370,14 @@ export default function OrdersPage() {
                             T-{order.tableNumber}
                           </Badge>
                         )}
+                        {order.couponCode && (
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] h-5 py-0 border-green-600 text-green-600 font-mono"
+                          >
+                            {order.couponCode}
+                          </Badge>
+                        )}
                         {order.isViewed === false && (
                           <Badge className="bg-primary hover:bg-primary/90 text-[10px] h-5 py-0">
                             New

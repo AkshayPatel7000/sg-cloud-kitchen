@@ -112,6 +112,8 @@ const dishSchema = z.object({
   tags: z.array(z.enum(["spicy", "bestseller"])).optional(),
   variants: z.array(variantSchema).optional(),
   customizations: z.array(customizationGroupSchema).optional(),
+  discountType: z.enum(["percentage", "fixed", "none"]).optional(),
+  discountValue: z.coerce.number().optional(),
 });
 
 type DishFormValues = z.infer<typeof dishSchema>;
@@ -140,6 +142,8 @@ function DishForm({
       tags: currentDish?.tags ?? [],
       variants: currentDish?.variants ?? [],
       customizations: currentDish?.customizations ?? [],
+      discountType: currentDish?.discountType,
+      discountValue: currentDish?.discountValue ?? 0,
     },
   });
 
@@ -365,6 +369,66 @@ function DishForm({
             )}
           />
         </div>
+
+        <Separator className="my-6" />
+
+        {/* Discount Section */}
+        <div className="space-y-4">
+          <FormLabel className="text-base">Discount (Optional)</FormLabel>
+          <p className="text-[0.8rem] text-muted-foreground">
+            Add a discount to this dish. This will be applied automatically.
+          </p>
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="discountType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Discount Type</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="No discount" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="none">No Discount</SelectItem>
+                      <SelectItem value="percentage">Percentage (%)</SelectItem>
+                      <SelectItem value="fixed">Fixed (₹)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="discountValue"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {form.watch("discountType") === "percentage"
+                      ? "Discount %"
+                      : "Discount Amount"}
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      {...field}
+                      disabled={
+                        !form.watch("discountType") ||
+                        form.watch("discountType") === "none"
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <FormLabel className="text-base">Variants</FormLabel>

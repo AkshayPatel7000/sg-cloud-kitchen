@@ -62,6 +62,9 @@ export default function NewOrderPage() {
   );
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [discountValue, setDiscountValue] = useState<string>("");
+  const [couponCode, setCouponCode] = useState("");
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [appliedCouponInfo, setAppliedCouponInfo] = useState<any>(null);
 
   const [selectedDishForConfig, setSelectedDishForConfig] =
     useState<Dish | null>(null);
@@ -171,7 +174,24 @@ export default function NewOrderPage() {
       } else {
         const customizationsPrice =
           selectedCustomizations?.reduce((sum, c) => sum + c.price, 0) || 0;
-        const basePrice = variant ? variant.price : dish.price;
+        let basePrice = variant ? variant.price : dish.price;
+        const originalBasePrice = basePrice;
+
+        // Apply dish-level discount
+        if (
+          dish.discountType &&
+          dish.discountValue &&
+          dish.discountType !== "none"
+        ) {
+          if (dish.discountType === "percentage") {
+            basePrice = basePrice - (basePrice * dish.discountValue) / 100;
+          } else if (dish.discountType === "fixed") {
+            basePrice = Math.max(0, basePrice - dish.discountValue);
+          }
+        }
+
+        const finalPrice = basePrice + customizationsPrice;
+        const originalPrice = originalBasePrice + customizationsPrice;
 
         setOrderItems([
           ...orderItems,
@@ -179,7 +199,11 @@ export default function NewOrderPage() {
             dishId: dish.id,
             dishName: dish.name,
             quantity: 1,
-            price: basePrice + customizationsPrice,
+            price: finalPrice,
+            originalPrice:
+              originalPrice !== finalPrice ? originalPrice : undefined,
+            dishDiscountType: dish.discountType,
+            dishDiscountValue: dish.discountValue,
             isVeg: dish.isVeg,
             variantId: variantId || undefined,
             variantName: variant?.name,
@@ -249,7 +273,56 @@ export default function NewOrderPage() {
 
     const total = afterDiscount + tax;
 
-    return { subtotal, discount: discountAmount, afterDiscount, tax, total };
+    return {
+      subtotal,
+      discount: discountAmount,
+      afterDiscount,
+      tax,
+      total,
+      couponCode: appliedCouponInfo?.couponCode || null,
+      discountType: appliedCouponInfo
+        ? appliedCouponInfo.discountType
+        : discountType,
+      discountValue: appliedCouponInfo
+        ? appliedCouponInfo.discountValue
+        : discountNum,
+    };
+  };
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+
+    setIsApplyingCoupon(true);
+    try {
+      const { getAllSectionItems } = await import("@/lib/data-client");
+      const offers = await getAllSectionItems();
+      const coupon = offers.find(
+        (o) =>
+          o.isActive &&
+          o.couponCode?.toLowerCase() === couponCode.toLowerCase(),
+      );
+
+      if (coupon) {
+        setAppliedCouponInfo(coupon);
+        setDiscountValue(""); // Clear manual discount
+        toast({ title: "Coupon applied successfully!" });
+      } else {
+        toast({
+          title: "Invalid Coupon",
+          description: "Coupon code not found or inactive",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error applying coupon:", error);
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCouponInfo(null);
+    setCouponCode("");
   };
 
   const generateOrderNumber = () => {
@@ -304,8 +377,19 @@ export default function NewOrderPage() {
         })),
         subtotal,
         discount: discount || 0,
-        discountType: discount > 0 ? discountType : null,
-        discountValue: discount > 0 ? parseFloat(discountValue) : null,
+        discountType:
+          discount > 0
+            ? appliedCouponInfo
+              ? appliedCouponInfo.discountType
+              : discountType
+            : null,
+        discountValue:
+          discount > 0
+            ? appliedCouponInfo
+              ? appliedCouponInfo.discountValue
+              : parseFloat(discountValue)
+            : null,
+        couponCode: appliedCouponInfo?.couponCode || null,
         tax,
         total,
         status: "pending",
@@ -707,35 +791,98 @@ export default function NewOrderPage() {
                 <div className="space-y-2 p-3 bg-muted/50 rounded-lg">
                   <Label className="text-xs font-semibold flex items-center gap-1">
                     <Percent className="h-3 w-3" />
-                    Apply Discount (Optional)
+                    Coupon & Discount
                   </Label>
-                  <div className="flex gap-2">
-                    <Select
-                      value={discountType}
-                      onValueChange={(value: any) => setDiscountType(value)}
-                    >
-                      <SelectTrigger className="w-[110px] h-9">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="percentage">%</SelectItem>
-                        <SelectItem value="fixed">Rs.</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Input
-                      type="number"
-                      placeholder={
-                        discountType === "percentage" ? "0-100" : "Amount"
-                      }
-                      value={discountValue}
-                      onChange={(e) => setDiscountValue(e.target.value)}
-                      className="h-9"
-                      min="0"
-                      max={discountType === "percentage" ? "100" : undefined}
-                    />
-                  </div>
+
+                  {!appliedCouponInfo ? (
+                    <div className="space-y-3">
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Coupon Code"
+                          value={couponCode}
+                          onChange={(e) =>
+                            setCouponCode(e.target.value.toUpperCase())
+                          }
+                          className="h-9 font-mono"
+                        />
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="h-9"
+                          onClick={handleApplyCoupon}
+                          disabled={isApplyingCoupon || !couponCode.trim()}
+                        >
+                          {isApplyingCoupon ? "..." : "Apply"}
+                        </Button>
+                      </div>
+
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <span className="w-full border-t" />
+                        </div>
+                        <div className="relative flex justify-center text-[10px] uppercase">
+                          <span className="bg-background px-2 text-muted-foreground">
+                            Or manual discount
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Select
+                          value={discountType}
+                          onValueChange={(value: any) => setDiscountType(value)}
+                        >
+                          <SelectTrigger className="w-[110px] h-9">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="percentage">%</SelectItem>
+                            <SelectItem value="fixed">Rs.</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          type="number"
+                          placeholder={
+                            discountType === "percentage" ? "0-100" : "Amount"
+                          }
+                          value={discountValue}
+                          onChange={(e) => setDiscountValue(e.target.value)}
+                          className="h-9"
+                          min="0"
+                          max={
+                            discountType === "percentage" ? "100" : undefined
+                          }
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+                      <div>
+                        <p className="text-[10px] text-green-600 font-bold uppercase tracking-wider">
+                          Coupon Applied
+                        </p>
+                        <p className="text-sm font-bold">
+                          {appliedCouponInfo.couponCode}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {appliedCouponInfo.discountType === "percentage"
+                            ? `${appliedCouponInfo.discountValue}% Off`
+                            : `Rs.${appliedCouponInfo.discountValue} Off`}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={removeCoupon}
+                        className="h-8 text-xs text-destructive hover:bg-destructive/10"
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  )}
+
                   {discount > 0 && (
-                    <div className="flex justify-between text-xs text-green-600 dark:text-green-400 font-medium">
+                    <div className="flex justify-between text-xs text-green-600 dark:text-green-400 font-medium pt-1">
                       <span>Discount Applied:</span>
                       <span>- Rs.{discount.toFixed(2)}</span>
                     </div>

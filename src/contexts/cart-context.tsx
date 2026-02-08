@@ -8,7 +8,13 @@ import React, {
   useMemo,
   useEffect,
 } from "react";
-import type { Dish, CartItem, Cart, Restaurant } from "@/lib/types";
+import type {
+  Dish,
+  CartItem,
+  Cart,
+  Restaurant,
+  SectionItem,
+} from "@/lib/types";
 import { getRestaurant } from "@/lib/data-client";
 
 type CartContextType = {
@@ -34,6 +40,11 @@ type CartContextType = {
   clearCart: () => void;
   itemCount: number;
   isHydrated: boolean;
+  applyCoupon: (
+    couponCode: string,
+  ) => Promise<{ success: boolean; message: string }>;
+  removeCoupon: () => void;
+  appliedCoupon: SectionItem | null;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -76,6 +87,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<SectionItem | null>(null);
 
   // Load cart and restaurant from storage/server on mount
   useEffect(() => {
@@ -101,21 +113,36 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       0,
     );
 
+    let discount = 0;
+    if (appliedCoupon && appliedCoupon.discountValue) {
+      if (appliedCoupon.discountType === "percentage") {
+        discount = (subtotal * appliedCoupon.discountValue) / 100;
+      } else {
+        discount = appliedCoupon.discountValue;
+      }
+    }
+
+    const discountedSubtotal = Math.max(0, subtotal - discount);
+
     // Calculate tax only if GST is enabled and GST number is provided
     let tax = 0;
     if (restaurant?.isGstEnabled && restaurant?.gstNumber) {
-      tax = subtotal * 0.05; // Using 5% rate
+      tax = discountedSubtotal * 0.05; // Using 5% rate
     }
 
-    const total = subtotal + tax;
+    const total = discountedSubtotal + tax;
 
     return {
       items,
       subtotal,
+      discount,
+      discountType: appliedCoupon?.discountType,
+      discountValue: appliedCoupon?.discountValue,
+      couponCode: appliedCoupon?.couponCode,
       tax,
       total,
     };
-  }, [items, restaurant]);
+  }, [items, restaurant, appliedCoupon]);
 
   const itemCount = useMemo(() => {
     return items.reduce((sum, item) => sum + item.quantity, 0);
@@ -164,7 +191,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           ? dish.variants?.find((v) => v.id === variantId)
           : undefined;
 
-        const basePrice = variant ? variant.price : dish.price;
+        let basePrice = variant ? variant.price : dish.price;
+
+        // Apply dish-level discount
+        if (
+          dish.discountType &&
+          dish.discountValue &&
+          dish.discountType !== "none"
+        ) {
+          if (dish.discountType === "percentage") {
+            basePrice = basePrice - (basePrice * dish.discountValue) / 100;
+          } else if (dish.discountType === "fixed") {
+            basePrice = Math.max(0, basePrice - dish.discountValue);
+          }
+        }
+
         const customizationsPrice =
           selectedCustomizations?.reduce((sum, c) => sum + c.price, 0) || 0;
 
@@ -248,7 +289,34 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clearCart = useCallback(() => {
     setItems([]);
+    setAppliedCoupon(null);
   }, []);
+
+  const applyCoupon = async (couponCode: string) => {
+    try {
+      const { getAllSectionItems } = await import("@/lib/data-client");
+      const offers = await getAllSectionItems();
+      const coupon = offers.find(
+        (o) =>
+          o.isActive &&
+          o.couponCode?.toLowerCase() === couponCode.toLowerCase(),
+      );
+
+      if (coupon) {
+        setAppliedCoupon(coupon);
+        return { success: true, message: "Coupon applied successfully!" };
+      } else {
+        return { success: false, message: "Invalid or expired coupon code." };
+      }
+    } catch (error) {
+      console.error("Error applying coupon:", error);
+      return { success: false, message: "Error applying coupon." };
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+  };
 
   return (
     <CartContext.Provider
@@ -260,6 +328,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         clearCart,
         itemCount,
         isHydrated,
+        applyCoupon,
+        removeCoupon,
+        appliedCoupon,
       }}
     >
       {children}

@@ -123,6 +123,19 @@ export function DishDetailSheet({
       total += dish.price;
     }
 
+    // Apply dish-level discount
+    if (
+      dish.discountType &&
+      dish.discountValue &&
+      dish.discountType !== "none"
+    ) {
+      if (dish.discountType === "percentage") {
+        total = total - (total * dish.discountValue) / 100;
+      } else if (dish.discountType === "fixed") {
+        total = Math.max(0, total - dish.discountValue);
+      }
+    }
+
     Object.entries(selections).forEach(([groupId, optionIds]) => {
       const group = dish.customizations?.find((g) => g.id === groupId);
       optionIds.forEach((id) => {
@@ -183,6 +196,22 @@ export function DishDetailSheet({
               <p className="text-base text-balance leading-relaxed">
                 {dish.description}
               </p>
+
+              {/* Discount Badge */}
+              {dish.discountType &&
+                dish.discountValue &&
+                dish.discountType !== "none" && (
+                  <div className="flex items-center gap-2 pt-2">
+                    <Badge variant="destructive" className="text-sm px-3 py-1">
+                      {dish.discountType === "percentage"
+                        ? `${dish.discountValue}% OFF`
+                        : `₹${dish.discountValue} OFF`}
+                    </Badge>
+                    <span className="text-sm text-muted-foreground">
+                      Special discount applied!
+                    </span>
+                  </div>
+                )}
             </div>
 
             {/* Variants */}
@@ -226,9 +255,41 @@ export function DishDetailSheet({
                       >
                         {variant.name}
                       </Label>
-                      <span className="font-bold text-primary">
-                        Rs.{variant.price.toFixed(2)}
-                      </span>
+                      {(() => {
+                        const hasDiscount =
+                          dish.discountType &&
+                          dish.discountValue &&
+                          dish.discountType !== "none";
+                        let discountedPrice = variant.price;
+
+                        if (hasDiscount) {
+                          if (dish.discountType === "percentage") {
+                            discountedPrice =
+                              variant.price -
+                              (variant.price * (dish.discountValue || 0)) / 100;
+                          } else if (dish.discountType === "fixed") {
+                            discountedPrice = Math.max(
+                              0,
+                              variant.price - (dish.discountValue || 0),
+                            );
+                          }
+                        }
+
+                        return hasDiscount ? (
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-primary">
+                              Rs.{discountedPrice.toFixed(2)}
+                            </span>
+                            <span className="text-sm text-muted-foreground line-through">
+                              Rs.{variant.price.toFixed(2)}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="font-bold text-primary">
+                            Rs.{variant.price.toFixed(2)}
+                          </span>
+                        );
+                      })()}
                     </div>
                   ))}
                 </RadioGroup>

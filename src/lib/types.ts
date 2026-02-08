@@ -29,6 +29,9 @@ export type SectionItem = {
   price?: number;
   isActive: boolean;
   priority: number;
+  couponCode?: string;
+  discountType?: "percentage" | "fixed";
+  discountValue?: number;
 };
 
 export type Category = {
@@ -72,6 +75,8 @@ export type Dish = {
   tags: ("spicy" | "bestseller")[];
   variants?: DishVariant[];
   customizations?: CustomizationGroup[];
+  discountType?: "percentage" | "fixed" | "none";
+  discountValue?: number;
 };
 
 export type AdminUser = {
@@ -107,6 +112,10 @@ export type CartItem = {
 export type Cart = {
   items: CartItem[];
   subtotal: number;
+  discount: number;
+  discountType?: "percentage" | "fixed";
+  discountValue?: number;
+  couponCode?: string;
   tax: number;
   total: number;
 };
@@ -123,7 +132,10 @@ export type OrderItem = {
   dishId: string;
   dishName: string;
   quantity: number;
-  price: number;
+  price: number; // This is the final price after dish discount
+  originalPrice?: number; // Original price before dish discount
+  dishDiscountType?: "percentage" | "fixed" | "none";
+  dishDiscountValue?: number;
   isVeg: boolean;
   notes?: string;
   variantId?: string;
@@ -148,6 +160,7 @@ export type Order = {
   discount?: number; // Discount amount applied
   discountType?: "percentage" | "fixed"; // Type of discount
   discountValue?: number; // Original discount value entered
+  couponCode?: string; // Applied coupon code
   tax: number;
   total: number;
   status: OrderStatus;

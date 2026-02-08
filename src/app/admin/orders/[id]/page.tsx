@@ -529,9 +529,31 @@ export default function OrderDetailsPage() {
                             ))}
                           </div>
                         )}
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Rs.{item.price.toFixed(2)} × {item.quantity}
-                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-sm text-muted-foreground">
+                          Rs.{item.price.toFixed(2)} × {item.quantity}
+                        </p>
+                        {item.originalPrice &&
+                          item.originalPrice > item.price && (
+                            <>
+                              <p className="text-xs text-muted-foreground line-through">
+                                Rs.{item.originalPrice.toFixed(2)}
+                              </p>
+                              {item.dishDiscountType &&
+                                item.dishDiscountValue &&
+                                item.dishDiscountType !== "none" && (
+                                  <Badge
+                                    variant="destructive"
+                                    className="text-[9px] px-1.5 py-0 h-4"
+                                  >
+                                    {item.dishDiscountType === "percentage"
+                                      ? `${item.dishDiscountValue}% OFF`
+                                      : `₹${item.dishDiscountValue} OFF`}
+                                  </Badge>
+                                )}
+                            </>
+                          )}
+                      </div>
                       {item.notes && (
                         <p className="text-xs text-muted-foreground mt-1 italic">
                           Note: {item.notes}
@@ -588,6 +610,14 @@ export default function OrderDetailsPage() {
                     <div className="flex justify-between text-sm text-green-600 dark:text-green-400">
                       <span className="flex items-center gap-1">
                         Discount
+                        {order.couponCode && (
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] h-4 px-1 border-green-600 text-green-600 font-mono"
+                          >
+                            {order.couponCode}
+                          </Badge>
+                        )}
                         {order.discountType && order.discountValue && (
                           <span className="text-xs">
                             (

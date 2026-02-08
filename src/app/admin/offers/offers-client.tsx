@@ -81,6 +81,9 @@ const offerSchema = z.object({
   sectionType: z.enum(["offers", "todaysSpecial", "whatsNew"]),
   isActive: z.boolean(),
   priority: z.coerce.number().int(),
+  couponCode: z.string().optional(),
+  discountType: z.enum(["percentage", "fixed"]).optional(),
+  discountValue: z.coerce.number().optional(),
 });
 
 type OfferFormValues = z.infer<typeof offerSchema>;
@@ -103,6 +106,9 @@ function OfferForm({
       sectionType: currentOffer?.sectionType ?? "offers",
       isActive: currentOffer?.isActive ?? true,
       priority: currentOffer?.priority ?? 0,
+      couponCode: currentOffer?.couponCode ?? "",
+      discountType: currentOffer?.discountType ?? "percentage",
+      discountValue: currentOffer?.discountValue ?? 0,
     },
   });
 
@@ -221,6 +227,64 @@ function OfferForm({
             </FormItem>
           )}
         />
+
+        <div className="border-t pt-4 mt-4">
+          <h3 className="text-sm font-medium mb-4">
+            Coupon & Discount (Optional)
+          </h3>
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="couponCode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Coupon Code</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="e.g. SAVE20" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="discountType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Discount Type</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="percentage">Percentage (%)</SelectItem>
+                      <SelectItem value="fixed">Fixed (₹)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <FormField
+            control={form.control}
+            name="discountValue"
+            render={({ field }) => (
+              <FormItem className="mt-4">
+                <FormLabel>Discount Value</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <Button type="submit" disabled={isSaving} className="w-full">
           {isSaving ? (
             <>
@@ -243,7 +307,8 @@ export function OffersClient({
 }) {
   const [offers, setOffers] = useState(initialOffers);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleteDialogOpenConfirm, setIsDeleteDialogOpenConfirm] =
+    useState(false);
   const [currentOffer, setCurrentOffer] = useState<SectionItem | null>(null);
   const { toast } = useToast();
 
@@ -321,6 +386,8 @@ export function OffersClient({
                 <TableHead className="w-[80px]">Image</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Type</TableHead>
+                <TableHead>Coupon</TableHead>
+                <TableHead>Discount</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
@@ -340,6 +407,26 @@ export function OffersClient({
                   </TableCell>
                   <TableCell className="font-medium">{offer.title}</TableCell>
                   <TableCell>{sectionTypeNames[offer.sectionType]}</TableCell>
+                  <TableCell>
+                    {offer.couponCode ? (
+                      <Badge variant="outline" className="font-mono">
+                        {offer.couponCode}
+                      </Badge>
+                    ) : (
+                      "-"
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {offer.discountValue ? (
+                      <span className="text-sm">
+                        {offer.discountType === "percentage"
+                          ? `${offer.discountValue}%`
+                          : `₹${offer.discountValue}`}
+                      </span>
+                    ) : (
+                      "-"
+                    )}
+                  </TableCell>
                   <TableCell>
                     <Badge variant={offer.isActive ? "default" : "secondary"}>
                       {offer.isActive ? "Active" : "Inactive"}
@@ -367,7 +454,7 @@ export function OffersClient({
                           onSelect={(e) => {
                             e.preventDefault();
                             setCurrentOffer(offer);
-                            setIsDeleteDialogOpen(true);
+                            setIsDeleteDialogOpenConfirm(true);
                           }}
                           className="text-red-600"
                         >
@@ -385,8 +472,8 @@ export function OffersClient({
       </Card>
 
       <AlertDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
+        open={isDeleteDialogOpenConfirm}
+        onOpenChange={setIsDeleteDialogOpenConfirm}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -401,7 +488,7 @@ export function OffersClient({
             <AlertDialogAction
               onClick={() => {
                 if (currentOffer) handleDelete(currentOffer.id);
-                setIsDeleteDialogOpen(false);
+                setIsDeleteDialogOpenConfirm(false);
               }}
             >
               Delete

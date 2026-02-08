@@ -204,11 +204,11 @@ export default function BillPage() {
     // Discount (if applicable)
     if (order.discount && order.discount > 0) {
       let discountLabel = "Discount:";
-      if (order.discountType && order.discountValue) {
+      if (order.couponCode) {
+        discountLabel = `Discount (${order.couponCode}):`;
+      } else if (order.discountType && order.discountValue) {
         if (order.discountType === "percentage") {
           discountLabel = `Discount (${order.discountValue}%):`;
-        } else {
-          discountLabel = "Discount:";
         }
       }
       bill +=

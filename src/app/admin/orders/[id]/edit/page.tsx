@@ -229,7 +229,24 @@ export default function EditOrderPage() {
       } else {
         const customizationsPrice =
           selectedCustomizations?.reduce((sum, c) => sum + c.price, 0) || 0;
-        const basePrice = variant ? variant.price : dish.price;
+        let basePrice = variant ? variant.price : dish.price;
+        const originalBasePrice = basePrice;
+
+        // Apply dish-level discount
+        if (
+          dish.discountType &&
+          dish.discountValue &&
+          dish.discountType !== "none"
+        ) {
+          if (dish.discountType === "percentage") {
+            basePrice = basePrice - (basePrice * dish.discountValue) / 100;
+          } else if (dish.discountType === "fixed") {
+            basePrice = Math.max(0, basePrice - dish.discountValue);
+          }
+        }
+
+        const finalPrice = basePrice + customizationsPrice;
+        const originalPrice = originalBasePrice + customizationsPrice;
 
         setOrderItems([
           ...orderItems,
@@ -237,7 +254,11 @@ export default function EditOrderPage() {
             dishId: dish.id,
             dishName: dish.name,
             quantity: 1,
-            price: basePrice + customizationsPrice,
+            price: finalPrice,
+            originalPrice:
+              originalPrice !== finalPrice ? originalPrice : undefined,
+            dishDiscountType: dish.discountType,
+            dishDiscountValue: dish.discountValue,
             isVeg: dish.isVeg,
             variantId: variantId,
             variantName: variant?.name,

@@ -60,11 +60,62 @@ export function DishListItem({ dish }: { dish: Dish }) {
               <VegNonVegIcon isVeg={dish.isVeg} />
               <h4 className="font-bold text-lg leading-none">{dish.name}</h4>
             </div>
-            <p className="text-base font-extrabold text-primary mt-1.5">
-              {dish.variants && dish.variants.length > 0
-                ? `Starts Rs.${Math.min(...dish.variants.map((v) => v.price)).toFixed(2)}`
-                : `Rs.${dish.price.toFixed(2)}`}
-            </p>
+            {(() => {
+              const basePrice =
+                dish.variants && dish.variants.length > 0
+                  ? Math.min(...dish.variants.map((v) => v.price))
+                  : dish.price;
+
+              const hasDiscount =
+                dish.discountType &&
+                dish.discountValue &&
+                dish.discountType !== "none";
+              let discountedPrice = basePrice;
+
+              if (hasDiscount) {
+                if (dish.discountType === "percentage") {
+                  discountedPrice =
+                    basePrice - (basePrice * (dish.discountValue || 0)) / 100;
+                } else if (dish.discountType === "fixed") {
+                  discountedPrice = Math.max(
+                    0,
+                    basePrice - (dish.discountValue || 0),
+                  );
+                }
+              }
+
+              return (
+                <div className="flex items-center gap-2 mt-1.5">
+                  {hasDiscount ? (
+                    <>
+                      <p className="text-base font-extrabold text-primary">
+                        {dish.variants && dish.variants.length > 0
+                          ? "Starts "
+                          : ""}
+                        Rs.{discountedPrice.toFixed(2)}
+                      </p>
+                      <p className="text-sm text-muted-foreground line-through">
+                        Rs.{basePrice.toFixed(2)}
+                      </p>
+                      <Badge
+                        variant="destructive"
+                        className="text-[10px] px-1.5 py-0 h-5"
+                      >
+                        {dish.discountType === "percentage"
+                          ? `${dish.discountValue}% OFF`
+                          : `₹${dish.discountValue} OFF`}
+                      </Badge>
+                    </>
+                  ) : (
+                    <p className="text-base font-extrabold text-primary">
+                      {dish.variants && dish.variants.length > 0
+                        ? `Starts Rs.${basePrice.toFixed(2)}`
+                        : `Rs.${basePrice.toFixed(2)}`}
+                    </p>
+                  )}
+                </div>
+              );
+            })()}
           </div>
           <Button
             size="sm"

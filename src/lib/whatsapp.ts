@@ -43,6 +43,9 @@ export function generateWhatsAppMessage(
   message += `*Bill Summary*\n`;
   message += `${"=".repeat(30)}\n`;
   message += `Subtotal: Rs.${cart.subtotal.toFixed(2)}\n`;
+  if (cart.discount > 0) {
+    message += `Discount${cart.couponCode ? ` (${cart.couponCode})` : ""}: -Rs.${cart.discount.toFixed(2)}\n`;
+  }
   if (cart.tax > 0) {
     message += `Tax (GST 5%): Rs.${cart.tax.toFixed(2)}\n`;
   }

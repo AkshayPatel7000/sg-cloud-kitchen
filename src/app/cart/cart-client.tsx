@@ -29,8 +29,16 @@ import { db } from "@/lib/firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 
 export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
-  const { cart, updateQuantity, removeFromCart, clearCart, itemCount } =
-    useCart();
+  const {
+    cart,
+    updateQuantity,
+    removeFromCart,
+    clearCart,
+    itemCount,
+    applyCoupon,
+    removeCoupon,
+    appliedCoupon,
+  } = useCart();
   const { toast } = useToast();
 
   const [userName, setUserName] = useState("");
@@ -38,6 +46,8 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
   const [userAddress, setUserAddress] = useState("");
   const [showNameInput, setShowNameInput] = useState(false);
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+  const [couponInput, setCouponInput] = useState("");
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
 
   // Load saved details from localStorage
   useEffect(() => {
@@ -164,11 +174,25 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
         customerPhone: userPhone || null,
         customerAddress: userAddress || null,
         items: cart.items.map((item) => {
+          // Calculate original price before dish discount
+          const variant = item.variantId
+            ? item.dish.variants?.find((v) => v.id === item.variantId)
+            : undefined;
+          const baseOriginalPrice = variant ? variant.price : item.dish.price;
+          const customizationsPrice =
+            item.selectedCustomizations?.reduce((sum, c) => sum + c.price, 0) ||
+            0;
+          const originalPrice = baseOriginalPrice + customizationsPrice;
+
           return {
             dishId: item.dish.id,
             dishName: item.dish.name,
             quantity: item.quantity,
             price: item.price,
+            originalPrice:
+              originalPrice !== item.price ? originalPrice : undefined,
+            dishDiscountType: item.dish.discountType,
+            dishDiscountValue: item.dish.discountValue,
             isVeg: item.dish.isVeg,
             variantId: item.variantId || null,
             variantName: item.variantName || null,
@@ -177,7 +201,10 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
           };
         }),
         subtotal: cart.subtotal,
-        discount: 0,
+        discount: cart.discount || 0,
+        discountType: cart.discountType || null,
+        discountValue: cart.discountValue || null,
+        couponCode: cart.couponCode || null,
         tax: cart.tax,
         total: cart.total,
         status: "pending",
@@ -480,6 +507,24 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                       Rs.{cart.subtotal.toFixed(2)}
                     </span>
                   </div>
+                  {cart.discount > 0 && (
+                    <div className="flex justify-between text-sm text-green-600">
+                      <span className="flex items-center gap-1">
+                        Discount
+                        {cart.couponCode && (
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] h-4 px-1 text-green-600 border-green-600"
+                          >
+                            {cart.couponCode}
+                          </Badge>
+                        )}
+                      </span>
+                      <span className="font-medium">
+                        -Rs.{cart.discount.toFixed(2)}
+                      </span>
+                    </div>
+                  )}
                   {cart.tax > 0 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">
@@ -498,6 +543,70 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                     </span>
                   </div>
                 </div>
+
+                {/* {!appliedCoupon ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="coupon" className="text-xs">
+                      Have a coupon?
+                    </Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="coupon"
+                        placeholder="e.g. SAVE20"
+                        value={couponInput}
+                        onChange={(e) =>
+                          setCouponInput(e.target.value.toUpperCase())
+                        }
+                        className="h-8 text-sm"
+                      />
+                      <Button
+                        size="sm"
+                        className="h-8"
+                        onClick={async () => {
+                          if (!couponInput.trim()) return;
+                          setIsApplyingCoupon(true);
+                          const result = await applyCoupon(couponInput);
+                          setIsApplyingCoupon(false);
+                          if (result.success) {
+                            setCouponInput("");
+                            toast({ title: result.message });
+                          } else {
+                            toast({
+                              title: result.message,
+                              variant: "destructive",
+                            });
+                          }
+                        }}
+                        disabled={isApplyingCoupon || !couponInput.trim()}
+                      >
+                        {isApplyingCoupon ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          "Apply"
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between p-2 bg-green-50 border border-green-200 rounded-md">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] text-green-600 font-medium">
+                        Coupon Applied
+                      </span>
+                      <span className="text-sm font-bold text-green-700">
+                        {appliedCoupon.couponCode}
+                      </span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={removeCoupon}
+                      className="h-7 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                )} */}
 
                 <Separator />
 

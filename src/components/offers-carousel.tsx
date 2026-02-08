@@ -17,7 +17,10 @@ import {
 import Image from "next/image";
 import { sanitizeImageUrl } from "@/lib/image-utils";
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Ticket, Copy, Check } from "lucide-react";
+import { Badge } from "./ui/badge";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 export function OffersCarousel({
   items,
@@ -85,10 +88,16 @@ export function OffersCarousel({
                         {item.title}
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="flex-grow">
+                    <CardContent className="flex-grow space-y-4">
                       <CardDescription className="text-base leading-relaxed text-muted-foreground line-clamp-2">
                         {item.description}
                       </CardDescription>
+
+                      {item.couponCode && (
+                        <div className="pt-2">
+                          <CouponBadge code={item.couponCode} />
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -102,5 +111,51 @@ export function OffersCarousel({
         </div>
       </Carousel>
     </section>
+  );
+}
+function CouponBadge({ code }: { code: string }) {
+  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    toast({
+      title: "Code Copied!",
+      description: `Coupon ${code} has been copied to clipboard.`,
+    });
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        copyToClipboard();
+      }}
+      className="inline-flex items-center gap-2 px-4 py-2 bg-primary/5 border border-primary/20 rounded-2xl cursor-pointer hover:bg-primary hover:text-white transition-all group/coupon w-full justify-between"
+    >
+      <div className="flex items-center gap-2">
+        <Ticket
+          size={16}
+          className="text-primary group-hover/coupon:text-white"
+        />
+        <span className="font-mono font-bold tracking-wider">{code}</span>
+      </div>
+      <div className="p-1 rounded-lg bg-primary/10 group-hover/coupon:bg-white/20">
+        {copied ? (
+          <Check
+            size={14}
+            className="text-primary group-hover/coupon:text-white"
+          />
+        ) : (
+          <Copy
+            size={14}
+            className="text-primary group-hover/coupon:text-white"
+          />
+        )}
+      </div>
+    </div>
   );
 }
