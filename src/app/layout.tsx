@@ -3,6 +3,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { CartProvider } from "@/contexts/cart-context";
 import { getRestaurant } from "@/lib/data";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 export async function generateMetadata(): Promise<Metadata> {
   const restaurant = await getRestaurant();
@@ -105,6 +106,7 @@ export default function RootLayout({
           content="black-translucent"
         />
         <meta name="apple-mobile-web-app-title" content="GG Admin" />
+        <GoogleAnalytics gaId="G-BE1LN1ECXB" />
       </head>
 
       <body className="font-body antialiased min-h-screen">
