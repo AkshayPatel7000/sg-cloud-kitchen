@@ -34,9 +34,12 @@ export async function generateMetadata(): Promise<Metadata> {
       telephone: true,
     },
     icons: {
-      icon: restaurant.logoUrl,
-      shortcut: restaurant.logoUrl,
-      apple: restaurant.logoUrl,
+      icon: [
+        { url: "/favicon.ico" },
+        { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      ],
+      shortcut: "/favicon.ico",
+      apple: "/icon-192x192.png",
     },
     alternates: {
       canonical: "/",
