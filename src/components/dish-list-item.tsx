@@ -82,6 +82,8 @@ export function DishListItem({ dish }: { dish: Dish }) {
                     basePrice - (dish.discountValue || 0),
                   );
                 }
+                // Round to whole number
+                discountedPrice = Math.round(discountedPrice);
               }
 
               return (
@@ -92,10 +94,10 @@ export function DishListItem({ dish }: { dish: Dish }) {
                         {dish.variants && dish.variants.length > 0
                           ? "Starts "
                           : ""}
-                        Rs.{discountedPrice.toFixed(2)}
+                        Rs.{discountedPrice.toLocaleString()}
                       </p>
                       <p className="text-sm text-muted-foreground line-through">
-                        Rs.{basePrice.toFixed(2)}
+                        Rs.{basePrice.toLocaleString()}
                       </p>
                       <Badge
                         variant="destructive"
@@ -109,8 +111,8 @@ export function DishListItem({ dish }: { dish: Dish }) {
                   ) : (
                     <p className="text-base font-extrabold text-primary">
                       {dish.variants && dish.variants.length > 0
-                        ? `Starts Rs.${basePrice.toFixed(2)}`
-                        : `Rs.${basePrice.toFixed(2)}`}
+                        ? `Starts Rs.${basePrice.toLocaleString()}`
+                        : `Rs.${basePrice.toLocaleString()}`}
                     </p>
                   )}
                 </div>

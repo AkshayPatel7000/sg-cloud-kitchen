@@ -30,9 +30,12 @@ export function calculateDishDiscount(dish: Dish, basePrice?: number) {
     discountAmount = Math.min(dish.discountValue, price);
   }
 
+  // Round the discounted price to whole number
+  const discountedPrice = Math.round(Math.max(0, price - discountAmount));
+
   return {
     originalPrice: price,
-    discountedPrice: Math.max(0, price - discountAmount),
+    discountedPrice,
     hasDiscount: true,
     discountAmount,
   };

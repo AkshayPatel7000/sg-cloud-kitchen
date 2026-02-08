@@ -243,6 +243,8 @@ export default function EditOrderPage() {
           } else if (dish.discountType === "fixed") {
             basePrice = Math.max(0, basePrice - dish.discountValue);
           }
+          // Round to whole number
+          basePrice = Math.round(basePrice);
         }
 
         const finalPrice = basePrice + customizationsPrice;

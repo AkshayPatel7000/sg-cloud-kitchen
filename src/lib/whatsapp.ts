@@ -35,22 +35,22 @@ export function generateWhatsAppMessage(
       message += `   Note: _${item.notes}_\n`;
     }
 
-    message += `   Qty: ${item.quantity} × Rs.${item.price.toFixed(2)}\n`;
-    message += `   Subtotal: Rs.${(item.price * item.quantity).toFixed(2)}\n\n`;
+    message += `   Qty: ${item.quantity} × Rs.${Math.round(item.price)}\n`;
+    message += `   Subtotal: Rs.${Math.round(item.price * item.quantity)}\n\n`;
   });
 
   message += `${"=".repeat(30)}\n`;
   message += `*Bill Summary*\n`;
   message += `${"=".repeat(30)}\n`;
-  message += `Subtotal: Rs.${cart.subtotal.toFixed(2)}\n`;
+  message += `Subtotal: Rs.${Math.round(cart.subtotal)}\n`;
   if (cart.discount > 0) {
-    message += `Discount${cart.couponCode ? ` (${cart.couponCode})` : ""}: -Rs.${cart.discount.toFixed(2)}\n`;
+    message += `Discount${cart.couponCode ? ` (${cart.couponCode})` : ""}: -Rs.${Math.round(cart.discount)}\n`;
   }
   if (cart.tax > 0) {
-    message += `Tax (GST 5%): Rs.${cart.tax.toFixed(2)}\n`;
+    message += `Tax (GST 5%): Rs.${Math.round(cart.tax)}\n`;
   }
   message += `${"─".repeat(30)}\n`;
-  message += `*Total Amount: Rs.${cart.total.toFixed(2)}*\n\n`;
+  message += `*Total Amount: Rs.${Math.round(cart.total)}*\n\n`;
 
   message += `Please confirm my order. Thank you! 🙏`;
 

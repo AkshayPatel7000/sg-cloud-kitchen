@@ -86,9 +86,52 @@ export function CartButton() {
                           </Badge>
                         )}
                       </h4>
-                      <p className="text-sm text-primary font-bold mt-1">
-                        Rs.{item.price.toFixed(2)}
-                      </p>
+                      {(() => {
+                        // Calculate original price
+                        const variant = item.variantId
+                          ? item.dish.variants?.find(
+                              (v) => v.id === item.variantId,
+                            )
+                          : undefined;
+                        const baseOriginalPrice = variant
+                          ? variant.price
+                          : item.dish.price;
+                        const customizationsPrice =
+                          item.selectedCustomizations?.reduce(
+                            (sum, c) => sum + c.price,
+                            0,
+                          ) || 0;
+                        const originalPrice =
+                          baseOriginalPrice + customizationsPrice;
+                        const hasDiscount = originalPrice > item.price;
+
+                        return (
+                          <>
+                            {hasDiscount && (
+                              <div className="flex items-center gap-1.5 mt-1">
+                                <p className="text-xs text-muted-foreground line-through">
+                                  Rs.{originalPrice.toLocaleString()}
+                                </p>
+                                {item.dish.discountType &&
+                                  item.dish.discountValue &&
+                                  item.dish.discountType !== "none" && (
+                                    <Badge
+                                      variant="destructive"
+                                      className="text-[9px] px-1.5 py-0 h-4"
+                                    >
+                                      {item.dish.discountType === "percentage"
+                                        ? `${item.dish.discountValue}% OFF`
+                                        : `₹${item.dish.discountValue} OFF`}
+                                    </Badge>
+                                  )}
+                              </div>
+                            )}
+                            <p className="text-sm text-primary font-bold mt-1">
+                              Rs.{item.price.toLocaleString()}
+                            </p>
+                          </>
+                        );
+                      })()}
                       <div className="flex items-center gap-2 mt-2">
                         <Button
                           variant="outline"
@@ -135,7 +178,7 @@ export function CartButton() {
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
                       <p className="text-sm font-bold">
-                        Rs.{(item.price * item.quantity).toFixed(2)}
+                        Rs.{(item.price * item.quantity).toLocaleString()}
                       </p>
                     </div>
                   </div>
@@ -149,14 +192,14 @@ export function CartButton() {
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
                   <span className="font-medium">
-                    Rs.{cart.subtotal.toFixed(2)}
+                    Rs.{cart.subtotal.toLocaleString()}
                   </span>
                 </div>
                 {cart.tax > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Tax (5%)</span>
                     <span className="font-medium">
-                      Rs.{cart.tax.toFixed(2)}
+                      Rs.{cart.tax.toLocaleString()}
                     </span>
                   </div>
                 )}
@@ -164,7 +207,7 @@ export function CartButton() {
                 <div className="flex justify-between text-base font-bold">
                   <span>Total</span>
                   <span className="text-primary">
-                    Rs.{cart.total.toFixed(2)}
+                    Rs.{cart.total.toLocaleString()}
                   </span>
                 </div>
               </div>

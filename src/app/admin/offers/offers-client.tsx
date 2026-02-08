@@ -348,17 +348,21 @@ export function OffersClient({
     <>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
             Offers & Specials
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground hidden sm:block">
             Manage your promotional items.
           </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => setCurrentOffer(null)}>
-              <PlusCircle className="mr-2 h-4 w-4" /> Add Item
+            <Button
+              className="w-full sm:w-auto h-10 w-10 p-0 sm:h-11 sm:w-auto sm:px-4"
+              onClick={() => setCurrentOffer(null)}
+            >
+              <PlusCircle className="h-5 w-5 sm:mr-2" />
+              <span className="hidden sm:inline">Add Offer</span>
             </Button>
           </DialogTrigger>
           <DialogContent>

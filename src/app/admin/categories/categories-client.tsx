@@ -201,7 +201,6 @@ export function CategoriesClient({
   categories: Category[];
 }) {
   const [categories, setCategories] = useState(initialCategories);
-  console.log("🚀 ~ CategoriesClient ~ categories:", categories);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentCategory, setCurrentCategory] = useState<Category | null>(null);
   const { toast } = useToast();
@@ -240,7 +239,7 @@ export function CategoriesClient({
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+      <div className="flex justify-between sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <div>
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
             Menu Categories

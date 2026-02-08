@@ -134,6 +134,8 @@ export function DishDetailSheet({
       } else if (dish.discountType === "fixed") {
         total = Math.max(0, total - dish.discountValue);
       }
+      // Round to whole number
+      total = Math.round(total);
     }
 
     Object.entries(selections).forEach(([groupId, optionIds]) => {
@@ -273,20 +275,22 @@ export function DishDetailSheet({
                               variant.price - (dish.discountValue || 0),
                             );
                           }
+                          // Round to whole number
+                          discountedPrice = Math.round(discountedPrice);
                         }
 
                         return hasDiscount ? (
                           <div className="flex items-center gap-2">
                             <span className="font-bold text-primary">
-                              Rs.{discountedPrice.toFixed(2)}
+                              Rs.{discountedPrice.toLocaleString()}
                             </span>
                             <span className="text-sm text-muted-foreground line-through">
-                              Rs.{variant.price.toFixed(2)}
+                              Rs.{variant.price.toLocaleString()}
                             </span>
                           </div>
                         ) : (
                           <span className="font-bold text-primary">
-                            Rs.{variant.price.toFixed(2)}
+                            Rs.{variant.price.toLocaleString()}
                           </span>
                         );
                       })()}

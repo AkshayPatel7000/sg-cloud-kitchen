@@ -188,6 +188,8 @@ export default function NewOrderPage() {
           } else if (dish.discountType === "fixed") {
             basePrice = Math.max(0, basePrice - dish.discountValue);
           }
+          // Round to whole number
+          basePrice = Math.round(basePrice);
         }
 
         const finalPrice = basePrice + customizationsPrice;
@@ -549,8 +551,8 @@ export default function NewOrderPage() {
                                 </Badge>
                                 <span className="text-sm font-bold text-primary">
                                   {dish.variants && dish.variants.length > 0
-                                    ? `Starts Rs.${Math.min(...dish.variants.map((v) => v.price)).toFixed(2)}`
-                                    : `Rs.${dish.price.toFixed(2)}`}
+                                    ? `Starts Rs.${Math.min(...dish.variants.map((v) => v.price)).toLocaleString()}`
+                                    : `Rs.${dish.price.toLocaleString()}`}
                                 </span>
                               </div>
                             </div>
@@ -729,7 +731,7 @@ export default function NewOrderPage() {
                             </div>
                           )}
                         <p className="text-xs text-muted-foreground">
-                          Rs.{item.price.toFixed(2)} each
+                          Rs.{item.price.toLocaleString()} each
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -784,7 +786,9 @@ export default function NewOrderPage() {
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-medium">Rs.{subtotal.toFixed(2)}</span>
+                  <span className="font-medium">
+                    Rs.{subtotal.toLocaleString()}
+                  </span>
                 </div>
 
                 {/* Discount Section */}
@@ -884,7 +888,7 @@ export default function NewOrderPage() {
                   {discount > 0 && (
                     <div className="flex justify-between text-xs text-green-600 dark:text-green-400 font-medium pt-1">
                       <span>Discount Applied:</span>
-                      <span>- Rs.{discount.toFixed(2)}</span>
+                      <span>- Rs.{discount.toLocaleString()}</span>
                     </div>
                   )}
                 </div>
@@ -895,7 +899,7 @@ export default function NewOrderPage() {
                       After Discount
                     </span>
                     <span className="font-medium">
-                      Rs.{afterDiscount.toFixed(2)}
+                      Rs.{afterDiscount.toLocaleString()}
                     </span>
                   </div>
                 )}
@@ -903,13 +907,17 @@ export default function NewOrderPage() {
                 {tax > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Tax (GST 5%)</span>
-                    <span className="font-medium">Rs.{tax.toFixed(2)}</span>
+                    <span className="font-medium">
+                      Rs.{tax.toLocaleString()}
+                    </span>
                   </div>
                 )}
                 <Separator />
                 <div className="flex justify-between text-lg font-bold">
                   <span>Total</span>
-                  <span className="text-primary">Rs.{total.toFixed(2)}</span>
+                  <span className="text-primary">
+                    Rs.{total.toLocaleString()}
+                  </span>
                 </div>
               </div>
 

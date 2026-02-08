@@ -780,7 +780,7 @@ export function DishesClient({
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+      <div className="flex justify-between sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <div>
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
             Dishes
@@ -817,7 +817,7 @@ export function DishesClient({
       </div>
 
       {/* Filters and Search */}
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="relative flex-grow">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -928,6 +928,8 @@ export function DishesClient({
                               minPrice - (dish.discountValue || 0),
                             );
                           }
+                          // Round to whole number
+                          discountedPrice = Math.round(discountedPrice);
                         }
 
                         return (
@@ -939,10 +941,10 @@ export function DishesClient({
                               <>
                                 <div className="flex items-center gap-1.5">
                                   <span className="font-semibold text-primary">
-                                    Rs.{discountedPrice.toFixed(2)}
+                                    Rs.{discountedPrice.toLocaleString()}
                                   </span>
                                   <span className="text-xs text-muted-foreground line-through">
-                                    Rs.{minPrice.toFixed(2)}
+                                    Rs.{minPrice.toLocaleString()}
                                   </span>
                                 </div>
                                 <Badge
@@ -955,7 +957,7 @@ export function DishesClient({
                                 </Badge>
                               </>
                             ) : (
-                              <span>Rs.{minPrice.toFixed(2)}</span>
+                              <span>Rs.{minPrice.toLocaleString()}</span>
                             )}
                           </div>
                         );
@@ -973,16 +975,18 @@ export function DishesClient({
                               dish.price - (dish.discountValue || 0),
                             );
                           }
+                          // Round to whole number
+                          discountedPrice = Math.round(discountedPrice);
                         }
 
                         return hasDiscount ? (
                           <div className="flex flex-col items-end gap-1">
                             <div className="flex items-center gap-1.5">
                               <span className="font-semibold text-primary">
-                                Rs.{discountedPrice.toFixed(2)}
+                                Rs.{discountedPrice.toLocaleString()}
                               </span>
                               <span className="text-xs text-muted-foreground line-through">
-                                Rs.{dish.price.toFixed(2)}
+                                Rs.{dish.price.toLocaleString()}
                               </span>
                             </div>
                             <Badge
@@ -995,7 +999,7 @@ export function DishesClient({
                             </Badge>
                           </div>
                         ) : (
-                          `Rs.${dish.price.toFixed(2)}`
+                          `Rs.${dish.price.toLocaleString()}`
                         );
                       }
                     })()}

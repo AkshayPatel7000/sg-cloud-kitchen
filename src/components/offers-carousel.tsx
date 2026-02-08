@@ -93,6 +93,55 @@ export function OffersCarousel({
                         {item.description}
                       </CardDescription>
 
+                      {item.price !== undefined && (
+                        <div className="flex items-center gap-3 pt-2">
+                          {(() => {
+                            const hasDiscount =
+                              item.discountType && item.discountValue;
+                            let discountedPrice = item.price;
+
+                            if (hasDiscount) {
+                              if (item.discountType === "percentage") {
+                                discountedPrice =
+                                  item.price -
+                                  (item.price * (item.discountValue || 0)) /
+                                    100;
+                              } else if (item.discountType === "fixed") {
+                                discountedPrice = Math.max(
+                                  0,
+                                  item.price - (item.discountValue || 0),
+                                );
+                              }
+                              // Round to whole number
+                              discountedPrice = Math.round(discountedPrice);
+                            }
+
+                            return (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xl font-bold text-primary">
+                                  Rs.{discountedPrice.toLocaleString()}
+                                </span>
+                                {hasDiscount && (
+                                  <>
+                                    <span className="text-sm text-muted-foreground line-through">
+                                      Rs.{item.price.toLocaleString()}
+                                    </span>
+                                    <Badge
+                                      variant="destructive"
+                                      className="text-[10px] px-1.5 py-0 h-5"
+                                    >
+                                      {item.discountType === "percentage"
+                                        ? `${item.discountValue}% OFF`
+                                        : `₹${item.discountValue} OFF`}
+                                    </Badge>
+                                  </>
+                                )}
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      )}
+
                       {item.couponCode && (
                         <div className="pt-2">
                           <CouponBadge code={item.couponCode} />

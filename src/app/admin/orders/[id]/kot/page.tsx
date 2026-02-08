@@ -227,31 +227,50 @@ export default function KOTPage() {
   return (
     <div className="space-y-6 p-4 md:p-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <Link href={`/admin/orders/${orderId}`}>
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-5 w-5" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 sm:h-10 sm:w-10"
+            >
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold">Kitchen Order Ticket</h1>
-            <p className="text-muted-foreground">{order.orderNumber}</p>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">
+              Kitchen Order Ticket
+            </h1>
+            <p className="text-sm text-muted-foreground">{order.orderNumber}</p>
           </div>
         </div>
 
-        <div className="flex gap-2">
-          <Button variant="outline" size="lg" onClick={handleCopy}>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Button
+            variant="outline"
+            size="default"
+            onClick={handleCopy}
+            className="flex-1 sm:flex-none"
+          >
             {copied ? (
-              <Check className="mr-2 h-5 w-5 text-green-600" />
+              <Check className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
             ) : (
-              <Copy className="mr-2 h-5 w-5" />
+              <Copy className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
             )}
-            {copied ? "Copied" : "Copy KOT"}
+            <span className="hidden sm:inline">
+              {copied ? "Copied" : "Copy KOT"}
+            </span>
+            <span className="sm:hidden">{copied ? "Copied" : "Copy"}</span>
           </Button>
-          <Button size="lg" onClick={handlePrint}>
-            <Printer className="mr-2 h-5 w-5" />
-            Print KOT
+          <Button
+            size="default"
+            onClick={handlePrint}
+            className="flex-1 sm:flex-none"
+          >
+            <Printer className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="hidden sm:inline">Print KOT</span>
+            <span className="sm:hidden">Print</span>
           </Button>
         </div>
       </div>

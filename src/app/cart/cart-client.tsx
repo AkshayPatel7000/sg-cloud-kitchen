@@ -473,12 +473,60 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                               </Button>
                             </div>
                             <div className="text-right">
-                              <p className="text-sm text-muted-foreground">
-                                Rs.{item.price.toFixed(2)} × {item.quantity}
-                              </p>
-                              <p className="text-lg font-bold text-primary">
-                                Rs.{(item.price * item.quantity).toFixed(2)}
-                              </p>
+                              {(() => {
+                                // Calculate original price
+                                const variant = item.variantId
+                                  ? item.dish.variants?.find(
+                                      (v) => v.id === item.variantId,
+                                    )
+                                  : undefined;
+                                const baseOriginalPrice = variant
+                                  ? variant.price
+                                  : item.dish.price;
+                                const customizationsPrice =
+                                  item.selectedCustomizations?.reduce(
+                                    (sum, c) => sum + c.price,
+                                    0,
+                                  ) || 0;
+                                const originalPrice =
+                                  baseOriginalPrice + customizationsPrice;
+                                const hasDiscount = originalPrice > item.price;
+
+                                return (
+                                  <>
+                                    {hasDiscount && (
+                                      <div className="flex items-center justify-end gap-1.5 mb-1">
+                                        <p className="text-xs text-muted-foreground line-through">
+                                          Rs.{originalPrice.toLocaleString()}
+                                        </p>
+                                        {item.dish.discountType &&
+                                          item.dish.discountValue &&
+                                          item.dish.discountType !== "none" && (
+                                            <Badge
+                                              variant="destructive"
+                                              className="text-[9px] px-1.5 py-0 h-4"
+                                            >
+                                              {item.dish.discountType ===
+                                              "percentage"
+                                                ? `${item.dish.discountValue}% OFF`
+                                                : `₹${item.dish.discountValue} OFF`}
+                                            </Badge>
+                                          )}
+                                      </div>
+                                    )}
+                                    <p className="text-sm text-muted-foreground">
+                                      Rs.{item.price.toLocaleString()} ×{" "}
+                                      {item.quantity}
+                                    </p>
+                                    <p className="text-lg font-bold text-primary">
+                                      Rs.
+                                      {(
+                                        item.price * item.quantity
+                                      ).toLocaleString()}
+                                    </p>
+                                  </>
+                                );
+                              })()}
                             </div>
                           </div>
                         </div>
@@ -504,7 +552,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                       )
                     </span>
                     <span className="font-medium">
-                      Rs.{cart.subtotal.toFixed(2)}
+                      Rs.{cart.subtotal.toLocaleString()}
                     </span>
                   </div>
                   {cart.discount > 0 && (
@@ -521,7 +569,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                         )}
                       </span>
                       <span className="font-medium">
-                        -Rs.{cart.discount.toFixed(2)}
+                        -Rs.{cart.discount.toLocaleString()}
                       </span>
                     </div>
                   )}
@@ -531,7 +579,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                         Tax (GST 5%)
                       </span>
                       <span className="font-medium">
-                        Rs.{cart.tax.toFixed(2)}
+                        Rs.{cart.tax.toLocaleString()}
                       </span>
                     </div>
                   )}
@@ -539,7 +587,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total Amount</span>
                     <span className="text-primary">
-                      Rs.{cart.total.toFixed(2)}
+                      Rs.{cart.total.toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -631,7 +679,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                             {item.quantity}
                           </span>
                           <span>
-                            Rs.{(item.price * item.quantity).toFixed(2)}
+                            Rs.{(item.price * item.quantity).toLocaleString()}
                           </span>
                         </div>
                       );

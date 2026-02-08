@@ -531,13 +531,13 @@ export default function OrderDetailsPage() {
                         )}
                       <div className="flex items-center gap-2 mt-1">
                         <p className="text-sm text-muted-foreground">
-                          Rs.{item.price.toFixed(2)} × {item.quantity}
+                          Rs.{item.price.toLocaleString()} × {item.quantity}
                         </p>
                         {item.originalPrice &&
                           item.originalPrice > item.price && (
                             <>
                               <p className="text-xs text-muted-foreground line-through">
-                                Rs.{item.originalPrice.toFixed(2)}
+                                Rs.{item.originalPrice.toLocaleString()}
                               </p>
                               {item.dishDiscountType &&
                                 item.dishDiscountValue &&
@@ -562,7 +562,7 @@ export default function OrderDetailsPage() {
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-primary">
-                        Rs.{(item.price * item.quantity).toFixed(2)}
+                        Rs.{(item.price * item.quantity).toLocaleString()}
                       </p>
                     </div>
                   </div>
@@ -601,7 +601,7 @@ export default function OrderDetailsPage() {
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
                   <span className="font-medium">
-                    Rs.{order.subtotal.toFixed(2)}
+                    Rs.{order.subtotal.toLocaleString()}
                   </span>
                 </div>
                 {/* Discount Display */}
@@ -623,13 +623,13 @@ export default function OrderDetailsPage() {
                             (
                             {order.discountType === "percentage"
                               ? `${order.discountValue}%`
-                              : `Rs.${order.discountValue.toFixed(2)}`}
+                              : `Rs.${order.discountValue?.toLocaleString()}`}
                             )
                           </span>
                         )}
                       </span>
                       <span className="font-medium">
-                        - Rs.{order.discount.toFixed(2)}
+                        - Rs.{order.discount?.toLocaleString()}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
@@ -637,7 +637,10 @@ export default function OrderDetailsPage() {
                         After Discount
                       </span>
                       <span className="font-medium">
-                        Rs.{(order.subtotal - order.discount).toFixed(2)}
+                        Rs.
+                        {(
+                          order.subtotal - (order.discount || 0)
+                        ).toLocaleString()}
                       </span>
                     </div>
                   </>
@@ -647,7 +650,7 @@ export default function OrderDetailsPage() {
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Tax (GST 5%)</span>
                     <span className="font-medium">
-                      Rs.{order.tax.toFixed(2)}
+                      Rs.{order.tax.toLocaleString()}
                     </span>
                   </div>
                 )}
@@ -660,7 +663,7 @@ export default function OrderDetailsPage() {
                 <div className="flex justify-between text-lg font-bold">
                   <span>Total</span>
                   <span className="text-primary">
-                    Rs.{order.total.toFixed(2)}
+                    Rs.{order.total.toLocaleString()}
                   </span>
                 </div>
               </div>
