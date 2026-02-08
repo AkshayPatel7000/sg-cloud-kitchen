@@ -905,21 +905,100 @@ export function DishesClient({
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right whitespace-nowrap">
-                    {dish.variants && dish.variants.length > 0 ? (
-                      <div className="flex flex-col items-end">
-                        <span className="text-[10px] text-muted-foreground leading-none mb-0.5">
-                          Starts from
-                        </span>
-                        <span>
-                          Rs.
-                          {Math.min(
-                            ...dish.variants.map((v) => v.price),
-                          ).toFixed(2)}
-                        </span>
-                      </div>
-                    ) : (
-                      `Rs.${dish.price.toFixed(2)}`
-                    )}
+                    {(() => {
+                      const hasDiscount =
+                        dish.discountType &&
+                        dish.discountValue &&
+                        dish.discountType !== "none";
+
+                      if (dish.variants && dish.variants.length > 0) {
+                        const minPrice = Math.min(
+                          ...dish.variants.map((v) => v.price),
+                        );
+                        let discountedPrice = minPrice;
+
+                        if (hasDiscount) {
+                          if (dish.discountType === "percentage") {
+                            discountedPrice =
+                              minPrice -
+                              (minPrice * (dish.discountValue || 0)) / 100;
+                          } else if (dish.discountType === "fixed") {
+                            discountedPrice = Math.max(
+                              0,
+                              minPrice - (dish.discountValue || 0),
+                            );
+                          }
+                        }
+
+                        return (
+                          <div className="flex flex-col items-end gap-1">
+                            <span className="text-[10px] text-muted-foreground leading-none">
+                              Starts from
+                            </span>
+                            {hasDiscount ? (
+                              <>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="font-semibold text-primary">
+                                    Rs.{discountedPrice.toFixed(2)}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground line-through">
+                                    Rs.{minPrice.toFixed(2)}
+                                  </span>
+                                </div>
+                                <Badge
+                                  variant="destructive"
+                                  className="text-[9px] px-1.5 py-0 h-4"
+                                >
+                                  {dish.discountType === "percentage"
+                                    ? `${dish.discountValue}% OFF`
+                                    : `₹${dish.discountValue} OFF`}
+                                </Badge>
+                              </>
+                            ) : (
+                              <span>Rs.{minPrice.toFixed(2)}</span>
+                            )}
+                          </div>
+                        );
+                      } else {
+                        let discountedPrice = dish.price;
+
+                        if (hasDiscount) {
+                          if (dish.discountType === "percentage") {
+                            discountedPrice =
+                              dish.price -
+                              (dish.price * (dish.discountValue || 0)) / 100;
+                          } else if (dish.discountType === "fixed") {
+                            discountedPrice = Math.max(
+                              0,
+                              dish.price - (dish.discountValue || 0),
+                            );
+                          }
+                        }
+
+                        return hasDiscount ? (
+                          <div className="flex flex-col items-end gap-1">
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-semibold text-primary">
+                                Rs.{discountedPrice.toFixed(2)}
+                              </span>
+                              <span className="text-xs text-muted-foreground line-through">
+                                Rs.{dish.price.toFixed(2)}
+                              </span>
+                            </div>
+                            <Badge
+                              variant="destructive"
+                              className="text-[9px] px-1.5 py-0 h-4"
+                            >
+                              {dish.discountType === "percentage"
+                                ? `${dish.discountValue}% OFF`
+                                : `₹${dish.discountValue} OFF`}
+                            </Badge>
+                          </div>
+                        ) : (
+                          `Rs.${dish.price.toFixed(2)}`
+                        );
+                      }
+                    })()}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>
