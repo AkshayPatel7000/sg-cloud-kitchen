@@ -11,6 +11,7 @@ import { useCart } from "@/contexts/cart-context";
 import { useState } from "react";
 import { DishConfigDialog } from "./dish-config-dialog";
 import { DishDetailSheet } from "./dish-detail-sheet";
+import { trackMenuItemView, trackAddToCart } from "@/lib/analytics";
 
 export function DishListItem({ dish }: { dish: Dish }) {
   const { addToCart, cart, isHydrated } = useCart();
@@ -33,6 +34,43 @@ export function DishListItem({ dish }: { dish: Dish }) {
       return;
     }
 
+    // Calculate the actual price for tracking
+    let actualPrice = dish.price;
+    let variantName = undefined;
+
+    if (variantId && dish.variants) {
+      const variant = dish.variants.find((v) => v.id === variantId);
+      if (variant) {
+        actualPrice = variant.price;
+        variantName = variant.name;
+      }
+    }
+
+    // Apply discount if exists
+    if (
+      dish.discountType &&
+      dish.discountValue &&
+      dish.discountType !== "none"
+    ) {
+      if (dish.discountType === "percentage") {
+        actualPrice = actualPrice - (actualPrice * dish.discountValue) / 100;
+      } else if (dish.discountType === "fixed") {
+        actualPrice = Math.max(0, actualPrice - dish.discountValue);
+      }
+      actualPrice = Math.round(actualPrice);
+    }
+
+    // Track add to cart event
+    trackAddToCart({
+      id: dish.id,
+      name: dish.name,
+      category: dish.categoryId,
+      price: actualPrice,
+      isVeg: dish.isVeg,
+      quantity: 1,
+      variantName,
+    });
+
     addToCart(dish, variantId, 1, selectedCustomizations, notes);
     setJustAdded(true);
     setShowDetail(false);
@@ -42,7 +80,17 @@ export function DishListItem({ dish }: { dish: Dish }) {
   return (
     <div
       className="flex items-start gap-4 py-6 group cursor-pointer"
-      onClick={() => setShowDetail(true)}
+      onClick={() => {
+        // Track menu item view
+        trackMenuItemView({
+          id: dish.id,
+          name: dish.name,
+          category: dish.categoryId,
+          price: dish.price,
+          isVeg: dish.isVeg,
+        });
+        setShowDetail(true);
+      }}
     >
       <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl shadow-sm ring-1 ring-black/5 group-hover:shadow-md transition-shadow duration-300">
         <Image

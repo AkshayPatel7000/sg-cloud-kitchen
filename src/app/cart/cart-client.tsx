@@ -27,6 +27,12 @@ import { Label } from "@/components/ui/label";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
+import {
+  trackViewCart,
+  trackBeginCheckout,
+  trackPurchase,
+  trackRemoveFromCart,
+} from "@/lib/analytics";
 
 export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
   const {
@@ -62,7 +68,21 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
     if (!savedAddress) {
       handleAutoLocation();
     }
-  }, []);
+
+    // Track cart view when page loads (only if cart has items)
+    if (cart.items.length > 0) {
+      trackViewCart({
+        itemCount: cart.items.length,
+        total: cart.total,
+        items: cart.items.map((item) => ({
+          id: item.dish.id,
+          name: item.dish.name,
+          price: item.price,
+          quantity: item.quantity,
+        })),
+      });
+    }
+  }, []); // Only run once on mount
 
   const handleAutoLocation = () => {
     if (!("geolocation" in navigator)) return;
@@ -108,6 +128,19 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
 
   const handleCheckout = async () => {
     if (!showNameInput) {
+      // Track begin checkout when user clicks "Proceed to Checkout"
+      trackBeginCheckout({
+        total: cart.total,
+        itemCount: cart.items.length,
+        items: cart.items.map((item) => ({
+          id: item.dish.id,
+          name: item.dish.name,
+          price: item.price,
+          quantity: item.quantity,
+          category: item.dish.categoryId,
+        })),
+      });
+
       setShowNameInput(true);
       // Scroll to bottom after state update to show inputs
       setTimeout(() => {
@@ -252,6 +285,21 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
       toast({
         title: "Order Created",
         description: `Order ${orderNumber} has been created successfully!`,
+      });
+
+      // Track purchase event
+      trackPurchase({
+        orderId: orderNumber,
+        total: cart.total,
+        tax: cart.tax,
+        discount: cart.discount || 0,
+        items: cart.items.map((item) => ({
+          id: item.dish.id,
+          name: item.dish.name,
+          price: item.price,
+          quantity: item.quantity,
+          category: item.dish.categoryId,
+        })),
       });
 
       // Send via WhatsApp
@@ -410,6 +458,15 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                               variant="ghost"
                               size="icon"
                               onClick={() => {
+                                // Track remove from cart
+                                trackRemoveFromCart({
+                                  id: item.dish.id,
+                                  name: item.dish.name,
+                                  category: item.dish.categoryId,
+                                  price: item.price,
+                                  quantity: item.quantity,
+                                });
+
                                 const key =
                                   item.selectedCustomizations
                                     ?.map((c) => c.optionId)

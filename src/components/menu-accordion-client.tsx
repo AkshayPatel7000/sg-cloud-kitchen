@@ -9,6 +9,7 @@ import {
 import { DishListItem } from "./dish-list-item";
 import type { Category, Dish } from "@/lib/types";
 import { useRef } from "react";
+import { trackCategoryView } from "@/lib/analytics";
 
 interface MenuAccordionClientProps {
   categories: Category[];
@@ -23,6 +24,22 @@ export function MenuAccordionClient({
 
   const handleValueChange = (value: string) => {
     if (value && itemRefs.current[value]) {
+      // Find the category that was opened
+      const openedCategory = categories.find((cat) => cat.id === value);
+      if (openedCategory) {
+        // Count dishes in this category
+        const dishCount = allDishes.filter(
+          (dish) => dish.categoryId === openedCategory.id && dish.isAvailable,
+        ).length;
+
+        // Track category view
+        trackCategoryView({
+          id: openedCategory.id,
+          name: openedCategory.name,
+          dishCount,
+        });
+      }
+
       // Small delay to allow the accordion animation to start/content to expand
       setTimeout(() => {
         const element = itemRefs.current[value];
