@@ -34,6 +34,9 @@ import {
   trackRemoveFromCart,
 } from "@/lib/analytics";
 import { logErrorToFirestore } from "@/lib/error-logger";
+import packageInfo from "../../../package.json";
+
+const version = packageInfo.version;
 
 export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
   const {
@@ -852,6 +855,13 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
           </div>
         </div>
       </main>
+      <footer className="py-2 absolute w-full">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-[10px] text-muted-foreground/30 mt-2 uppercase tracking-widest">
+            Version {version}
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

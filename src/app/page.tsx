@@ -19,6 +19,9 @@ import {
   Phone,
   Mail,
 } from "lucide-react";
+import packageInfo from "../../package.json";
+
+const version = packageInfo.version;
 
 const features = [
   {
@@ -233,6 +236,9 @@ export default function Home() {
             <p className="text-sm text-muted-foreground italic">
               &copy; {new Date().getFullYear()} {restaurant.name}. Crafted with
               passion for premium takeaway and express delivery.
+            </p>
+            <p className="text-[10px] text-muted-foreground/30 mt-2 uppercase tracking-widest">
+              Version {version}
             </p>
           </div>
         </div>
