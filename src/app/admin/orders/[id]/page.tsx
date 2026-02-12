@@ -51,6 +51,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { getRestaurant } from "@/lib/data-client";
 import { useNotification } from "@/contexts/notification-context";
+import { logErrorToFirestore } from "@/lib/error-logger";
 
 const statusConfig: Record<
   OrderStatus,
@@ -157,6 +158,10 @@ export default function OrderDetailsPage() {
       }
     } catch (error) {
       console.error("Error fetching order:", error);
+      logErrorToFirestore(error as Error, undefined, {
+        context: "Fetch Order Admin",
+        orderId,
+      });
       toast({
         title: "Error",
         description: "Failed to load order",
@@ -186,6 +191,11 @@ export default function OrderDetailsPage() {
       });
     } catch (error) {
       console.error("Error updating status:", error);
+      logErrorToFirestore(error as Error, undefined, {
+        context: "Update Order Status",
+        orderId,
+        newStatus,
+      });
       toast({
         title: "Error",
         description: "Failed to update order status",
@@ -215,6 +225,10 @@ export default function OrderDetailsPage() {
       });
     } catch (error) {
       console.error("Error updating payment:", error);
+      logErrorToFirestore(error as Error, undefined, {
+        context: "Update Payment Status",
+        orderId,
+      });
       toast({
         title: "Error",
         description: "Failed to update payment status",
@@ -271,6 +285,10 @@ export default function OrderDetailsPage() {
       router.push("/admin/orders");
     } catch (error) {
       console.error("Error deleting order:", error);
+      logErrorToFirestore(error as Error, undefined, {
+        context: "Delete Order",
+        orderId,
+      });
       toast({
         title: "Error",
         description: "Failed to delete order",

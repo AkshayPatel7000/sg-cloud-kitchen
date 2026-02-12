@@ -16,6 +16,7 @@ import {
   signOut,
   User as FirebaseUser,
 } from "firebase/auth";
+import { setGlobalUserId } from "@/lib/error-logger";
 
 interface AuthContextType {
   user: AdminUser | null;
@@ -46,6 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             role: "admin",
           };
           setUser(adminUser);
+          setGlobalUserId(firebaseUser.uid);
 
           // Request notification permission and save token
           const { requestNotificationPermission } =
@@ -53,6 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await requestNotificationPermission(firebaseUser.uid);
         } else {
           setUser(null);
+          setGlobalUserId(undefined);
         }
         setLoading(false);
       },

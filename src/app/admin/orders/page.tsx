@@ -33,6 +33,7 @@ import { db } from "@/lib/firebase/firestore";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useNotification } from "@/contexts/notification-context";
+import { logErrorToFirestore } from "@/lib/error-logger";
 
 const statusConfig: Record<
   OrderStatus,
@@ -132,6 +133,9 @@ export default function OrdersPage() {
       },
       (error) => {
         console.error("Error fetching orders:", error);
+        logErrorToFirestore(error as Error, undefined, {
+          context: "Admin Orders Listener",
+        });
         toast({
           title: "Connection Error",
           description:

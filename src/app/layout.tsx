@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { CartProvider } from "@/contexts/cart-context";
+import { ErrorLoggerProvider } from "@/components/providers/error-logger-provider";
 import { getRestaurant } from "@/lib/data";
 import { GoogleAnalytics } from "@next/third-parties/google";
 
@@ -172,8 +173,10 @@ export default function RootLayout({
           }}
         />
         <CartProvider>
-          {children}
-          <Toaster />
+          <ErrorLoggerProvider>
+            {children}
+            <Toaster />
+          </ErrorLoggerProvider>
         </CartProvider>
       </body>
     </html>

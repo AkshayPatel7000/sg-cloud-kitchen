@@ -33,6 +33,7 @@ import {
   trackPurchase,
   trackRemoveFromCart,
 } from "@/lib/analytics";
+import { logErrorToFirestore } from "@/lib/error-logger";
 
 export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
   const {
@@ -280,6 +281,10 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
         });
       } catch (notiError) {
         console.error("Failed to send notification:", notiError);
+        logErrorToFirestore(notiError as Error, undefined, {
+          context: "Checkout Notification",
+          orderNumber,
+        });
       }
 
       toast({
@@ -318,6 +323,11 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
       }, 1000);
     } catch (error) {
       console.error("Error creating order:", error);
+      logErrorToFirestore(error as Error, undefined, {
+        context: "Create Order Firestore",
+        userName,
+        userPhone,
+      });
       toast({
         title: "Error",
         description: "Failed to create order. Please try again.",
