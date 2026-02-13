@@ -2,57 +2,52 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { doc, getDoc, deleteDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase/firestore";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import {
-  ArrowLeft,
+  AlertCircle,
   Trash2,
+  ArrowLeft,
   Terminal,
   User,
   Globe,
   Clock,
   Smartphone,
-  AlertTriangle,
   FileCode,
   Info,
 } from "lucide-react";
-import { format } from "date-fns";
 import Link from "next/link";
+import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import type { ErrorLog } from "@/lib/error-logger";
 
 export default function ErrorDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-  const [log, setLog] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const [log, setLog] = useState<ErrorLog | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchLog() {
       if (!id) return;
       try {
-        const docRef = doc(db, "error_logs", id as string);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setLog({
-            id: docSnap.id,
-            ...data,
-            timestamp: data.timestamp?.toDate() || new Date(),
-          });
-        } else {
-          toast({
-            title: "Not Found",
-            description: "Error log not found",
-            variant: "destructive",
-          });
-          router.push("/admin/errors");
+        const response = await fetch(`/api/errors/${id}`);
+        if (!response.ok) {
+          if (response.status === 404) {
+            toast({
+              title: "Not Found",
+              description: "Error log not found",
+              variant: "destructive",
+            });
+            router.push("/admin/errors");
+            return;
+          }
+          throw new Error("Failed to fetch log");
         }
+        const data = await response.json();
+        setLog(data);
       } catch (error) {
         console.error("Error fetching detail:", error);
         toast({
@@ -71,7 +66,9 @@ export default function ErrorDetailPage() {
   const deleteLog = async () => {
     if (!confirm("Are you sure?")) return;
     try {
-      await deleteDoc(doc(db, "error_logs", id as string));
+      const response = await fetch(`/api/errors/${id}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("Failed to delete log");
+
       toast({
         title: "Success",
         description: "Log deleted",
@@ -87,131 +84,162 @@ export default function ErrorDetailPage() {
   };
 
   if (loading) {
-    return <div className="p-20 text-center">Loading details...</div>;
+    return (
+      <div className="p-8 text-center">
+        <Clock className="h-8 w-8 animate-spin mx-auto text-primary" />
+        <p className="mt-2 text-muted-foreground">Loading details...</p>
+      </div>
+    );
   }
 
   if (!log) return null;
 
   return (
-    <div className="p-4 md:p-8 space-y-6 max-w-5xl mx-auto">
-      <div className="flex justify-between items-center">
-        <Button variant="ghost" onClick={() => router.back()}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to list
-        </Button>
+    <div className="space-y-6 p-4 md:p-8 max-w-5xl mx-auto">
+      <div className="flex items-center gap-4">
+        <Link href="/admin/errors">
+          <Button variant="ghost" size="icon">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        </Link>
+        <h1 className="text-2xl font-bold truncate flex-1">Error Details</h1>
         <Button variant="destructive" size="sm" onClick={deleteLog}>
-          <Trash2 className="mr-2 h-4 w-4" />
+          <Trash2 className="h-4 w-4 mr-2" />
           Delete Log
         </Button>
       </div>
 
-      <div className="grid gap-6">
-        {/* Main Error Card */}
-        <Card className="border-l-4 border-l-destructive shadow-lg">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Main Error Info */}
+        <Card className="md:col-span-2 border-destructive/20">
           <CardHeader className="bg-destructive/5">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
-              <Badge variant="destructive">ERROR</Badge>
-              <span className="text-sm text-muted-foreground flex items-center gap-1 ml-auto">
-                <Clock className="h-3 w-3" />
-                {format(log.timestamp, "PPPP pppp")}
-              </span>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <Badge variant="destructive" className="mb-2">
+                  ERROR
+                </Badge>
+                <CardTitle className="text-xl text-destructive break-words">
+                  {log.message}
+                </CardTitle>
+              </div>
+              <AlertCircle className="h-8 w-8 text-destructive shrink-0" />
             </div>
-            <CardTitle className="text-xl md:text-2xl font-mono break-words leading-relaxed selection:bg-destructive/20 select-all">
-              {log.message}
-            </CardTitle>
           </CardHeader>
-          <CardContent className="pt-6 grid md:grid-cols-2 gap-8">
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="bg-muted p-2 rounded-lg">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    User ID
-                  </p>
-                  <p className="font-mono text-sm">
-                    {log.userId || "anonymous"}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="bg-muted p-2 rounded-lg">
-                  <Globe className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <div className="w-full overflow-hidden">
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    Page URL
-                  </p>
-                  <p className="text-sm break-all text-primary font-medium">
-                    {log.url}
-                  </p>
-                </div>
+          <CardContent className="pt-6 space-y-6">
+            <div>
+              <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                <Terminal className="h-4 w-4" /> Stack Trace
+              </h3>
+              <div className="bg-muted p-4 rounded-lg overflow-x-auto">
+                <pre className="text-xs font-mono whitespace-pre-wrap break-words">
+                  {log.stack || "No stack trace available"}
+                </pre>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="bg-muted p-2 rounded-lg">
-                  <Smartphone className="h-4 w-4 text-muted-foreground" />
-                </div>
+            {log.additionalInfo &&
+              Object.keys(log.additionalInfo).length > 0 && (
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    User Agent
-                  </p>
-                  <p className="text-xs leading-relaxed max-w-sm">
-                    {log.userAgent}
-                  </p>
-                </div>
-              </div>
-
-              {log.additionalInfo &&
-                Object.keys(log.additionalInfo).length > 0 && (
-                  <div className="flex items-start gap-3">
-                    <div className="bg-muted p-2 rounded-lg">
-                      <Info className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                        Additional Context
-                      </p>
-                      <div className="mt-1 space-y-1">
-                        {Object.entries(log.additionalInfo).map(
-                          ([key, val]) => (
-                            <div key={key} className="flex gap-2 text-xs">
-                              <span className="font-bold text-muted-foreground">
-                                {key}:
-                              </span>
-                              <span className="break-all">{String(val)}</span>
-                            </div>
-                          ),
-                        )}
-                      </div>
-                    </div>
+                  <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                    <Info className="h-4 w-4" /> Additional Context
+                  </h3>
+                  <div className="bg-muted/50 p-4 rounded-lg">
+                    <pre className="text-xs font-mono">
+                      {JSON.stringify(log.additionalInfo, null, 2)}
+                    </pre>
                   </div>
-                )}
-            </div>
+                </div>
+              )}
           </CardContent>
         </Card>
 
-        {/* Stack Trace */}
-        {log.stack && (
-          <Card className="overflow-hidden bg-[#1e1e1e] text-zinc-300">
-            <CardHeader className="bg-white/[0.03] border-b border-white/5 py-3">
-              <CardTitle className="text-sm font-bold flex items-center gap-2">
-                <Terminal className="h-4 w-4" />
-                Stack Trace
+        {/* Metadata */}
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <Clock className="h-4 w-4" /> Occurrence
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-0">
-              <pre className="p-4 overflow-x-auto text-[11px] font-mono leading-relaxed whitespace-pre selection:bg-primary/30">
-                <code>{log.stack}</code>
-              </pre>
+            <CardContent className="space-y-4">
+              <div>
+                <p className="text-xs text-muted-foreground uppercase">
+                  Date & Time
+                </p>
+                <p className="text-sm font-medium">
+                  {log.createdAt
+                    ? format(new Date(log.createdAt), "PPP")
+                    : "N/A"}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {log.createdAt
+                    ? format(new Date(log.createdAt), "pp")
+                    : "N/A"}
+                </p>
+              </div>
             </CardContent>
           </Card>
-        )}
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <User className="h-4 w-4" /> User Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <p className="text-xs text-muted-foreground uppercase">
+                  User ID
+                </p>
+                <p className="text-sm font-mono truncate" title={log.userId}>
+                  {log.userId || "anonymous"}
+                </p>
+              </div>
+              {log.additionalInfo?.userName && (
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase">
+                    Name
+                  </p>
+                  <p className="text-sm">{log.additionalInfo.userName}</p>
+                </div>
+              )}
+              {log.additionalInfo?.userPhone && (
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase">
+                    Phone
+                  </p>
+                  <p className="text-sm">{log.additionalInfo.userPhone}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <Globe className="h-4 w-4" /> Context
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <p className="text-xs text-muted-foreground uppercase flex items-center gap-1">
+                  <FileCode className="h-3 w-3" /> Page URL
+                </p>
+                <p className="text-sm break-all text-primary underline decoration-primary/30">
+                  {log.url}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground uppercase flex items-center gap-1">
+                  <Smartphone className="h-3 w-3" /> User Agent
+                </p>
+                <p className="text-xs text-muted-foreground break-words leading-relaxed">
+                  {log.userAgent}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

@@ -28,13 +28,6 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Dish, OrderItem, Restaurant } from "@/lib/types";
-import {
-  collection,
-  getDocs,
-  addDoc,
-  serverTimestamp,
-} from "firebase/firestore";
-import { db } from "@/lib/firebase/firestore";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
@@ -90,13 +83,10 @@ export default function NewOrderPage() {
 
   const fetchDishes = async () => {
     try {
-      const dishesRef = collection(db, "dishes");
-      const querySnapshot = await getDocs(dishesRef);
-      const fetchedDishes = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Dish[];
-      setDishes(fetchedDishes.filter((d) => d.isAvailable));
+      const response = await fetch("/api/dishes");
+      if (!response.ok) throw new Error("Failed to fetch dishes");
+      const fetchedDishes = await response.json();
+      setDishes(fetchedDishes.filter((d: Dish) => d.isAvailable));
     } catch (error) {
       console.error("Error fetching dishes:", error);
       toast({
@@ -398,19 +388,23 @@ export default function NewOrderPage() {
         orderType,
         tableNumber: orderType === "dine-in" ? tableNumber : null,
         notes: notes || null,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
         createdBy: user.uid,
         isPaid: false,
         isViewed: false,
         paymentMethod: null,
       };
 
-      const docRef = await addDoc(collection(db, "orders"), orderData);
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData),
+      });
+
+      if (!response.ok) throw new Error("Failed to create order");
+      const savedOrder = await response.json();
 
       // Send notification to admin
       try {
-        // Fetch admin token on client side to avoid server-side quota issues
         const { getAdmins } = await import("@/lib/data-client");
         const admins = await getAdmins();
         const adminToken = admins.find((a) => a.fcmToken)?.fcmToken;
@@ -420,11 +414,11 @@ export default function NewOrderPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             orderDetails: {
-              id: docRef.id,
+              id: savedOrder.id,
               orderNumber: orderNumber,
               total: total,
             },
-            fcmToken: adminToken, // Pass the token directly
+            fcmToken: adminToken,
           }),
         });
       } catch (notiError) {
@@ -436,7 +430,7 @@ export default function NewOrderPage() {
         description: `Order ${orderNumber} created successfully`,
       });
 
-      router.push(`/admin/orders/${docRef.id}`);
+      router.push(`/admin/orders/${savedOrder.id}`);
     } catch (error) {
       console.error("Error creating order:", error);
       toast({

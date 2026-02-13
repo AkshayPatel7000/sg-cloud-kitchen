@@ -28,15 +28,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import type { Dish, OrderItem, Order, Restaurant } from "@/lib/types";
-import {
-  collection,
-  getDocs,
-  doc,
-  getDoc,
-  updateDoc,
-  serverTimestamp,
-} from "firebase/firestore";
-import { db } from "@/lib/firebase/firestore";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
@@ -99,58 +90,57 @@ export default function EditOrderPage() {
   const fetchOrderAndDishes = async () => {
     try {
       // Fetch order
-      const orderRef = doc(db, "orders", orderId);
-      const orderSnap = await getDoc(orderRef);
-
-      if (!orderSnap.exists()) {
-        toast({
-          title: "Error",
-          description: "Order not found",
-          variant: "destructive",
-        });
-        router.push("/admin/orders");
-        return;
+      const orderResponse = await fetch(`/api/orders/${orderId}`);
+      if (!orderResponse.ok) {
+        if (orderResponse.status === 404) {
+          toast({
+            title: "Error",
+            description: "Order not found",
+            variant: "destructive",
+          });
+          router.push("/admin/orders");
+          return;
+        }
+        throw new Error("Failed to fetch order");
       }
+      const orderData = await orderResponse.json();
 
-      const data = orderSnap.data();
-      const orderData = {
-        id: orderSnap.id,
-        ...data,
-        createdAt: data.createdAt?.toDate() || new Date(),
-        updatedAt: data.updatedAt?.toDate() || new Date(),
-      } as Order;
+      // Convert date strings to Date objects
+      const formattedOrder = {
+        ...orderData,
+        createdAt: new Date(orderData.createdAt),
+        updatedAt: new Date(orderData.updatedAt),
+      };
 
-      setOrder(orderData);
-      setOrderItems(orderData.items);
-      setCustomerName(orderData.customerName || "");
-      setCustomerPhone(orderData.customerPhone || "");
-      setCustomerAddress(orderData.customerAddress || "");
-      setOrderType(orderData.orderType);
-      setTableNumber(orderData.tableNumber || "");
-      setNotes(orderData.notes || "");
+      setOrder(formattedOrder);
+      setOrderItems(formattedOrder.items);
+      setCustomerName(formattedOrder.customerName || "");
+      setCustomerPhone(formattedOrder.customerPhone || "");
+      setCustomerAddress(formattedOrder.customerAddress || "");
+      setOrderType(formattedOrder.orderType);
+      setTableNumber(formattedOrder.tableNumber || "");
+      setNotes(formattedOrder.notes || "");
 
-      // Mark as viewed if not already viewed
-      if (!data.isViewed) {
-        updateDoc(orderRef, {
-          isViewed: true,
-          updatedAt: new Date(),
+      // Mark as viewed if not already viewed via PATCH
+      if (!formattedOrder.isViewed) {
+        fetch(`/api/orders/${orderId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ isViewed: true }),
         }).catch((err) => console.error("Error marking order as viewed:", err));
       }
 
       // Set discount values if they exist
-      if (orderData.discount && orderData.discount > 0) {
-        setDiscountType(orderData.discountType || "percentage");
-        setDiscountValue(orderData.discountValue?.toString() || "");
+      if (formattedOrder.discount && formattedOrder.discount > 0) {
+        setDiscountType(formattedOrder.discountType || "percentage");
+        setDiscountValue(formattedOrder.discountValue?.toString() || "");
       }
 
       // Fetch dishes
-      const dishesRef = collection(db, "dishes");
-      const querySnapshot = await getDocs(dishesRef);
-      const fetchedDishes = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Dish[];
-      setDishes(fetchedDishes.filter((d) => d.isAvailable));
+      const dishesResponse = await fetch("/api/dishes");
+      if (!dishesResponse.ok) throw new Error("Failed to fetch dishes");
+      const fetchedDishes = await dishesResponse.json();
+      setDishes(fetchedDishes.filter((d: Dish) => d.isAvailable));
     } catch (error) {
       console.error("Error fetching data:", error);
       toast({
@@ -374,11 +364,15 @@ export default function EditOrderPage() {
         orderType,
         tableNumber: orderType === "dine-in" ? tableNumber : null,
         notes: notes || null,
-        updatedAt: serverTimestamp(),
       };
 
-      const orderRef = doc(db, "orders", orderId);
-      await updateDoc(orderRef, orderData);
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData),
+      });
+
+      if (!response.ok) throw new Error("Failed to update order");
 
       toast({
         title: "Success",

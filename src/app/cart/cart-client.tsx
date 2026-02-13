@@ -246,8 +246,8 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
         status: "pending",
         orderType: "delivery",
         notes: "Order placed via WhatsApp",
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         createdBy: "customer", // Mark as customer order
         isPaid: false,
         isViewed: false,
@@ -279,10 +279,22 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
       };
 
       const cleanedOrderData = cleanObject(orderData);
-      console.log("Preparing to create order in Firestore:", cleanedOrderData);
+      console.log("Preparing to create order via API:", cleanedOrderData);
 
-      const docRef = await addDoc(collection(db, "orders"), cleanedOrderData);
-      console.log("Order created successfully with ID:", docRef.id);
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cleanedOrderData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create order via API");
+      }
+
+      const orderResult = await response.json();
+      console.log("Order created successfully with ID:", orderResult.id);
+
+      const docRef = { id: orderResult.id };
 
       // Save to localStorage for future orders
       localStorage.setItem("customer_name", userName);

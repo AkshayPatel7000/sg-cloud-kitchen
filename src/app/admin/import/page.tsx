@@ -18,6 +18,7 @@ import {
   Loader2,
   Download,
   Upload,
+  RefreshCcw,
 } from "lucide-react";
 import { getDishes, getAllCategories } from "@/lib/data";
 import { Textarea } from "@/components/ui/textarea";
@@ -165,30 +166,73 @@ export default function ImportPage() {
     }
   };
 
+  const syncFromFirebase = async () => {
+    setStatus("loading");
+    setMessage("Migrating data from Firebase to MongoDB...");
+    try {
+      const response = await fetch("/api/migrate", { method: "POST" });
+      const result = await response.json();
+
+      if (!response.ok) throw new Error(result.error || "Migration failed");
+
+      setStatus("success");
+      setMessage(
+        `Successfully migrated: ${result.results.categories} categories, ${result.results.dishes} dishes, and ${result.results.orders} orders.`,
+      );
+    } catch (error: any) {
+      console.error("Migration error:", error);
+      setStatus("error");
+      setMessage(error.message || "An error occurred during synchronization.");
+    }
+  };
+
   return (
     <div className="container mx-auto py-10 max-w-2xl">
       <Card>
         <CardHeader>
-          <CardTitle>Menu Data Management</CardTitle>
+          <CardTitle>Data Management & Migration</CardTitle>
           <CardDescription>
-            Export current menu or bulk import data by pasting JSON below.
+            Manage your transition from Firebase to MongoDB.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between p-4 border rounded-lg bg-primary/5 border-primary/20">
+            <div className="flex items-center justify-between p-4 border rounded-lg bg-green-500/10 border-green-500/20">
               <div>
-                <h3 className="font-medium">Export Current Data</h3>
-                <p className="text-sm text-muted-foreground">
-                  Download all categories and dishes.
+                <h3 className="font-medium text-green-700">
+                  Sync from Firestore
+                </h3>
+                <p className="text-sm text-green-600/80">
+                  Migrate all current Firebase data to MongoDB.
                 </p>
               </div>
-              <Button onClick={exportData} disabled={status === "loading"}>
-                {status === "loading" && message.includes("Fetching") ? (
+              <Button
+                onClick={syncFromFirebase}
+                className="bg-green-600 hover:bg-green-700"
+                disabled={status === "loading"}
+              >
+                {status === "loading" && message.includes("Migrating") ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
-                  <Download className="mr-2 h-4 w-4" />
+                  <RefreshCcw className="mr-2 h-4 w-4" />
                 )}
+                Start Sync
+              </Button>
+            </div>
+
+            <div className="flex items-center justify-between p-4 border rounded-lg bg-primary/5 border-primary/20">
+              <div>
+                <h3 className="font-medium">Export MongoDB Data</h3>
+                <p className="text-sm text-muted-foreground">
+                  Download all data from the new backend.
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                onClick={exportData}
+                disabled={status === "loading"}
+              >
+                <Download className="mr-2 h-4 w-4" />
                 Export JSON
               </Button>
             </div>

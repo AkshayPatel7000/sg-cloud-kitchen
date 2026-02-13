@@ -28,8 +28,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import type { Order, OrderStatus } from "@/lib/types";
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
-import { db } from "@/lib/firebase/firestore";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useNotification } from "@/contexts/notification-context";
@@ -64,91 +62,65 @@ export default function OrdersPage() {
   const { startRinging } = useNotification();
 
   useEffect(() => {
-    // Set up real-time listener
-    const ordersRef = collection(db, "orders");
-    const q = query(ordersRef, orderBy("createdAt", "desc"));
-
-    const unsubscribe = onSnapshot(
-      q,
-      { includeMetadataChanges: true },
-      (querySnapshot) => {
-        const fetchedOrders = querySnapshot.docs.map((doc) => {
-          const data = doc.data();
-
-          // Helper to safely convert Firebase Timestamp or Date to Date object
-          const toDate = (val: any) => {
-            if (val?.toDate) return val.toDate();
-            if (val instanceof Date) return val;
-            return new Date(); // Fallback for null (serverTimestamp pending)
-          };
-
-          return {
-            id: doc.id,
-            ...data,
-            createdAt: toDate(data.createdAt),
-            updatedAt: toDate(data.updatedAt),
-          };
-        }) as Order[];
-
-        console.log(`Snapshot updated: ${fetchedOrders.length} orders found.`);
-        if (fetchedOrders.length > 0) {
-          console.log(
-            "Latest order ID:",
-            fetchedOrders[0].id,
-            "Created at:",
-            fetchedOrders[0].createdAt,
-          );
-        }
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch("/api/orders");
+        if (!response.ok) throw new Error("Failed to fetch orders");
+        const data = await response.json();
+        const fetchedOrders = data.map((order: any) => ({
+          ...order,
+          createdAt: new Date(order.createdAt),
+          updatedAt: new Date(order.updatedAt),
+        }));
 
         // Detect new customer orders
         if (!isInitialLoad.current && notificationsEnabled) {
-          const currentOrderIds = new Set(fetchedOrders.map((o) => o.id));
+          const currentOrderIds = new Set(
+            fetchedOrders.map((o: Order) => o.id),
+          );
 
           // Find new orders
           const newOrders = fetchedOrders.filter(
-            (order) =>
+            (order: Order) =>
               !previousOrderIdsRef.current.has(order.id) &&
               order.createdBy === "customer",
           );
 
           // Play notification for each new customer order
-          newOrders.forEach((order) => {
+          newOrders.forEach((order: Order) => {
             playNotificationSound();
             toast({
               title: "🔔 New Customer Order!",
-              description: `Order ${order.orderNumber} received from ${order.customerName || "Customer"}`,
+              description: `Order ${order.orderNumber} received from ${
+                order.customerName || "Customer"
+              }`,
               duration: 5000,
             });
           });
 
           previousOrderIdsRef.current = currentOrderIds;
-        } else if (isInitialLoad.current) {
+        } else if (isInitialLoad.current && fetchedOrders.length > 0) {
           // On initial load, just store the order IDs without notification
-          previousOrderIdsRef.current = new Set(fetchedOrders.map((o) => o.id));
+          const ids = fetchedOrders.map((o: Order) => o.id as string);
+          previousOrderIdsRef.current = new Set<string>(ids);
           isInitialLoad.current = false;
         }
 
         setOrders(fetchedOrders);
         setIsLoading(false);
-      },
-      (error) => {
+      } catch (error) {
         console.error("Error fetching orders:", error);
         logErrorToFirestore(error as Error, undefined, {
-          context: "Admin Orders Listener",
-        });
-        toast({
-          title: "Connection Error",
-          description:
-            "Failed to listen for order updates. Please check your permissions.",
-          variant: "destructive",
+          context: "Admin Orders Polling",
         });
         setIsLoading(false);
-      },
-    );
+      }
+    };
 
-    // Cleanup listener on unmount
-    return () => unsubscribe();
-  }, [notificationsEnabled, toast]);
+    fetchOrders();
+    const interval = setInterval(fetchOrders, 30000);
+    return () => clearInterval(interval);
+  }, [toast, notificationsEnabled]);
 
   const playNotificationSound = () => {
     if (notificationsEnabled) {

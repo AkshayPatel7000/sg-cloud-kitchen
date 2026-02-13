@@ -1,12 +1,11 @@
-import { db } from "./firebase/firestore";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-
 export interface ErrorLog {
+  id?: string;
   message: string;
   stack?: string;
   url: string;
   userAgent: string;
-  timestamp: any;
+  timestamp?: any;
+  createdAt?: any;
   userId?: string;
   additionalInfo?: any;
 }
@@ -23,21 +22,24 @@ export async function logErrorToFirestore(
   additionalInfo?: any,
 ) {
   try {
-    const errorLog: ErrorLog = {
+    const errorLog = {
       message: typeof error === "string" ? error : error.message,
       stack: typeof error === "string" ? undefined : error.stack,
       url: typeof window !== "undefined" ? window.location.href : "SSR",
       userAgent: typeof window !== "undefined" ? navigator.userAgent : "SSR",
-      timestamp: serverTimestamp(),
       userId: userId || currentGlobalUserId || "anonymous",
       additionalInfo: additionalInfo || {},
     };
 
-    const logsRef = collection(db, "error_logs");
-    await addDoc(logsRef, errorLog);
-    console.log("✅ Error logged to Firestore");
+    // Use API instead of direct Firestore
+    await fetch("/api/errors", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(errorLog),
+    });
+
+    console.log("✅ Error logged to MongoDB via API");
   } catch (logError) {
-    // We don't want the error logger itself to crash the app
-    console.error("❌ Failed to log error to Firestore:", logError);
+    console.error("❌ Failed to log error:", logError);
   }
 }

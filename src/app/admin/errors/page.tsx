@@ -1,73 +1,58 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  collection,
-  query,
-  orderBy,
-  limit,
-  onSnapshot,
-  getDocs,
-  deleteDoc,
-  doc,
-} from "firebase/firestore";
-import { db } from "@/lib/firebase/firestore";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   AlertCircle,
   Trash2,
   Eye,
   RefreshCcw,
   Search,
-  Filter,
   XCircle,
 } from "lucide-react";
-import { format } from "date-fns";
 import Link from "next/link";
+import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-import { Input } from "@/components/ui/input";
+import type { ErrorLog } from "@/lib/error-logger";
 
 export default function ErrorLogsPage() {
-  const [logs, setLogs] = useState<any[]>([]);
+  const [logs, setLogs] = useState<ErrorLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
 
+  const fetchLogs = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/errors");
+      if (!response.ok) throw new Error("Failed to fetch logs");
+      const data = await response.json();
+      setLogs(data);
+    } catch (error) {
+      console.error("Error fetching logs:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load error logs",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const logsRef = collection(db, "error_logs");
-    const q = query(logsRef, orderBy("timestamp", "desc"), limit(100));
-
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const fetchedLogs = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-          timestamp: doc.data().timestamp?.toDate() || new Date(),
-        }));
-        setLogs(fetchedLogs);
-        setLoading(false);
-      },
-      (error) => {
-        console.error("Error fetching logs:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load error logs",
-          variant: "destructive",
-        });
-        setLoading(false);
-      },
-    );
-
-    return () => unsubscribe();
+    fetchLogs();
   }, [toast]);
 
   const deleteLog = async (id: string) => {
     if (!confirm("Are you sure you want to delete this log?")) return;
     try {
-      await deleteDoc(doc(db, "error_logs", id));
+      const response = await fetch(`/api/errors/${id}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("Failed to delete log");
+
+      setLogs(logs.filter((l) => l.id !== id));
       toast({
         title: "Success",
         description: "Log deleted successfully",
@@ -90,9 +75,10 @@ export default function ErrorLogsPage() {
     )
       return;
     try {
-      const snapshot = await getDocs(collection(db, "error_logs"));
-      const deletePromises = snapshot.docs.map((d) => deleteDoc(d.ref));
-      await Promise.all(deletePromises);
+      const response = await fetch("/api/errors", { method: "DELETE" });
+      if (!response.ok) throw new Error("Failed to clear logs");
+
+      setLogs([]);
       toast({
         title: "Success",
         description: "All logs cleared",
@@ -118,22 +104,35 @@ export default function ErrorLogsPage() {
   );
 
   return (
-    <div className="p-4 md:p-8 space-y-6">
+    <div className="space-y-6 p-4 md:p-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Error Logs</h1>
+          <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+            <AlertCircle className="text-destructive h-8 w-8" />
+            Error Logs
+          </h1>
           <p className="text-muted-foreground">
-            Monitor and debug application errors
+            Monitor and manage application errors
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => setLoading(true)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchLogs}
+            disabled={loading}
+          >
             <RefreshCcw
               className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
             />
             Refresh
           </Button>
-          <Button variant="destructive" size="sm" onClick={clearAllLogs}>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={clearAllLogs}
+            disabled={loading || logs.length === 0}
+          >
             <XCircle className="h-4 w-4 mr-2" />
             Clear All
           </Button>
@@ -142,18 +141,20 @@ export default function ErrorLogsPage() {
 
       <Card>
         <CardHeader className="pb-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by message, customer, or phone..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9"
-            />
-          </div>
+          <CardTitle>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search errors by message, User, or ID..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          {loading ? (
+          {loading && logs.length === 0 ? (
             <div className="py-20 text-center">
               <RefreshCcw className="h-8 w-8 animate-spin mx-auto text-primary" />
               <p className="mt-2 text-muted-foreground">Loading logs...</p>
@@ -169,7 +170,7 @@ export default function ErrorLogsPage() {
                 <thead>
                   <tr className="border-b text-left text-muted-foreground font-medium">
                     <th className="pb-3 pl-2">Time</th>
-                    <th className="pb-3">Error Message</th>
+                    <th className="pb-3">Message</th>
                     <th className="pb-3">Customer</th>
                     <th className="pb-3">Phone</th>
                     <th className="pb-3 text-right pr-2">Actions</th>
@@ -182,7 +183,9 @@ export default function ErrorLogsPage() {
                       className="hover:bg-muted/50 transition-colors"
                     >
                       <td className="py-3 pl-2 whitespace-nowrap text-muted-foreground">
-                        {format(log.timestamp, "MMM d, HH:mm:ss")}
+                        {log.createdAt
+                          ? format(new Date(log.createdAt), "MMM d, HH:mm:ss")
+                          : "N/A"}
                       </td>
                       <td className="py-3 max-w-md">
                         <p
@@ -192,14 +195,12 @@ export default function ErrorLogsPage() {
                           {log.message}
                         </p>
                       </td>
-                      <td className="py-3 font-medium">
-                        {log.additionalInfo?.userName || (
-                          <span className="text-muted-foreground italic text-[10px]">
-                            {log.userId === "anonymous" ? "Guest" : log.userId}
-                          </span>
-                        )}
+                      <td className="py-3 italic">
+                        {log.additionalInfo?.userName ||
+                          log.userId ||
+                          "anonymous"}
                       </td>
-                      <td className="py-3 font-mono">
+                      <td className="py-3">
                         {log.additionalInfo?.userPhone || "-"}
                       </td>
                       <td className="py-3 text-right pr-2">
@@ -217,7 +218,7 @@ export default function ErrorLogsPage() {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-destructive"
-                            onClick={() => deleteLog(log.id)}
+                            onClick={() => log.id && deleteLog(log.id)}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
