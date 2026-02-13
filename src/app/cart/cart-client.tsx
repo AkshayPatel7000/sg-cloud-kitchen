@@ -226,10 +226,9 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
             dishName: item.dish.name,
             quantity: item.quantity,
             price: item.price,
-            originalPrice:
-              originalPrice !== item.price ? originalPrice : undefined,
-            dishDiscountType: item.dish.discountType,
-            dishDiscountValue: item.dish.discountValue,
+            originalPrice: originalPrice !== item.price ? originalPrice : null,
+            dishDiscountType: item.dish.discountType || null,
+            dishDiscountValue: item.dish.discountValue || null,
             isVeg: item.dish.isVeg,
             variantId: item.variantId || null,
             variantName: item.variantName || null,
@@ -255,7 +254,34 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
         paymentMethod: null,
       };
 
-      const docRef = await addDoc(collection(db, "orders"), orderData);
+      // Utility to recursively remove undefined values (Firestore doesn't allow them)
+      const cleanObject = (obj: any): any => {
+        if (obj === null || typeof obj !== "object") return obj;
+        if (obj instanceof Date) return obj;
+        if (Array.isArray(obj)) return obj.map(cleanObject);
+
+        // Special handling for Firestore FieldValue (like serverTimestamp)
+        if (obj._methodName || obj.constructor?.name === "FieldValue")
+          return obj;
+
+        const result: any = {};
+        Object.keys(obj).forEach((key) => {
+          const value = obj[key];
+          if (value === undefined) {
+            result[key] = null;
+          } else if (typeof value === "object" && value !== null) {
+            result[key] = cleanObject(value);
+          } else {
+            result[key] = value;
+          }
+        });
+        return result;
+      };
+
+      const cleanedOrderData = cleanObject(orderData);
+      console.log("Preparing to create order in Firestore:", cleanedOrderData);
+
+      const docRef = await addDoc(collection(db, "orders"), cleanedOrderData);
       console.log("Order created successfully with ID:", docRef.id);
 
       // Save to localStorage for future orders
