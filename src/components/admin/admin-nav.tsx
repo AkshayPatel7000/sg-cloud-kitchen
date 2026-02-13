@@ -11,6 +11,7 @@ import {
   ChevronDown,
   Receipt,
   Bell,
+  AlertCircle,
 } from "lucide-react";
 
 import {
@@ -47,7 +48,8 @@ const navItems: AdminNavItem[] = [
   { href: "/admin/offers", label: "Offers & Specials", icon: Sparkles },
   { href: "/admin/categories", label: "Categories", icon: BookMarked },
   { href: "/admin/dishes", label: "Dishes", icon: Cookie },
-  { href: "/admin/import", label: "Import Data", icon: ShoppingBasket },
+  // { href: "/admin/import", label: "Import Data", icon: ShoppingBasket },
+  // { href: "/admin/errors", label: "Error Logs", icon: AlertCircle },
 ];
 
 export function AdminNav({ restaurant }: { restaurant: Restaurant | null }) {
