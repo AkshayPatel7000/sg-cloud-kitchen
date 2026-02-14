@@ -733,9 +733,13 @@ export function DishesClient({
     try {
       const formattedData = {
         ...data,
+        imageUrl: data.imageUrl || "",
+        description: data.description || "",
         tags: data.tags || [],
         variants: data.variants || [],
         customizations: data.customizations || [],
+        discountType: data.discountType || "none",
+        discountValue: data.discountValue || 0,
       };
       if (id) {
         await updateDish(id, formattedData as any);
@@ -748,8 +752,13 @@ export function DishesClient({
         setDishes([newDish, ...dishes]);
         toast({ title: "Dish created successfully!" });
       }
-    } catch (e) {
-      toast({ title: "An error occured", variant: "destructive" });
+    } catch (e: any) {
+      console.error("Error saving dish:", e);
+      toast({
+        title: "Error saving dish",
+        description: e.message || "An unexpected error occurred",
+        variant: "destructive",
+      });
     }
   };
 

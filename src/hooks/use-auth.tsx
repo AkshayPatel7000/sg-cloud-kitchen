@@ -36,7 +36,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(
       auth,
       async (firebaseUser: FirebaseUser | null) => {
-        console.log("🚀 ~ AuthProvider ~ firebaseUser:", firebaseUser);
         if (firebaseUser) {
           // For this app, we'll assume any authenticated user is an admin.
           // In a real-world scenario, you might check for a custom claim or a role in your database.

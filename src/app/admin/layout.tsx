@@ -21,7 +21,6 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    console.log("🔑 [AdminLayout] User state:", !!user, user?.uid);
     if (typeof window !== "undefined") {
       console.log(
         "🔔 [Notification] Current Permission:",

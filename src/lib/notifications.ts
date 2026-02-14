@@ -8,8 +8,6 @@ export async function requestNotificationPermission(userId: string) {
   if (isRequesting) return;
   isRequesting = true;
 
-  console.log("🔔 [FCM] Requesting permission for user:", userId);
-
   if (typeof window === "undefined") {
     isRequesting = false;
     return;
@@ -26,11 +24,6 @@ export async function requestNotificationPermission(userId: string) {
     console.log("🔔 [FCM] Permission status:", permission);
 
     if (permission === "granted") {
-      console.log(
-        "🔔 [FCM] Attempting to get token with VAPID:",
-        process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
-      );
-
       // Explicitly register the service worker
       let registration;
       try {
