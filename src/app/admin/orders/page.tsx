@@ -25,10 +25,17 @@ import {
   Edit,
   Bell,
   BellOff,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import type { Order, OrderStatus } from "@/lib/types";
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  limit,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase/firestore";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -57,6 +64,9 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [orderTypeFilter, setOrderTypeFilter] = useState<string>("all");
   const [isLoading, setIsLoading] = useState(true);
+  const [isMoreLoading, setIsMoreLoading] = useState(false);
+  const [ordersLimit, setOrdersLimit] = useState(20);
+  const [hasMore, setHasMore] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const previousOrderIdsRef = useRef<Set<string>>(new Set());
   const isInitialLoad = useRef(true);
@@ -64,9 +74,13 @@ export default function OrdersPage() {
   const { startRinging } = useNotification();
 
   useEffect(() => {
-    // Set up real-time listener
+    // Set up real-time listener with limit
     const ordersRef = collection(db, "orders");
-    const q = query(ordersRef, orderBy("createdAt", "desc"));
+    const q = query(
+      ordersRef,
+      orderBy("createdAt", "desc"),
+      limit(ordersLimit),
+    );
 
     const unsubscribe = onSnapshot(
       q,
@@ -91,6 +105,10 @@ export default function OrdersPage() {
         }) as Order[];
 
         console.log(`Snapshot updated: ${fetchedOrders.length} orders found.`);
+
+        // Update hasMore based on whether we hit the limit
+        setHasMore(fetchedOrders.length === ordersLimit);
+
         if (fetchedOrders.length > 0) {
           console.log(
             "Latest order ID:",
@@ -130,6 +148,7 @@ export default function OrdersPage() {
 
         setOrders(fetchedOrders);
         setIsLoading(false);
+        setIsMoreLoading(false);
       },
       (error) => {
         console.error("Error fetching orders:", error);
@@ -143,12 +162,20 @@ export default function OrdersPage() {
           variant: "destructive",
         });
         setIsLoading(false);
+        setIsMoreLoading(false);
       },
     );
 
     // Cleanup listener on unmount
     return () => unsubscribe();
-  }, [notificationsEnabled, toast]);
+  }, [notificationsEnabled, toast, ordersLimit]); // Added ordersLimit to dependencies
+
+  const handleLoadMore = () => {
+    if (hasMore && !isMoreLoading) {
+      setIsMoreLoading(true);
+      setOrdersLimit((prev) => prev + 20);
+    }
+  };
 
   const playNotificationSound = () => {
     if (notificationsEnabled) {
@@ -508,6 +535,26 @@ export default function OrdersPage() {
           ))
         )}
       </div>
+
+      {hasMore && (
+        <div className="flex justify-center pt-4">
+          <Button
+            variant="outline"
+            onClick={handleLoadMore}
+            disabled={isMoreLoading}
+            className="w-full md:w-auto min-w-[200px]"
+          >
+            {isMoreLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Loading...
+              </>
+            ) : (
+              "Load More Orders"
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

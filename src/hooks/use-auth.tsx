@@ -47,16 +47,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           };
           setUser(adminUser);
           setGlobalUserId(firebaseUser.uid);
+          setLoading(false);
 
-          // Request notification permission and save token
-          const { requestNotificationPermission } =
-            await import("@/lib/notifications");
-          await requestNotificationPermission(firebaseUser.uid);
+          // Request notification permission and save token (non-blocking)
+          import("@/lib/notifications").then(
+            ({ requestNotificationPermission }) => {
+              requestNotificationPermission(firebaseUser.uid);
+            },
+          );
         } else {
           setUser(null);
           setGlobalUserId(undefined);
+          setLoading(false);
         }
-        setLoading(false);
       },
     );
 

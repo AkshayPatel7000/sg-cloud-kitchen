@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getAllCategories, getDishes, getAllSectionItems } from "@/lib/data";
+import { getCounts } from "@/lib/data";
 import { BookMarked, Cookie, Sparkles, Users } from "lucide-react";
 import { Category, Dish, SectionItem } from "@/lib/types";
 
@@ -17,16 +17,12 @@ export default function AdminDashboard() {
   useEffect(() => {
     async function loadStats() {
       try {
-        const [dishes, categories, sectionItems] = await Promise.all([
-          getDishes(),
-          getAllCategories(),
-          getAllSectionItems(),
-        ]);
+        const counts = await getCounts();
 
         setStatsData({
-          dishesCount: dishes.length,
-          categoriesCount: categories.length,
-          sectionItemsCount: sectionItems.length,
+          dishesCount: counts.dishes,
+          categoriesCount: counts.categories,
+          sectionItemsCount: counts.sectionItems,
         });
       } catch (error) {
         console.error("Error loading dashboard stats:", error);

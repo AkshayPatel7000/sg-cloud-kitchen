@@ -6,6 +6,7 @@ import {
   query,
   where,
   orderBy,
+  getCountFromServer,
 } from "firebase/firestore";
 import { db } from "./firebase/firestore";
 import type {
@@ -17,6 +18,20 @@ import type {
 } from "./types";
 
 // TODO: Add error handling for all data fetching functions.
+
+export async function getCounts() {
+  const [dishesCount, categoriesCount, itemsCount] = await Promise.all([
+    getCountFromServer(collection(db, "dishes")),
+    getCountFromServer(collection(db, "categories")),
+    getCountFromServer(collection(db, "sectionItems")),
+  ]);
+
+  return {
+    dishes: dishesCount.data().count,
+    categories: categoriesCount.data().count,
+    sectionItems: itemsCount.data().count,
+  };
+}
 
 const toPlainObject = (data: any): any => {
   if (data === null || data === undefined) return data;
