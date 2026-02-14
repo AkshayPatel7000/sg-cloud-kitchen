@@ -148,6 +148,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return items.reduce((sum, item) => sum + item.quantity, 0);
   }, [items]);
 
+  const MAX_QUANTITY = 10;
+
   const addToCart = useCallback(
     (
       dish: Dish,
@@ -182,7 +184,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             item.variantId === variantId &&
             getCustomizationKey(item.selectedCustomizations) === newCustKey &&
             item.notes === notes
-              ? { ...item, quantity: item.quantity + quantity }
+              ? {
+                  ...item,
+                  quantity: Math.min(MAX_QUANTITY, item.quantity + quantity),
+                }
               : item,
           );
         }
@@ -215,7 +220,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           ...prevItems,
           {
             dish,
-            quantity,
+            quantity: Math.min(MAX_QUANTITY, quantity),
             variantId,
             variantName: variant?.name,
             selectedCustomizations,
@@ -275,13 +280,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             .sort()
             .join(",") || "";
 
+        const finalQuantity = Math.min(MAX_QUANTITY, quantity);
+
         return prevItems.map((item) =>
           item.dish.id === dishId &&
           item.variantId === variantId &&
           (customizationsKey === undefined ||
             getCustomizationKey(item.selectedCustomizations) ===
               customizationsKey)
-            ? { ...item, quantity }
+            ? { ...item, quantity: finalQuantity }
             : item,
         );
       });

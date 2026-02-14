@@ -19,6 +19,8 @@ export function DishListItem({ dish }: { dish: Dish }) {
   const [justAdded, setJustAdded] = useState(false);
 
   const isInCart = cart.items.some((item) => item.dish.id === dish.id);
+  const hasDiscount =
+    dish.discountType && dish.discountValue && dish.discountType !== "none";
 
   const handleAddToCart = (
     variantId?: string,
@@ -47,15 +49,11 @@ export function DishListItem({ dish }: { dish: Dish }) {
     }
 
     // Apply discount if exists
-    if (
-      dish.discountType &&
-      dish.discountValue &&
-      dish.discountType !== "none"
-    ) {
+    if (hasDiscount) {
       if (dish.discountType === "percentage") {
-        actualPrice = actualPrice - (actualPrice * dish.discountValue) / 100;
+        actualPrice = actualPrice - (actualPrice * dish.discountValue!) / 100;
       } else if (dish.discountType === "fixed") {
-        actualPrice = Math.max(0, actualPrice - dish.discountValue);
+        actualPrice = Math.max(0, actualPrice - dish.discountValue!);
       }
       actualPrice = Math.round(actualPrice);
     }
@@ -100,6 +98,15 @@ export function DishListItem({ dish }: { dish: Dish }) {
           sizes="96px"
           className="object-cover group-hover:scale-105 transition-transform duration-500"
         />
+        {hasDiscount && (
+          <div className="absolute top-0 left-0 z-10">
+            <div className="bg-destructive text-destructive-foreground text-[10px] font-bold px-2 py-0.5 rounded-br-lg shadow-sm">
+              {dish.discountType === "percentage"
+                ? `${dish.discountValue}% OFF`
+                : `₹${dish.discountValue} OFF`}
+            </div>
+          </div>
+        )}
       </div>
       <div className="flex-grow">
         <div className="flex justify-between items-start gap-4">
@@ -114,10 +121,6 @@ export function DishListItem({ dish }: { dish: Dish }) {
                   ? Math.min(...dish.variants.map((v) => v.price))
                   : dish.price;
 
-              const hasDiscount =
-                dish.discountType &&
-                dish.discountValue &&
-                dish.discountType !== "none";
               let discountedPrice = basePrice;
 
               if (hasDiscount) {
@@ -147,14 +150,6 @@ export function DishListItem({ dish }: { dish: Dish }) {
                       <p className="text-sm text-muted-foreground line-through">
                         Rs.{basePrice.toLocaleString()}
                       </p>
-                      <Badge
-                        variant="destructive"
-                        className="text-[10px] px-1.5 py-0 h-5"
-                      >
-                        {dish.discountType === "percentage"
-                          ? `${dish.discountValue}% OFF`
-                          : `₹${dish.discountValue} OFF`}
-                      </Badge>
                     </>
                   ) : (
                     <p className="text-base font-extrabold text-primary">

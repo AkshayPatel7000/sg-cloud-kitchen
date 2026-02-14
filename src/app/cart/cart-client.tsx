@@ -174,12 +174,13 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
       return;
     }
 
-    // Mobile number validation (simple 10-digit check)
-    const phoneRegex = /^[0-9]{10}$/;
-    if (!phoneRegex.test(userPhone.replace(/\s/g, ""))) {
+    // Indian Mobile number validation (10 digits starting with 6-9)
+    const phoneRegex = /^[6-9][0-9]{9}$/;
+    if (!phoneRegex.test(userPhone.trim())) {
       toast({
         title: "Invalid Mobile Number",
-        description: "Please enter a valid 10-digit mobile number.",
+        description:
+          "Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8 or 9.",
         variant: "destructive",
       });
       return;
@@ -413,15 +414,15 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-3xl font-bold">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+              <h1 className="text-2xl md:text-3xl font-bold">
                 Your Cart ({itemCount} {itemCount === 1 ? "item" : "items"})
               </h1>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={clearCart}
-                className="text-destructive"
+                className="text-destructive w-full sm:w-auto"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Clear Cart
@@ -430,68 +431,53 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
 
             <div className="space-y-4">
               {cart.items.map((item, index) => {
+                const hasDishDiscount =
+                  item.dish.discountType &&
+                  item.dish.discountValue &&
+                  item.dish.discountType !== "none";
+
                 return (
                   <Card
                     key={`${item.dish.id}-${item.variantId || "default"}-${index}`}
                   >
                     <CardContent className="p-4">
-                      <div className="flex gap-4">
-                        <div className="relative h-24 w-24 sm:h-32 sm:w-32 flex-shrink-0 overflow-hidden rounded-md">
+                      <div className="grid grid-cols-[80px_1fr] sm:grid-cols-[128px_1fr] gap-x-4">
+                        <div className="relative h-20 w-20 sm:h-32 sm:w-32 flex-shrink-0 overflow-hidden rounded-md">
                           <Image
                             src={sanitizeImageUrl(item.dish.imageUrl, "dish")}
                             alt={item.dish.name}
                             fill
-                            sizes="(max-width: 640px) 96px, 128px"
+                            sizes="(max-width: 640px) 80px, 128px"
                             className="object-cover"
                           />
+                          {hasDishDiscount && (
+                            <div className="absolute top-0 left-0 z-5">
+                              <div className="bg-destructive text-destructive-foreground text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-br-lg shadow-sm">
+                                {item.dish.discountType === "percentage"
+                                  ? `${item.dish.discountValue}% OFF`
+                                  : `₹${item.dish.discountValue} OFF`}
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        <div className="flex-grow">
-                          <div className="flex justify-between items-start gap-4">
-                            <div>
-                              <h3 className="font-semibold text-lg flex items-center gap-2">
+
+                        <div className="min-w-0">
+                          <div className="flex justify-between items-start gap-2">
+                            <div className="min-w-0 flex-1">
+                              <h3 className="font-semibold text-base sm:text-lg flex flex-wrap items-center gap-1.5 break-words">
                                 {item.dish.name}
                                 {item.variantName && (
-                                  <Badge variant="outline" className="text-xs">
+                                  <Badge
+                                    variant="outline"
+                                    className="text-[10px] h-5 px-1.5 whitespace-nowrap"
+                                  >
                                     {item.variantName}
                                   </Badge>
                                 )}
                               </h3>
-                              {item.selectedCustomizations &&
-                                item.selectedCustomizations.length > 0 && (
-                                  <div className="flex flex-wrap gap-1 mt-1">
-                                    {item.selectedCustomizations.map((c, i) => (
-                                      <span
-                                        key={i}
-                                        className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground border"
-                                      >
-                                        {c.optionName}
-                                      </span>
-                                    ))}
-                                  </div>
-                                )}
-                              <p className="text-sm text-muted-foreground mt-1">
+                              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 line-clamp-1">
                                 {item.dish.description}
                               </p>
-                              <div className="flex items-center gap-2 mt-2">
-                                <VegNonVegIcon isVeg={item.dish.isVeg} />
-                                {item.dish.tags.map((tag) => (
-                                  <Badge
-                                    key={tag}
-                                    variant="secondary"
-                                    className="text-xs"
-                                  >
-                                    {tag}
-                                  </Badge>
-                                ))}
-                              </div>
-                              {item.notes && (
-                                <p className="text-xs text-muted-foreground mt-2 italic flex items-start gap-1">
-                                  <span className="font-semibold not-italic">
-                                    Note:
-                                  </span>{" "}
-                                  {item.notes}
-                                </p>
-                              )}
                             </div>
                             <Button
                               variant="ghost"
@@ -517,113 +503,124 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                                   key,
                                 );
                               }}
-                              className="flex-shrink-0"
+                              className="flex-shrink-0 h-8 w-8 text-muted-foreground hover:text-destructive"
                             >
-                              <Trash2 className="h-4 w-4 text-destructive" />
+                              <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
-                          <div className="flex justify-between items-center mt-4">
-                            <div className="flex items-center gap-3">
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-8 w-8"
-                                onClick={() => {
-                                  const key =
-                                    item.selectedCustomizations
-                                      ?.map((c) => c.optionId)
-                                      .sort()
-                                      .join(",") || "";
-                                  updateQuantity(
-                                    item.dish.id,
-                                    item.quantity - 1,
-                                    item.variantId,
-                                    key,
-                                  );
-                                }}
-                              >
-                                <Minus className="h-4 w-4" />
-                              </Button>
-                              <span className="font-medium w-12 text-center">
-                                {item.quantity}
-                              </span>
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-8 w-8"
-                                onClick={() => {
-                                  const key =
-                                    item.selectedCustomizations
-                                      ?.map((c) => c.optionId)
-                                      .sort()
-                                      .join(",") || "";
-                                  updateQuantity(
-                                    item.dish.id,
-                                    item.quantity + 1,
-                                    item.variantId,
-                                    key,
-                                  );
-                                }}
-                              >
-                                <Plus className="h-4 w-4" />
-                              </Button>
-                            </div>
-                            <div className="text-right">
-                              {(() => {
-                                // Calculate original price
-                                const variant = item.variantId
-                                  ? item.dish.variants?.find(
-                                      (v) => v.id === item.variantId,
-                                    )
-                                  : undefined;
-                                const baseOriginalPrice = variant
-                                  ? variant.price
-                                  : item.dish.price;
-                                const customizationsPrice =
-                                  item.selectedCustomizations?.reduce(
-                                    (sum, c) => sum + c.price,
-                                    0,
-                                  ) || 0;
-                                const originalPrice =
-                                  baseOriginalPrice + customizationsPrice;
-                                const hasDiscount = originalPrice > item.price;
 
-                                return (
-                                  <>
-                                    {hasDiscount && (
-                                      <div className="flex items-center justify-end gap-1.5 mb-1">
-                                        <p className="text-xs text-muted-foreground line-through">
-                                          Rs.{originalPrice.toLocaleString()}
-                                        </p>
-                                        {item.dish.discountType &&
-                                          item.dish.discountValue &&
-                                          item.dish.discountType !== "none" && (
-                                            <Badge
-                                              variant="destructive"
-                                              className="text-[9px] px-1.5 py-0 h-4"
-                                            >
-                                              {item.dish.discountType ===
-                                              "percentage"
-                                                ? `${item.dish.discountValue}% OFF`
-                                                : `₹${item.dish.discountValue} OFF`}
-                                            </Badge>
-                                          )}
-                                      </div>
-                                    )}
-                                    <p className="text-sm text-muted-foreground">
-                                      Rs.{item.price.toLocaleString()} ×{" "}
-                                      {item.quantity}
-                                    </p>
-                                    <p className="text-lg font-bold text-primary">
-                                      Rs.
-                                      {(
-                                        item.price * item.quantity
-                                      ).toLocaleString()}
-                                    </p>
-                                  </>
-                                );
-                              })()}
+                          <div className="hidden sm:block">
+                            {item.selectedCustomizations &&
+                              item.selectedCustomizations.length > 0 && (
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {item.selectedCustomizations.map((c, i) => (
+                                    <span
+                                      key={i}
+                                      className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground border shrink-0"
+                                    >
+                                      {c.optionName}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                              <VegNonVegIcon isVeg={item.dish.isVeg} />
+                              {item.dish.tags.map((tag) => (
+                                <Badge
+                                  key={tag}
+                                  variant="secondary"
+                                  className="text-[10px] px-1.5 py-0 h-4"
+                                >
+                                  {tag}
+                                </Badge>
+                              ))}
                             </div>
+                          </div>
+                        </div>
+
+                        <div className="col-span-2 sm:col-start-2 flex justify-between items-center mt-3 sm:mt-4 pt-3 sm:pt-0 border-t sm:border-0">
+                          <div className="flex items-center gap-3">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-7 w-7 sm:h-8 sm:w-8"
+                              onClick={() => {
+                                const key =
+                                  item.selectedCustomizations
+                                    ?.map((c) => c.optionId)
+                                    .sort()
+                                    .join(",") || "";
+                                updateQuantity(
+                                  item.dish.id,
+                                  item.quantity - 1,
+                                  item.variantId,
+                                  key,
+                                );
+                              }}
+                            >
+                              <Minus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                            </Button>
+                            <span className="font-medium text-sm sm:text-base w-8 text-center text-primary">
+                              {item.quantity}
+                            </span>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-7 w-7 sm:h-8 sm:w-8"
+                              disabled={item.quantity >= 10}
+                              onClick={() => {
+                                const key =
+                                  item.selectedCustomizations
+                                    ?.map((c) => c.optionId)
+                                    .sort()
+                                    .join(",") || "";
+                                updateQuantity(
+                                  item.dish.id,
+                                  item.quantity + 1,
+                                  item.variantId,
+                                  key,
+                                );
+                              }}
+                            >
+                              <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                            </Button>
+                          </div>
+                          <div className="text-right">
+                            {(() => {
+                              // Calculate original price
+                              const variant = item.variantId
+                                ? item.dish.variants?.find(
+                                    (v) => v.id === item.variantId,
+                                  )
+                                : undefined;
+                              const baseOriginalPrice = variant
+                                ? variant.price
+                                : item.dish.price;
+                              const customizationsPrice =
+                                item.selectedCustomizations?.reduce(
+                                  (sum, c) => sum + c.price,
+                                  0,
+                                ) || 0;
+                              const originalPrice =
+                                baseOriginalPrice + customizationsPrice;
+                              const hasDiscount = originalPrice > item.price;
+
+                              return (
+                                <>
+                                  {hasDiscount && (
+                                    <p className="text-[10px] sm:text-xs text-muted-foreground line-through">
+                                      Rs.{originalPrice.toLocaleString()}
+                                    </p>
+                                  )}
+                                  <p className="text-sm sm:text-lg font-bold text-primary">
+                                    Rs.
+                                    {(
+                                      item.price * item.quantity
+                                    ).toLocaleString()}
+                                  </p>
+                                </>
+                              );
+                            })()}
                           </div>
                         </div>
                       </div>
@@ -762,9 +759,9 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                       return (
                         <div
                           key={`${item.dish.id}-${item.variantId || "default"}-${index}`}
-                          className="flex justify-between"
+                          className="flex justify-between gap-4 py-0.5"
                         >
-                          <span>
+                          <span className="flex-1 break-words">
                             {item.dish.name}
                             {item.variantName ? ` (${item.variantName})` : ""}
                             {item.selectedCustomizations &&
@@ -774,7 +771,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                             {item.notes ? ` (Note: ${item.notes})` : ""} ×{" "}
                             {item.quantity}
                           </span>
-                          <span>
+                          <span className="shrink-0 font-medium">
                             Rs.{(item.price * item.quantity).toLocaleString()}
                           </span>
                         </div>
@@ -809,9 +806,14 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                       <Input
                         id="userPhone"
                         type="tel"
-                        placeholder="Enter 10-digit mobile number"
+                        placeholder="e.g. 9876543210"
                         value={userPhone}
-                        onChange={(e) => setUserPhone(e.target.value)}
+                        onChange={(e) => {
+                          const val = e.target.value
+                            .replace(/\D/g, "")
+                            .slice(0, 10);
+                          setUserPhone(val);
+                        }}
                         required
                       />
                     </div>
