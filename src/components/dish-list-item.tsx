@@ -17,6 +17,7 @@ export function DishListItem({ dish }: { dish: Dish }) {
   const { addToCart, cart, isHydrated } = useCart();
   const [showDetail, setShowDetail] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const isInCart = cart.items.some((item) => item.dish.id === dish.id);
   const hasDiscount =
@@ -77,7 +78,7 @@ export function DishListItem({ dish }: { dish: Dish }) {
 
   return (
     <div
-      className="flex items-start gap-4 py-6 group cursor-pointer"
+      className="grid grid-cols-[1fr_110px] sm:grid-cols-[1fr_140px] gap-4 sm:gap-8 py-8 first:pt-4 group cursor-pointer border-b last:border-0"
       onClick={() => {
         // Track menu item view
         trackMenuItemView({
@@ -90,106 +91,77 @@ export function DishListItem({ dish }: { dish: Dish }) {
         setShowDetail(true);
       }}
     >
-      <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl shadow-sm ring-1 ring-black/5 group-hover:shadow-md transition-shadow duration-300">
-        <Image
-          src={sanitizeImageUrl(dish.imageUrl, "dish")}
-          alt={dish.name}
-          fill
-          sizes="96px"
-          className="object-cover group-hover:scale-105 transition-transform duration-500"
-        />
-        {hasDiscount && (
-          <div className="absolute top-0 left-0 z-10">
-            <div className="bg-destructive text-destructive-foreground text-[10px] font-bold px-2 py-0.5 rounded-br-lg shadow-sm">
-              {dish.discountType === "percentage"
-                ? `${dish.discountValue}% OFF`
-                : `₹${dish.discountValue} OFF`}
-            </div>
+      <div className="flex flex-col">
+        <div className="flex items-start gap-2 mb-1">
+          <div className="pt-1">
+            <VegNonVegIcon isVeg={dish.isVeg} />
           </div>
-        )}
-      </div>
-      <div className="flex-grow">
-        <div className="flex justify-between items-start gap-4">
-          <div className="flex-grow">
-            <div className="flex items-center gap-2">
-              <VegNonVegIcon isVeg={dish.isVeg} />
-              <h4 className="font-bold text-lg leading-none">{dish.name}</h4>
-            </div>
-            {(() => {
-              const basePrice =
-                dish.variants && dish.variants.length > 0
-                  ? Math.min(...dish.variants.map((v) => v.price))
-                  : dish.price;
-
-              let discountedPrice = basePrice;
-
-              if (hasDiscount) {
-                if (dish.discountType === "percentage") {
-                  discountedPrice =
-                    basePrice - (basePrice * (dish.discountValue || 0)) / 100;
-                } else if (dish.discountType === "fixed") {
-                  discountedPrice = Math.max(
-                    0,
-                    basePrice - (dish.discountValue || 0),
-                  );
-                }
-                // Round to whole number
-                discountedPrice = Math.round(discountedPrice);
-              }
-
-              return (
-                <div className="flex items-center gap-2 mt-1.5">
-                  {hasDiscount ? (
-                    <>
-                      <p className="text-base font-extrabold text-primary">
-                        {dish.variants && dish.variants.length > 0
-                          ? "Starts "
-                          : ""}
-                        Rs.{discountedPrice.toLocaleString()}
-                      </p>
-                      <p className="text-sm text-muted-foreground line-through">
-                        Rs.{basePrice.toLocaleString()}
-                      </p>
-                    </>
-                  ) : (
-                    <p className="text-base font-extrabold text-primary">
-                      {dish.variants && dish.variants.length > 0
-                        ? `Starts Rs.${basePrice.toLocaleString()}`
-                        : `Rs.${basePrice.toLocaleString()}`}
-                    </p>
-                  )}
-                </div>
-              );
-            })()}
-          </div>
-          <Button
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleAddToCart();
-            }}
-            className="flex-shrink-0 rounded-lg h-9 px-4 font-bold shadow-sm"
-            variant={isInCart || justAdded ? "secondary" : "default"}
-            disabled={!isHydrated}
-          >
-            {isInCart || justAdded ? (
-              <>
-                <Check className="mr-1.5 h-4 w-4 stroke-[3px]" />
-                Added
-              </>
-            ) : (
-              <>
-                <Plus className="mr-1.5 h-4 w-4 stroke-[3px]" />
-                Add
-              </>
-            )}
-          </Button>
+          <h4 className="font-bold text-base sm:text-xl group-hover:text-primary transition-colors">
+            {dish.name}
+          </h4>
         </div>
-        <p className="text-sm text-muted-foreground mt-2 line-clamp-2 leading-relaxed">
-          {dish.description}
-        </p>
+
+        {(() => {
+          const basePrice =
+            dish.variants && dish.variants.length > 0
+              ? Math.min(...dish.variants.map((v) => v.price))
+              : dish.price;
+
+          let discountedPrice = basePrice;
+
+          if (hasDiscount) {
+            if (dish.discountType === "percentage") {
+              discountedPrice =
+                basePrice - (basePrice * (dish.discountValue || 0)) / 100;
+            } else if (dish.discountType === "fixed") {
+              discountedPrice = Math.max(
+                0,
+                basePrice - (dish.discountValue || 0),
+              );
+            }
+            discountedPrice = Math.round(discountedPrice);
+          }
+
+          return (
+            <div className="flex items-center gap-2 mb-2">
+              <p className="text-base sm:text-lg font-bold text-foreground/90">
+                {dish.variants && dish.variants.length > 0
+                  ? "Starts Rs."
+                  : "Rs."}
+                {discountedPrice.toLocaleString()}
+              </p>
+              {hasDiscount && (
+                <p className="text-xs sm:text-sm text-muted-foreground line-through">
+                  Rs.{basePrice.toLocaleString()}
+                </p>
+              )}
+            </div>
+          );
+        })()}
+
+        <div className="relative group/desc">
+          <p
+            className={`text-sm text-muted-foreground leading-relaxed pr-2 sm:pr-0 transition-all duration-300 ${
+              !isExpanded ? "line-clamp-2" : ""
+            }`}
+          >
+            {dish.description}
+          </p>
+          {dish.description && dish.description.length > 80 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsExpanded(!isExpanded);
+              }}
+              className="text-primary text-[10px] font-extrabold uppercase tracking-wider mt-1 hover:underline focus:outline-none"
+            >
+              {isExpanded ? "Read Less" : "Read More"}
+            </button>
+          )}
+        </div>
+
         {dish.tags.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-auto flex flex-wrap gap-2">
             {dish.tags.map((tag) => (
               <Badge
                 key={tag}
@@ -205,13 +177,60 @@ export function DishListItem({ dish }: { dish: Dish }) {
             ))}
           </div>
         )}
-        <DishDetailSheet
-          dish={dish}
-          open={showDetail}
-          onOpenChange={setShowDetail}
-          onConfirm={handleAddToCart}
-        />
       </div>
+
+      <div className="relative flex flex-col items-center self-start">
+        <div className="relative h-28 w-28 sm:h-36 sm:w-36 overflow-hidden rounded-2xl shadow-md ring-1 ring-black/5 group-hover:shadow-lg transition-all duration-300">
+          <Image
+            src={sanitizeImageUrl(dish.imageUrl, "dish")}
+            alt={dish.name}
+            fill
+            sizes="(max-width: 640px) 112px, 144px"
+            className="object-cover group-hover:scale-110 transition-transform duration-700"
+          />
+          {hasDiscount && (
+            <div className="absolute top-0 left-0 z-10">
+              <div className="bg-destructive text-destructive-foreground text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-br-lg shadow-sm">
+                {dish.discountType === "percentage"
+                  ? `${dish.discountValue}% OFF`
+                  : `₹${dish.discountValue} OFF`}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-full flex justify-center px-4">
+          <Button
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAddToCart();
+            }}
+            className=" sm:w-[90%] max-w-[120px] h-9 sm:h-10 rounded-lg font-bold shadow-lg border-2 border-background animate-in fade-in zoom-in duration-300"
+            variant={isInCart || justAdded ? "secondary" : "default"}
+            disabled={!isHydrated}
+          >
+            {isInCart || justAdded ? (
+              <div className="flex items-center gap-1.5 text-xs sm:text-sm">
+                <Check className="h-4 w-4 stroke-[3px]" />
+                <span>ADDED</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 text-xs sm:text-sm ">
+                <Plus className="h-4 w-4 stroke-[3px]" />
+                <span>ADD</span>
+              </div>
+            )}
+          </Button>
+        </div>
+      </div>
+
+      <DishDetailSheet
+        dish={dish}
+        open={showDetail}
+        onOpenChange={setShowDetail}
+        onConfirm={handleAddToCart}
+      />
     </div>
   );
 }

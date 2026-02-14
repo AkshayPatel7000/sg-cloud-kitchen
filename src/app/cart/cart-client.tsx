@@ -16,6 +16,7 @@ import {
   MessageCircle,
   MapPin,
   Loader2,
+  Phone,
 } from "lucide-react";
 import Link from "next/link";
 import { VegNonVegIcon } from "@/components/veg-non-veg-icon";
@@ -854,28 +855,48 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                   </div>
                 )}
 
-                <Button
-                  className="w-full"
-                  size="lg"
-                  onClick={handleCheckout}
-                  disabled={isCreatingOrder}
-                >
-                  {isCreatingOrder ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Creating Order...
-                    </>
-                  ) : (
-                    <>
-                      <MessageCircle className="mr-2 h-5 w-5" />
-                      {showNameInput
-                        ? "Send Order via WhatsApp"
-                        : "Proceed to Checkout"}
-                    </>
-                  )}
-                </Button>
+                <div className="space-y-3">
+                  <Button
+                    className="w-full"
+                    size="lg"
+                    onClick={handleCheckout}
+                    disabled={isCreatingOrder}
+                  >
+                    {isCreatingOrder ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating Order...
+                      </>
+                    ) : (
+                      <>
+                        <MessageCircle className="mr-2 h-5 w-5" />
+                        {showNameInput
+                          ? "Send Order via WhatsApp"
+                          : "Proceed to Checkout"}
+                      </>
+                    )}
+                  </Button>
+                  <div className="flex items-center justify-center">
+                    <div className="w-1/2 border-t border-muted-foreground"></div>
+                    <span className="mx-2 text-muted-foreground">OR</span>
+                    <div className="w-1/2 border-t border-muted-foreground"></div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="w-full border-primary text-primary hover:bg-primary/5"
+                    size="lg"
+                    onClick={() => {
+                      if (restaurant.phone) {
+                        window.location.href = `tel:${restaurant.phone}`;
+                      }
+                    }}
+                  >
+                    <Phone className="mr-2 h-5 w-5" />
+                    Order on Call
+                  </Button>
+                </div>
 
-                <p className="text-xs text-center text-muted-foreground">
+                <p className="text-xs text-center text-muted-foreground mt-4">
                   Your order will be sent to {restaurant.name} via WhatsApp
                 </p>
               </CardContent>
