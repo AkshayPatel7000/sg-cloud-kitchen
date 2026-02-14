@@ -17,6 +17,7 @@ import {
   MapPin,
   Loader2,
   Phone,
+  CreditCard,
 } from "lucide-react";
 import Link from "next/link";
 import { VegNonVegIcon } from "@/components/veg-non-veg-icon";
@@ -26,8 +27,9 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase/firestore";
+import { db, auth } from "@/lib/firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   trackViewCart,
   trackBeginCheckout,
@@ -59,6 +61,9 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
   const [couponInput, setCouponInput] = useState("");
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [paymentMode, setPaymentMode] = useState<"whatsapp" | "online">(
+    "whatsapp",
+  );
 
   // Load saved details from localStorage
   useEffect(() => {
@@ -245,15 +250,15 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
         couponCode: cart.couponCode || null,
         tax: cart.tax,
         total: cart.total,
-        status: "pending",
+        status: paymentMode === "online" ? "payment_pending" : "pending",
         orderType: "delivery",
-        notes: "Order placed via WhatsApp",
+        notes: "Order placed via Customer Web",
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         createdBy: "customer", // Mark as customer order
         isPaid: false,
         isViewed: false,
-        paymentMethod: null,
+        paymentMethod: paymentMode === "online" ? "online" : "cash",
       };
 
       // Utility to recursively remove undefined values (Firestore doesn't allow them)
@@ -285,6 +290,39 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
 
       const docRef = await addDoc(collection(db, "orders"), cleanedOrderData);
       console.log("Order created successfully with ID:", docRef.id);
+
+      // Handle Online Payment via PhonePe
+      if (paymentMode === "online") {
+        try {
+          const payResp = await fetch("/api/payment/initiate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              amount: cart.total,
+              phone: userPhone,
+              orderId: docRef.id,
+              userId: auth.currentUser?.uid || "guest_" + Date.now(),
+            }),
+          });
+          const payData = await payResp.json();
+          if (payData.url) {
+            window.location.href = payData.url;
+            return; // Stop here, user is being redirected
+          } else {
+            throw new Error(payData.error || "Payment initiation failed");
+          }
+        } catch (payError) {
+          console.error("Payment Error:", payError);
+          toast({
+            title: "Payment Error",
+            description:
+              "Failed to start online payment. Please try WhatsApp checkout instead.",
+            variant: "destructive",
+          });
+          setIsCreatingOrder(false);
+          return;
+        }
+      }
 
       // Save to localStorage for future orders
       localStorage.setItem("customer_name", userName);
@@ -855,6 +893,75 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                   </div>
                 )}
 
+                <div className="space-y-4 pt-4 border-t border-dashed">
+                  <Label className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+                    Select Payment Method
+                  </Label>
+                  <RadioGroup
+                    value={paymentMode}
+                    onValueChange={(v: any) => setPaymentMode(v)}
+                    className="grid grid-cols-1 gap-3"
+                  >
+                    <div
+                      className={`relative flex items-center p-4 rounded-xl border-2 transition-all cursor-pointer ${paymentMode === "online" ? "border-primary bg-primary/5" : "border-muted hover:border-muted-foreground/30"}`}
+                      onClick={() => setPaymentMode("online")}
+                    >
+                      <RadioGroupItem
+                        value="online"
+                        id="online"
+                        className="sr-only"
+                      />
+                      <div className="flex items-center gap-3 w-full">
+                        <div
+                          className={`p-2 rounded-full ${paymentMode === "online" ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}
+                        >
+                          <CreditCard className="h-5 w-5" />
+                        </div>
+                        <div className="flex-1">
+                          <Label
+                            htmlFor="online"
+                            className="font-bold cursor-pointer"
+                          >
+                            Pay with PhonePe
+                          </Label>
+                          <p className="text-[10px] text-muted-foreground">
+                            UPI, Credit/Debit Card, Wallets
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      className={`relative flex items-center p-4 rounded-xl border-2 transition-all cursor-pointer ${paymentMode === "whatsapp" ? "border-primary bg-primary/5" : "border-muted hover:border-muted-foreground/30"}`}
+                      onClick={() => setPaymentMode("whatsapp")}
+                    >
+                      <RadioGroupItem
+                        value="whatsapp"
+                        id="whatsapp"
+                        className="sr-only"
+                      />
+                      <div className="flex items-center gap-3 w-full">
+                        <div
+                          className={`p-2 rounded-full ${paymentMode === "whatsapp" ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}
+                        >
+                          <MessageCircle className="h-5 w-5" />
+                        </div>
+                        <div className="flex-1">
+                          <Label
+                            htmlFor="whatsapp"
+                            className="font-bold cursor-pointer"
+                          >
+                            Order via WhatsApp
+                          </Label>
+                          <p className="text-[10px] text-muted-foreground">
+                            Pay with Cash/UPI on Delivery
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </RadioGroup>
+                </div>
+
                 <div className="space-y-3">
                   <Button
                     className="w-full"
@@ -869,9 +976,15 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                       </>
                     ) : (
                       <>
-                        <MessageCircle className="mr-2 h-5 w-5" />
+                        {paymentMode === "online" ? (
+                          <CreditCard className="mr-2 h-5 w-5" />
+                        ) : (
+                          <MessageCircle className="mr-2 h-5 w-5" />
+                        )}
                         {showNameInput
-                          ? "Send Order via WhatsApp"
+                          ? paymentMode === "online"
+                            ? "Pay with PhonePe"
+                            : "Order via WhatsApp"
                           : "Proceed to Checkout"}
                       </>
                     )}

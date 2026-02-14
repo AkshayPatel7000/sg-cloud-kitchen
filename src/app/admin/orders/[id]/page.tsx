@@ -42,6 +42,7 @@ import {
   Trash2,
   Settings2,
   MessageCircle,
+  AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
 import type { Order, OrderStatus, Restaurant } from "@/lib/types";
@@ -91,6 +92,18 @@ const statusConfig: Record<
     variant: "destructive",
     icon: XCircle,
     color: "text-red-600",
+  },
+  payment_pending: {
+    label: "Payment Pending",
+    variant: "outline",
+    icon: CreditCard,
+    color: "text-blue-500",
+  },
+  payment_failed: {
+    label: "Payment Failed",
+    variant: "destructive",
+    icon: AlertCircle,
+    color: "text-red-500",
   },
 };
 
@@ -312,7 +325,13 @@ export default function OrderDetailsPage() {
     return null;
   }
 
-  const StatusIcon = statusConfig[order.status].icon;
+  const currentStatusConfig = statusConfig[order.status] || {
+    label: order.status,
+    variant: "outline",
+    icon: Clock,
+    color: "text-muted-foreground",
+  };
+  const StatusIcon = currentStatusConfig.icon;
 
   return (
     <div className="space-y-6 p-4 md:p-8">
@@ -400,10 +419,10 @@ export default function OrderDetailsPage() {
                       Order Status
                     </span>
                     <Badge
-                      variant={statusConfig[order.status].variant}
+                      variant={currentStatusConfig.variant}
                       className="px-3"
                     >
-                      {statusConfig[order.status].label}
+                      {currentStatusConfig.label}
                     </Badge>
                   </div>
                   <Select

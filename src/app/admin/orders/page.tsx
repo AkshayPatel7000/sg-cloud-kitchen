@@ -26,6 +26,8 @@ import {
   Bell,
   BellOff,
   Loader2,
+  CreditCard,
+  AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
 import type { Order, OrderStatus } from "@/lib/types";
@@ -55,6 +57,16 @@ const statusConfig: Record<
   ready: { label: "Ready", variant: "secondary", icon: CheckCircle2 },
   completed: { label: "Completed", variant: "secondary", icon: CheckCircle2 },
   cancelled: { label: "Cancelled", variant: "destructive", icon: XCircle },
+  payment_pending: {
+    label: "Payment Pending",
+    variant: "outline",
+    icon: CreditCard,
+  },
+  payment_failed: {
+    label: "Payment Failed",
+    variant: "destructive",
+    icon: AlertCircle,
+  },
 };
 
 export default function OrdersPage() {
@@ -231,7 +243,11 @@ export default function OrdersPage() {
   };
 
   const getStatusBadge = (status: OrderStatus) => {
-    const config = statusConfig[status];
+    const config = statusConfig[status] || {
+      label: status,
+      variant: "outline",
+      icon: Clock,
+    };
     const Icon = config.icon;
     return (
       <Badge variant={config.variant} className="flex items-center gap-1">

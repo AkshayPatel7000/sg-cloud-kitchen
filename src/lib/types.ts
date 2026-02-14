@@ -126,7 +126,9 @@ export type OrderStatus =
   | "preparing"
   | "ready"
   | "completed"
-  | "cancelled";
+  | "cancelled"
+  | "payment_pending"
+  | "payment_failed";
 
 export type OrderItem = {
   dishId: string;
