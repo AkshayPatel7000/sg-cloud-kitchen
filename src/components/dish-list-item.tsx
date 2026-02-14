@@ -8,7 +8,8 @@ import { Flame, Star, Plus, Check } from "lucide-react";
 import type { Dish } from "@/lib/types";
 import { sanitizeImageUrl } from "@/lib/image-utils";
 import { useCart } from "@/contexts/cart-context";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import React from "react";
 import { DishConfigDialog } from "./dish-config-dialog";
 import { DishDetailSheet } from "./dish-detail-sheet";
 import { trackMenuItemView, trackAddToCart } from "@/lib/analytics";
@@ -18,6 +19,21 @@ export function DishListItem({ dish }: { dish: Dish }) {
   const [showDetail, setShowDetail] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isClamped, setIsClamped] = useState(false);
+  const descriptionRef = React.useRef<HTMLParagraphElement>(null);
+
+  React.useEffect(() => {
+    const checkClamping = () => {
+      const el = descriptionRef.current;
+      if (el) {
+        setIsClamped(el.scrollHeight > el.clientHeight);
+      }
+    };
+
+    checkClamping();
+    window.addEventListener("resize", checkClamping);
+    return () => window.removeEventListener("resize", checkClamping);
+  }, [dish.description]);
 
   const isInCart = cart.items.some((item) => item.dish.id === dish.id);
   const hasDiscount =
@@ -141,13 +157,14 @@ export function DishListItem({ dish }: { dish: Dish }) {
 
         <div className="relative group/desc">
           <p
+            ref={descriptionRef}
             className={`text-sm text-muted-foreground leading-relaxed pr-2 sm:pr-0 transition-all duration-300 ${
               !isExpanded ? "line-clamp-2" : ""
             }`}
           >
             {dish.description}
           </p>
-          {dish.description && dish.description.length > 80 && (
+          {(isClamped || isExpanded) && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
