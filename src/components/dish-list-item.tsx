@@ -146,7 +146,7 @@ export function DishListItem({ dish }: { dish: Dish }) {
                   : "Rs."}
                 {discountedPrice.toLocaleString()}
               </p>
-              {hasDiscount && (
+              {!!hasDiscount && (
                 <p className="text-xs sm:text-sm text-muted-foreground line-through">
                   Rs.{basePrice.toLocaleString()}
                 </p>

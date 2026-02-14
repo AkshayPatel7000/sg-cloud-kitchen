@@ -191,7 +191,7 @@ export function Hero({ restaurant }: { restaurant: Restaurant }) {
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 2, repeat: Infinity }}
         className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 hidden md:flex flex-col items-center gap-2 cursor-pointer"
-        onClick={() => scrollToSection("offers")}
+        onClick={() => scrollToSection("menu")}
       >
         <span className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold">
           Scroll
