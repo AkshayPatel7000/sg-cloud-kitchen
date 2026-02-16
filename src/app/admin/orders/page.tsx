@@ -53,6 +53,7 @@ const statusConfig: Record<
   pending: { label: "Pending", variant: "outline", icon: Clock },
   preparing: { label: "Preparing", variant: "default", icon: ChefHat },
   ready: { label: "Ready", variant: "secondary", icon: CheckCircle2 },
+  delivered: { label: "Delivered", variant: "secondary", icon: CheckCircle2 },
   completed: { label: "Completed", variant: "secondary", icon: CheckCircle2 },
   cancelled: { label: "Cancelled", variant: "destructive", icon: XCircle },
 };
@@ -231,8 +232,12 @@ export default function OrdersPage() {
   };
 
   const getStatusBadge = (status: OrderStatus) => {
-    const config = statusConfig[status];
-    const Icon = config.icon;
+    const config = statusConfig[status] || {
+      label: status,
+      variant: "outline",
+      icon: Clock,
+    };
+    const Icon = config.icon || Clock;
     return (
       <Badge variant={config.variant} className="flex items-center gap-1">
         <Icon className="h-3 w-3" />

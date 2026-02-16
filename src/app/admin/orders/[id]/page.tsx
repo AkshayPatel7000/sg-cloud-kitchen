@@ -80,6 +80,12 @@ const statusConfig: Record<
     icon: CheckCircle2,
     color: "text-green-600",
   },
+  delivered: {
+    label: "Delivered",
+    variant: "secondary",
+    icon: CheckCircle2,
+    color: "text-green-700",
+  },
   completed: {
     label: "Completed",
     variant: "secondary",
@@ -312,7 +318,12 @@ export default function OrderDetailsPage() {
     return null;
   }
 
-  const StatusIcon = statusConfig[order.status].icon;
+  const currentStatusConfig = statusConfig[order.status] || {
+    label: order.status,
+    variant: "outline" as const,
+    icon: Clock,
+  };
+  const StatusIcon = currentStatusConfig.icon;
 
   return (
     <div className="space-y-6 p-4 md:p-8">
@@ -400,10 +411,10 @@ export default function OrderDetailsPage() {
                       Order Status
                     </span>
                     <Badge
-                      variant={statusConfig[order.status].variant}
+                      variant={currentStatusConfig.variant}
                       className="px-3"
                     >
-                      {statusConfig[order.status].label}
+                      {currentStatusConfig.label}
                     </Badge>
                   </div>
                   <Select
