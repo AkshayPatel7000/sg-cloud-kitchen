@@ -24,6 +24,7 @@ import { sendCartViaWhatsApp } from "@/lib/whatsapp";
 import type { Restaurant } from "@/lib/types";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/firestore";
@@ -59,6 +60,10 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
   const [couponInput, setCouponInput] = useState("");
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [userLocation, setUserLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
   // Load saved details from localStorage
   useEffect(() => {
@@ -68,11 +73,6 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
     if (savedName) setUserName(savedName);
     if (savedPhone) setUserPhone(savedPhone);
     if (savedAddress) setUserAddress(savedAddress);
-
-    // Only request location if address is empty
-    if (!savedAddress) {
-      handleAutoLocation();
-    }
 
     // Track cart view when page loads (only if cart has items)
     if (cart.items.length > 0) {
@@ -103,6 +103,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
           const data = await response.json();
           if (data.display_name) {
             setUserAddress(data.display_name);
+            setUserLocation({ lat: latitude, lng: longitude });
             toast({
               title: "Location Detected",
               description: "Your delivery address has been auto-filled.",
@@ -187,6 +188,15 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
       return;
     }
 
+    if (!userAddress.trim()) {
+      toast({
+        title: "Address Required",
+        description: "Please enter your delivery address to proceed.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Use restaurant's WhatsApp number or fallback to phone
     const whatsappNumber =
       restaurant.whatsappNumber || restaurant.phone.replace(/[^0-9]/g, "");
@@ -212,6 +222,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
         customerName: userName || "Customer",
         customerPhone: userPhone || null,
         customerAddress: userAddress || null,
+        customerLocation: userLocation || null,
         items: cart.items.map((item) => {
           // Calculate original price before dish discount
           const variant = item.variantId
@@ -346,6 +357,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
         userPhone || undefined,
         userAddress || undefined,
         orderNumber,
+        userLocation,
       );
 
       // Clear cart after successful order creation
@@ -822,9 +834,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                       <div className="flex items-center justify-between">
                         <Label htmlFor="userAddress">
                           Delivery Address{" "}
-                          <span className="text-muted-foreground text-[10px] font-normal">
-                            (Optional)
-                          </span>
+                          <span className="text-destructive">*</span>
                         </Label>
                         <Button
                           variant="ghost"
@@ -838,15 +848,15 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                         </Button>
                       </div>
                       <div className="relative">
-                        <Input
+                        <Textarea
                           id="userAddress"
                           placeholder="Enter your delivery address"
                           value={userAddress}
                           onChange={(e) => setUserAddress(e.target.value)}
-                          className="pr-10"
+                          className="pr-10 min-h-[100px] resize-none"
                         />
                         {userAddress && (
-                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          <div className="absolute right-3 top-3">
                             <MapPin className="h-4 w-4 text-primary opacity-50" />
                           </div>
                         )}

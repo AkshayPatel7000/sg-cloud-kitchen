@@ -60,7 +60,7 @@ export function separator(
  * Format currency
  */
 export function formatCurrency(amount: number): string {
-  return `₹${amount.toFixed(2)}`;
+  return `Rs.${amount.toFixed(2)}`;
 }
 
 /**

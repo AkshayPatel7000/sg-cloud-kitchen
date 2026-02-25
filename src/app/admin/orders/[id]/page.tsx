@@ -42,6 +42,7 @@ import {
   Trash2,
   Settings2,
   MessageCircle,
+  Navigation,
 } from "lucide-react";
 import Link from "next/link";
 import type { Order, OrderStatus, Restaurant } from "@/lib/types";
@@ -776,19 +777,33 @@ export default function OrderDetailsPage() {
                     </a>
                   </div>
                 )}
-                {order.customerAddress && (
-                  <div className="flex items-start gap-3">
-                    <div className="bg-muted p-2 rounded-full">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                {(order.customerAddress || order.customerLocation) && (
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className="bg-muted p-2 rounded-full">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">
+                          Delivery Address
+                        </p>
+                        <p className="font-medium text-sm leading-snug">
+                          {order.customerAddress || "Location provided on map"}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">
-                        Delivery Address
-                      </p>
-                      <p className="font-medium text-sm leading-snug">
-                        {order.customerAddress}
-                      </p>
-                    </div>
+                    {order.customerLocation && (
+                      <a
+                        href={`https://www.google.com/maps?q=${order.customerLocation.lat},${order.customerLocation.lng}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center text-primary hover:text-primary/80 hover:bg-primary/5 h-9 px-3 rounded-md border border-primary/20 transition-colors text-xs font-medium gap-1.5"
+                        title="View on Map"
+                      >
+                        <Navigation className="h-3.5 w-3.5" />
+                        Map
+                      </a>
+                    )}
                   </div>
                 )}
               </CardContent>

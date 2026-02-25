@@ -9,12 +9,16 @@ export function generateWhatsAppMessage(
   userPhone?: string,
   userAddress?: string,
   orderNumber?: string,
+  userLocation?: { lat: number; lng: number } | null,
 ): string {
   const greeting = userName ? `Hi, I'm ${userName}!` : "Hi!";
   const phoneInfo = userPhone ? ` (Phone: ${userPhone})` : "";
   const addressInfo = userAddress ? `\n📍 *Address: ${userAddress}*` : "";
+  const locationLink = userLocation
+    ? `\n🗺️ *Location: https://www.google.com/maps?q=${userLocation.lat},${userLocation.lng}*`
+    : "";
 
-  let message = `${greeting}${phoneInfo}${addressInfo}\n\n`;
+  let message = `${greeting}${phoneInfo}${addressInfo}${locationLink}\n\n`;
 
   if (orderNumber) {
     message += `🆔 *Order ID: ${orderNumber}*\n`;
@@ -89,6 +93,7 @@ export function sendCartViaWhatsApp(
   userPhone?: string,
   userAddress?: string,
   orderNumber?: string,
+  userLocation?: { lat: number; lng: number } | null,
 ): void {
   const message = generateWhatsAppMessage(
     cart,
@@ -96,6 +101,7 @@ export function sendCartViaWhatsApp(
     userPhone,
     userAddress,
     orderNumber,
+    userLocation,
   );
   sendWhatsAppMessage(restaurantPhone, message);
 }

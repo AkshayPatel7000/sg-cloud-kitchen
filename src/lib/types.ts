@@ -156,6 +156,10 @@ export type Order = {
   customerName?: string;
   customerPhone?: string;
   customerAddress?: string;
+  customerLocation?: {
+    lat: number;
+    lng: number;
+  } | null;
   items: OrderItem[];
   subtotal: number;
   discount?: number; // Discount amount applied
