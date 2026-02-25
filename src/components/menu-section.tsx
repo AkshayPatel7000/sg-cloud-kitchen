@@ -3,12 +3,22 @@
 import { useEffect, useState } from "react";
 import { getCategories, getDishes } from "@/lib/data";
 import { MenuAccordionClient } from "./menu-accordion-client";
-import { Category, Dish } from "@/lib/types";
+import { Category, Dish, Restaurant } from "@/lib/types";
+import { isKitchenOpen } from "@/lib/opening-hours";
+import { cn } from "@/lib/utils";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-export function MenuSection() {
+export function MenuSection({
+  restaurant,
+}: {
+  restaurant?: Restaurant | null;
+}) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [allDishes, setAllDishes] = useState<Dish[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const isOpen = restaurant ? isKitchenOpen(restaurant.openingHours) : true;
 
   useEffect(() => {
     async function loadMenu() {
@@ -50,11 +60,40 @@ export function MenuSection() {
   }
 
   return (
-    <section id="menu">
+    <section id="menu" className="relative">
       <h2 className="font-headline text-3xl font-bold mb-6 text-center">
         Our Menu
       </h2>
-      <MenuAccordionClient categories={categories} allDishes={allDishes} />
+
+      {!isOpen && (
+        <div className="max-w-4xl mx-auto mb-8">
+          <Alert
+            variant="destructive"
+            className="bg-destructive/10 border-destructive/20 text-destructive"
+          >
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Kitchen is Currently Offline</AlertTitle>
+            <AlertDescription>
+              We are currently closed. Opening hours: {restaurant?.openingHours}
+              . You can still browse our menu, but orders are temporarily
+              disabled.
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
+
+      <div
+        className={cn(
+          "transition-all duration-500",
+          !isOpen && "grayscale opacity-60",
+        )}
+      >
+        <MenuAccordionClient
+          categories={categories}
+          allDishes={allDishes}
+          isOpen={isOpen}
+        />
+      </div>
     </section>
   );
 }

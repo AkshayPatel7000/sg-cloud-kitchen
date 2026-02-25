@@ -11,7 +11,10 @@ import {
   Facebook,
   Instagram,
   Twitter,
+  Clock,
 } from "lucide-react";
+import { isKitchenOpen } from "@/lib/opening-hours";
+import { Badge } from "./ui/badge";
 import { Logo } from "./logo";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -76,6 +79,15 @@ export function Header({ restaurant }: { restaurant: Restaurant | null }) {
               logoUrl={restaurant?.logoUrl}
               restaurantName={restaurant?.name}
             />
+            {restaurant && !isKitchenOpen(restaurant.openingHours) && (
+              <Badge
+                variant="destructive"
+                className="hidden lg:flex py-0.5 px-3 rounded-full border-none bg-red-500/80 backdrop-blur-sm shadow-sm"
+              >
+                <Clock className="mr-1.5 h-3 w-3" />
+                Closed
+              </Badge>
+            )}
             <nav className="hidden items-center gap-8 md:flex">
               {navLinks.map((link, index) => (
                 <motion.div

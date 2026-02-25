@@ -17,6 +17,8 @@ import {
   MapPin,
   Loader2,
   Phone,
+  Clock,
+  Info,
 } from "lucide-react";
 import Link from "next/link";
 import { VegNonVegIcon } from "@/components/veg-non-veg-icon";
@@ -37,6 +39,7 @@ import {
 } from "@/lib/analytics";
 import { logErrorToFirestore } from "@/lib/error-logger";
 import packageInfo from "../../../package.json";
+import { isKitchenOpen } from "@/lib/opening-hours";
 
 const version = packageInfo.version;
 
@@ -60,6 +63,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
   const [couponInput, setCouponInput] = useState("");
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const isOpen = isKitchenOpen(restaurant.openingHours);
   const [userLocation, setUserLocation] = useState<{
     lat: number;
     lng: number;
@@ -861,6 +865,13 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                           </div>
                         )}
                       </div>
+                      <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground bg-muted/30 p-2 rounded-lg border border-primary/10">
+                        <Info className="h-3.5 w-3.5 text-primary shrink-0" />
+                        <span>
+                          Delivery is only available within a 5km radius of our
+                          kitchen.
+                        </span>
+                      </p>
                     </div>
                   </div>
                 )}
@@ -870,12 +881,17 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                     className="w-full"
                     size="lg"
                     onClick={handleCheckout}
-                    disabled={isCreatingOrder}
+                    disabled={isCreatingOrder || !isOpen}
                   >
                     {isCreatingOrder ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Creating Order...
+                      </>
+                    ) : !isOpen ? (
+                      <>
+                        <Clock className="mr-2 h-5 w-5" />
+                        Kitchen is Currently Closed
                       </>
                     ) : (
                       <>

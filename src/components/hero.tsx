@@ -15,7 +15,10 @@ import {
   Menu,
   PhoneCall,
   ChevronDown,
+  Clock,
 } from "lucide-react";
+import { isKitchenOpen } from "@/lib/opening-hours";
+import { Badge } from "./ui/badge";
 
 export function Hero({ restaurant }: { restaurant: Restaurant }) {
   const heroImage = PlaceHolderImages.find((img) => img.id === "hero");
@@ -65,9 +68,20 @@ export function Hero({ restaurant }: { restaurant: Restaurant }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <span className="inline-block px-4 py-1.5 mb-6 text-xs font-semibold tracking-widest uppercase bg-primary/20 text-primary border border-primary/30 rounded-full backdrop-blur-md">
-              Welcome to Excellence
-            </span>
+            <div className="flex flex-wrap items-center gap-4 mb-6">
+              <span className="inline-block px-4 py-1.5 text-xs font-semibold tracking-widest uppercase bg-primary/20 text-primary border border-primary/30 rounded-full backdrop-blur-md">
+                Welcome to Excellence
+              </span>
+              {!isKitchenOpen(restaurant.openingHours) && (
+                <Badge
+                  variant="destructive"
+                  className="py-1 px-4 rounded-full border-none bg-red-500/80 backdrop-blur-md text-white"
+                >
+                  <Clock className="mr-2 h-3.5 w-3.5" />
+                  Currently Offline
+                </Badge>
+              )}
+            </div>
             <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-white leading-[1.1]">
               {restaurant.name}
             </h1>

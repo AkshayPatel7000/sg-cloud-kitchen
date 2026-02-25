@@ -31,6 +31,7 @@ interface DishDetailSheetProps {
     selectedCustomizations?: any[],
     notes?: string,
   ) => void;
+  isOpen?: boolean;
 }
 
 export function DishDetailSheet({
@@ -38,6 +39,7 @@ export function DishDetailSheet({
   open,
   onOpenChange,
   onConfirm,
+  isOpen = true,
 }: DishDetailSheetProps) {
   const [selectedVariantId, setSelectedVariantId] = useState<
     string | undefined
@@ -401,12 +403,15 @@ export function DishDetailSheet({
               className="w-full h-14 sm:h-16 text-lg sm:text-xl font-bold rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_8px_30px_rgb(220,104,50,0.3)] transition-all duration-500 bg-primary group relative overflow-hidden active:scale-[0.98]"
               onClick={(e) => {
                 e.stopPropagation();
-                handleConfirm();
+                if (isOpen) handleConfirm();
               }}
+              disabled={!isOpen}
             >
               <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
               <div className="flex items-center justify-between w-full px-4 sm:px-8 relative z-10">
-                <span className="tracking-tight">Add to Checkout</span>
+                <span className="tracking-tight">
+                  {isOpen ? "Add to Checkout" : "Kitchen Offline"}
+                </span>
                 <div className="flex items-center gap-3">
                   <Separator
                     orientation="vertical"

@@ -14,7 +14,13 @@ import { DishConfigDialog } from "./dish-config-dialog";
 import { DishDetailSheet } from "./dish-detail-sheet";
 import { trackMenuItemView, trackAddToCart } from "@/lib/analytics";
 
-export function DishListItem({ dish }: { dish: Dish }) {
+export function DishListItem({
+  dish,
+  isOpen = true,
+}: {
+  dish: Dish;
+  isOpen?: boolean;
+}) {
   const { addToCart, cart, isHydrated } = useCart();
   const [showDetail, setShowDetail] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
@@ -221,16 +227,20 @@ export function DishListItem({ dish }: { dish: Dish }) {
             size="sm"
             onClick={(e) => {
               e.stopPropagation();
-              handleAddToCart();
+              if (isOpen) handleAddToCart();
             }}
             className=" sm:w-[90%] max-w-[120px] h-9 sm:h-10 rounded-lg font-bold shadow-lg border-2 border-background animate-in fade-in zoom-in duration-300"
             variant={isInCart || justAdded ? "secondary" : "default"}
-            disabled={!isHydrated}
+            disabled={!isHydrated || !isOpen}
           >
             {isInCart || justAdded ? (
               <div className="flex items-center gap-1.5 text-xs sm:text-sm">
                 <Check className="h-4 w-4 stroke-[3px]" />
                 <span>ADDED</span>
+              </div>
+            ) : !isOpen ? (
+              <div className="flex items-center gap-1.5 text-xs sm:text-sm">
+                <span>OFFLINE</span>
               </div>
             ) : (
               <div className="flex items-center gap-1.5 text-xs sm:text-sm ">

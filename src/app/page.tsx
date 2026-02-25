@@ -157,7 +157,7 @@ export default function Home() {
             <OffersCarousel items={whatsNew} title="What's New" />
           </div>
 
-          <MenuSection />
+          <MenuSection restaurant={restaurant} />
         </div>
       </main>
 
