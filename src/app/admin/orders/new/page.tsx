@@ -32,7 +32,6 @@ import {
   collection,
   getDocs,
   addDoc,
-  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase/firestore";
 import { useAuth } from "@/hooks/use-auth";
@@ -62,9 +61,6 @@ export default function NewOrderPage() {
   );
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [discountValue, setDiscountValue] = useState<string>("");
-  const [couponCode, setCouponCode] = useState("");
-  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
-  const [appliedCouponInfo, setAppliedCouponInfo] = useState<any>(null);
 
   const [selectedDishForConfig, setSelectedDishForConfig] =
     useState<Dish | null>(null);
@@ -281,50 +277,9 @@ export default function NewOrderPage() {
       afterDiscount,
       tax,
       total,
-      couponCode: appliedCouponInfo?.couponCode || null,
-      discountType: appliedCouponInfo
-        ? appliedCouponInfo.discountType
-        : discountType,
-      discountValue: appliedCouponInfo
-        ? appliedCouponInfo.discountValue
-        : discountNum,
+      discountType: discountNum > 0 ? discountType : null,
+      discountValue: discountNum > 0 ? discountNum : null,
     };
-  };
-
-  const handleApplyCoupon = async () => {
-    if (!couponCode.trim()) return;
-
-    setIsApplyingCoupon(true);
-    try {
-      const { getAllSectionItems } = await import("@/lib/data-client");
-      const offers = await getAllSectionItems();
-      const coupon = offers.find(
-        (o) =>
-          o.isActive &&
-          o.couponCode?.toLowerCase() === couponCode.toLowerCase(),
-      );
-
-      if (coupon) {
-        setAppliedCouponInfo(coupon);
-        setDiscountValue(""); // Clear manual discount
-        toast({ title: "Coupon applied successfully!" });
-      } else {
-        toast({
-          title: "Invalid Coupon",
-          description: "Coupon code not found or inactive",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error("Error applying coupon:", error);
-    } finally {
-      setIsApplyingCoupon(false);
-    }
-  };
-
-  const removeCoupon = () => {
-    setAppliedCouponInfo(null);
-    setCouponCode("");
   };
 
   const generateOrderNumber = () => {
@@ -366,40 +321,37 @@ export default function NewOrderPage() {
       const orderNumber = generateOrderNumber();
 
       const orderData = {
-        orderNumber,
+        orderNumber: orderNumber || "ORD-UNKNOWN",
         customerName: customerName || null,
         customerPhone: customerPhone || null,
         customerAddress: customerAddress || null,
         items: orderItems.map((item) => ({
-          ...item,
+          dishId: item.dishId || "",
+          dishName: item.dishName || "",
+          quantity: item.quantity || 1,
+          price: item.price || 0,
+          originalPrice: item.originalPrice || null,
+          dishDiscountType: item.dishDiscountType || null,
+          dishDiscountValue: item.dishDiscountValue || null,
+          isVeg: item.isVeg || false,
           variantId: item.variantId || null,
           variantName: item.variantName || null,
           selectedCustomizations: item.selectedCustomizations || null,
           notes: item.notes || null,
         })),
-        subtotal,
+        subtotal: subtotal || 0,
         discount: discount || 0,
-        discountType:
-          discount > 0
-            ? appliedCouponInfo
-              ? appliedCouponInfo.discountType
-              : discountType
-            : null,
-        discountValue:
-          discount > 0
-            ? appliedCouponInfo
-              ? appliedCouponInfo.discountValue
-              : parseFloat(discountValue)
-            : null,
-        couponCode: appliedCouponInfo?.couponCode || null,
-        tax,
-        total,
+        discountType: discount > 0 ? discountType : null,
+        discountValue: discount > 0 ? parseFloat(discountValue) : null,
+        couponCode: null,
+        tax: tax || 0,
+        total: total || 0,
         status: "pending",
-        orderType,
+        orderType: orderType || "dine-in",
         tableNumber: orderType === "dine-in" ? tableNumber : null,
         notes: notes || null,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
         createdBy: user.uid,
         isPaid: false,
         isViewed: false,
@@ -795,95 +747,34 @@ export default function NewOrderPage() {
                 <div className="space-y-2 p-3 bg-muted/50 rounded-lg">
                   <Label className="text-xs font-semibold flex items-center gap-1">
                     <Percent className="h-3 w-3" />
-                    Coupon & Discount
+                    Manual Discount
                   </Label>
 
-                  {!appliedCouponInfo ? (
-                    <div className="space-y-3">
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="Coupon Code"
-                          value={couponCode}
-                          onChange={(e) =>
-                            setCouponCode(e.target.value.toUpperCase())
-                          }
-                          className="h-9 font-mono"
-                        />
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          className="h-9"
-                          onClick={handleApplyCoupon}
-                          disabled={isApplyingCoupon || !couponCode.trim()}
-                        >
-                          {isApplyingCoupon ? "..." : "Apply"}
-                        </Button>
-                      </div>
-
-                      <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                          <span className="w-full border-t" />
-                        </div>
-                        <div className="relative flex justify-center text-[10px] uppercase">
-                          <span className="bg-background px-2 text-muted-foreground">
-                            Or manual discount
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-2">
-                        <Select
-                          value={discountType}
-                          onValueChange={(value: any) => setDiscountType(value)}
-                        >
-                          <SelectTrigger className="w-[110px] h-9">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="percentage">%</SelectItem>
-                            <SelectItem value="fixed">Rs.</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Input
-                          type="number"
-                          placeholder={
-                            discountType === "percentage" ? "0-100" : "Amount"
-                          }
-                          value={discountValue}
-                          onChange={(e) => setDiscountValue(e.target.value)}
-                          className="h-9"
-                          min="0"
-                          max={
-                            discountType === "percentage" ? "100" : undefined
-                          }
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
-                      <div>
-                        <p className="text-[10px] text-green-600 font-bold uppercase tracking-wider">
-                          Coupon Applied
-                        </p>
-                        <p className="text-sm font-bold">
-                          {appliedCouponInfo.couponCode}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {appliedCouponInfo.discountType === "percentage"
-                            ? `${appliedCouponInfo.discountValue}% Off`
-                            : `Rs.${appliedCouponInfo.discountValue} Off`}
-                        </p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={removeCoupon}
-                        className="h-8 text-xs text-destructive hover:bg-destructive/10"
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  )}
+                  <div className="flex gap-2">
+                    <Select
+                      value={discountType}
+                      onValueChange={(value: any) => setDiscountType(value)}
+                    >
+                      <SelectTrigger className="w-[110px] h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="percentage">%</SelectItem>
+                        <SelectItem value="fixed">Rs.</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      type="number"
+                      placeholder={
+                        discountType === "percentage" ? "0-100" : "Amount"
+                      }
+                      value={discountValue}
+                      onChange={(e) => setDiscountValue(e.target.value)}
+                      className="h-9"
+                      min="0"
+                      max={discountType === "percentage" ? "100" : undefined}
+                    />
+                  </div>
 
                   {discount > 0 && (
                     <div className="flex justify-between text-xs text-green-600 dark:text-green-400 font-medium pt-1">
