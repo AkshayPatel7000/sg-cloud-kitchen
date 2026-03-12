@@ -93,6 +93,19 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
     }
   }, []); // Only run once on mount
 
+  // Fetch location on load if permission is already granted
+  useEffect(() => {
+    if ("geolocation" in navigator && "permissions" in navigator) {
+      navigator.permissions
+        .query({ name: "geolocation" as PermissionName })
+        .then((result) => {
+          if (result.state === "granted") {
+            handleAutoLocation();
+          }
+        });
+    }
+  }, []);
+
   const handleAutoLocation = () => {
     if (!("geolocation" in navigator)) return;
 
@@ -100,6 +113,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
       async (position) => {
         try {
           const { latitude, longitude } = position.coords;
+          setUserLocation({ lat: latitude, lng: longitude });
           // Use free Nominatim API for reverse geocoding
           const response = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`,
@@ -107,7 +121,6 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
           const data = await response.json();
           if (data.display_name) {
             setUserAddress(data.display_name);
-            setUserLocation({ lat: latitude, lng: longitude });
             toast({
               title: "Location Detected",
               description: "Your delivery address has been auto-filled.",
