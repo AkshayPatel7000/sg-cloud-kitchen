@@ -621,12 +621,24 @@ export default function NewOrderPage() {
               {orderType === "dine-in" && (
                 <div className="space-y-2">
                   <Label htmlFor="tableNumber">Table Number</Label>
-                  <Input
-                    id="tableNumber"
-                    placeholder="e.g., T-01"
+                  <Select
                     value={tableNumber}
-                    onChange={(e) => setTableNumber(e.target.value)}
-                  />
+                    onValueChange={(value) => setTableNumber(value)}
+                  >
+                    <SelectTrigger id="tableNumber">
+                      <SelectValue placeholder="Select Table" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => {
+                        const tableId = `T-${num.toString().padStart(2, "0")}`;
+                        return (
+                          <SelectItem key={tableId} value={tableId}>
+                            {tableId}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
                 </div>
               )}
 

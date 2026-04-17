@@ -148,11 +148,14 @@ export function generatePrintHTML(content: string): string {
           padding: 4mm 2mm;
           font-family: 'Courier New', Courier, 'Lucida Sans Typewriter', 'Lucida Console', monospace;
           font-size: 9pt;
+          font-weight: bold;
           line-height: 1.2;
           white-space: pre-wrap;
           word-wrap: break-word;
-          color: black;
-          background: white;
+          color: #000 !important;
+          background: #fff !important;
+          text-rendering: optimizeLegibility;
+          -webkit-font-smoothing: antialiased;
         }
       </style>
     </head>

@@ -403,7 +403,7 @@ export default function OrdersPage() {
                             variant="secondary"
                             className="text-[10px] h-5 py-0"
                           >
-                            T-{order.tableNumber}
+                            {order.tableNumber}
                           </Badge>
                         )}
                         {order.couponCode && (
