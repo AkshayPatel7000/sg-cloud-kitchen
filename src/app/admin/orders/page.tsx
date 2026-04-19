@@ -35,6 +35,9 @@ import {
   orderBy,
   onSnapshot,
   limit,
+  doc,
+  updateDoc,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase/firestore";
 import { format } from "date-fns";
@@ -42,33 +45,21 @@ import { useToast } from "@/hooks/use-toast";
 import { useNotification } from "@/contexts/notification-context";
 import { logErrorToFirestore } from "@/lib/error-logger";
 
-const statusConfig: Record<
-  OrderStatus,
-  {
-    label: string;
-    variant: "default" | "secondary" | "destructive" | "outline";
-    icon: any;
-  }
-> = {
-  pending: { label: "Pending", variant: "outline", icon: Clock },
-  preparing: { label: "Preparing", variant: "default", icon: ChefHat },
-  ready: { label: "Ready", variant: "secondary", icon: CheckCircle2 },
-  delivered: { label: "Delivered", variant: "secondary", icon: CheckCircle2 },
-  completed: { label: "Completed", variant: "secondary", icon: CheckCircle2 },
-  cancelled: { label: "Cancelled", variant: "destructive", icon: XCircle },
-};
-
+// Status config removed as we now display payment status
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState<string>("all");
   const [orderTypeFilter, setOrderTypeFilter] = useState<string>("all");
   const [isLoading, setIsLoading] = useState(true);
   const [isMoreLoading, setIsMoreLoading] = useState(false);
   const [ordersLimit, setOrdersLimit] = useState(20);
   const [hasMore, setHasMore] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [updatingPaymentId, setUpdatingPaymentId] = useState<string | null>(
+    null,
+  );
   const previousOrderIdsRef = useRef<Set<string>>(new Set());
   const isInitialLoad = useRef(true);
   const { toast } = useToast();
@@ -76,6 +67,8 @@ export default function OrdersPage() {
 
   useEffect(() => {
     // Set up real-time listener with limit
+    let isEffectInitialLoad = true;
+
     const ordersRef = collection(db, "orders");
     const q = query(
       ordersRef,
@@ -120,7 +113,7 @@ export default function OrdersPage() {
         }
 
         // Detect new customer orders
-        if (!isInitialLoad.current && notificationsEnabled) {
+        if (!isInitialLoad.current && !isEffectInitialLoad && notificationsEnabled) {
           const currentOrderIds = new Set(fetchedOrders.map((o) => o.id));
 
           // Find new orders
@@ -141,11 +134,14 @@ export default function OrdersPage() {
           });
 
           previousOrderIdsRef.current = currentOrderIds;
-        } else if (isInitialLoad.current) {
-          // On initial load, just store the order IDs without notification
+        } else {
+          // On either the first load OR when limit changes,
+          // just store the order IDs without notification
           previousOrderIdsRef.current = new Set(fetchedOrders.map((o) => o.id));
           isInitialLoad.current = false;
         }
+        
+        isEffectInitialLoad = false;
 
         setOrders(fetchedOrders);
         setIsLoading(false);
@@ -196,9 +192,37 @@ export default function OrdersPage() {
     });
   };
 
+  const togglePaymentStatus = async (
+    orderId: string,
+    currentStatus: boolean,
+    orderNumber: string,
+  ) => {
+    setUpdatingPaymentId(orderId);
+    try {
+      const orderRef = doc(db, "orders", orderId);
+      await updateDoc(orderRef, {
+        isPaid: !currentStatus,
+        updatedAt: serverTimestamp(),
+      });
+      toast({
+        title: "Success",
+        description: `Order ${orderNumber} marked as ${!currentStatus ? "Paid" : "Unpaid"}`,
+      });
+    } catch (error) {
+      console.error("Error updating payment status:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update payment status",
+        variant: "destructive",
+      });
+    } finally {
+      setUpdatingPaymentId(null);
+    }
+  };
+
   useEffect(() => {
     filterOrders();
-  }, [orders, searchTerm, statusFilter, orderTypeFilter]);
+  }, [orders, searchTerm, paymentStatusFilter, orderTypeFilter]);
 
   const filterOrders = () => {
     let filtered = [...orders];
@@ -215,9 +239,10 @@ export default function OrdersPage() {
       );
     }
 
-    // Status filter
-    if (statusFilter !== "all") {
-      filtered = filtered.filter((order) => order.status === statusFilter);
+    // Payment filter
+    if (paymentStatusFilter !== "all") {
+      const isPaid = paymentStatusFilter === "paid";
+      filtered = filtered.filter((order) => order.isPaid === isPaid);
     }
 
     // Order type filter
@@ -231,20 +256,7 @@ export default function OrdersPage() {
     console.log("🚀 ~ filterOrders ~ filtered:", filtered);
   };
 
-  const getStatusBadge = (status: OrderStatus) => {
-    const config = statusConfig[status] || {
-      label: status,
-      variant: "outline",
-      icon: Clock,
-    };
-    const Icon = config.icon || Clock;
-    return (
-      <Badge variant={config.variant} className="flex items-center gap-1">
-        <Icon className="h-3 w-3" />
-        {config.label}
-      </Badge>
-    );
-  };
+  // getStatusBadge removed as we now display payment status
 
   if (isLoading) {
     return (
@@ -314,18 +326,18 @@ export default function OrdersPage() {
               />
             </div>
 
-            {/* Status Filter */}
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            {/* Payment Filter */}
+            <Select
+              value={paymentStatusFilter}
+              onValueChange={setPaymentStatusFilter}
+            >
               <SelectTrigger>
-                <SelectValue placeholder="All Statuses" />
+                <SelectValue placeholder="All Payments" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="preparing">Preparing</SelectItem>
-                <SelectItem value="ready">Ready</SelectItem>
-                <SelectItem value="delivered">Delivered</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
+                <SelectItem value="all">All Payments</SelectItem>
+                <SelectItem value="paid">Paid</SelectItem>
+                <SelectItem value="unpaid">Unpaid</SelectItem>
               </SelectContent>
             </Select>
 
@@ -347,7 +359,7 @@ export default function OrdersPage() {
               variant="outline"
               onClick={() => {
                 setSearchTerm("");
-                setStatusFilter("all");
+                setPaymentStatusFilter("all");
                 setOrderTypeFilter("all");
               }}
             >
@@ -391,7 +403,20 @@ export default function OrdersPage() {
                         {order.orderNumber}
                       </h3>
                       <div className="flex flex-wrap gap-1">
-                        {getStatusBadge(order.status)}
+                        {order.isPaid ? (
+                          <Badge className="bg-green-500 hover:bg-green-600 flex items-center gap-1 text-white border-0">
+                            <CheckCircle2 className="h-3 w-3" />
+                            Paid
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="destructive"
+                            className="flex items-center gap-1"
+                          >
+                            <XCircle className="h-3 w-3" />
+                            Unpaid
+                          </Badge>
+                        )}
                         <Badge
                           variant="outline"
                           className="capitalize text-[10px] h-5 py-0"
@@ -472,7 +497,7 @@ export default function OrdersPage() {
                     </div>
                   </div>
 
-                  <div className="flex gap-2 w-full sm:w-auto sm:ml-4 pt-4 sm:pt-0 border-t sm:border-0">
+                  <div className="flex flex-wrap gap-2 w-full sm:w-auto sm:ml-4 pt-4 sm:pt-0 border-t sm:border-0">
                     <Link
                       href={`/admin/orders/${order.id}`}
                       className="flex-1 sm:flex-none"
@@ -533,6 +558,28 @@ export default function OrdersPage() {
                         </span>
                       </Button>
                     </Link>
+                    <Button
+                      variant={order.isPaid ? "outline" : "default"}
+                      size="sm"
+                      className={`flex-1 sm:flex-none h-9 ${!order.isPaid ? "bg-green-600 hover:bg-green-700 text-white" : ""}`}
+                      onClick={() =>
+                        togglePaymentStatus(
+                          order.id,
+                          !!order.isPaid,
+                          order.orderNumber,
+                        )
+                      }
+                      disabled={updatingPaymentId === order.id}
+                    >
+                      {updatingPaymentId === order.id ? (
+                        <Loader2 className="h-4 w-4 sm:mr-1 animate-spin" />
+                      ) : (
+                        <CheckCircle2 className="h-4 w-4 sm:mr-1" />
+                      )}
+                      <span className="sm:hidden lg:inline text-xs">
+                        {order.isPaid ? "Mark Unpaid" : "Mark Paid"}
+                      </span>
+                    </Button>
                   </div>
                 </div>
               </CardContent>
