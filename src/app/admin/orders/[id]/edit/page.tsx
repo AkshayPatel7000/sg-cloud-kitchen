@@ -359,12 +359,21 @@ export default function EditOrderPage() {
         customerName: customerName || null,
         customerPhone: customerPhone || null,
         customerAddress: customerAddress || null,
-        items: orderItems.map((item) => ({
-          ...item,
-          variantId: item.variantId || null,
-          variantName: item.variantName || null,
-          selectedCustomizations: item.selectedCustomizations || null,
-        })),
+        items: orderItems.map((item) => {
+          // Remove undefined values from item
+          const cleanItem = { ...item };
+          Object.keys(cleanItem).forEach(key => {
+            if (cleanItem[key as keyof typeof cleanItem] === undefined) {
+              delete cleanItem[key as keyof typeof cleanItem];
+            }
+          });
+          return {
+            ...cleanItem,
+            variantId: cleanItem.variantId || null,
+            variantName: cleanItem.variantName || null,
+            selectedCustomizations: cleanItem.selectedCustomizations || null,
+          };
+        }),
         subtotal,
         discount: discount || 0,
         discountType: discount > 0 ? discountType : null,
