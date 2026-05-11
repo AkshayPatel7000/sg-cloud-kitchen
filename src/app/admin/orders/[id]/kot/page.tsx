@@ -84,8 +84,7 @@ export default function KOTPage() {
     let kot = "";
 
     // Header
-    kot += centerText("KITCHEN ORDER TICKET") + "\n";
-    kot += centerText("(KOT)") + "\n";
+    kot += centerText("KOT") + "\n";
     kot += separator("=") + "\n";
 
     // Restaurant name
@@ -94,16 +93,15 @@ export default function KOTPage() {
       kot += separator("-") + "\n";
     }
 
-    // Order details
+    // Order details: Combined Date and Time to save space
     kot += splitLine("Order:", order.orderNumber) + "\n";
-    kot += splitLine("Date:", format(order.createdAt, "dd/MM/yyyy")) + "\n";
-    kot += splitLine("Time:", format(order.createdAt, "hh:mm a")) + "\n";
+    kot += splitLine(format(order.createdAt, "dd/MM/yyyy"), format(order.createdAt, "hh:mm a")) + "\n";
 
-    // Order type and table
-    kot += splitLine("Type:", order.orderType.toUpperCase()) + "\n";
-    if (order.tableNumber) {
-      kot += splitLine("Table:", order.tableNumber) + "\n";
-    }
+    // Order type and table: Combined on one line
+    const orderInfo = order.tableNumber 
+      ? `${order.orderType.toUpperCase()} | Table: ${order.tableNumber}`
+      : order.orderType.toUpperCase();
+    kot += centerText(orderInfo) + "\n";
 
     kot += separator("=") + "\n";
 
@@ -112,11 +110,13 @@ export default function KOTPage() {
     kot += separator("-") + "\n";
 
     order.items.forEach((item, index) => {
-      // Item number and name
+      // Item number and name + Quantity
+      // We don't use splitLine here to allow the name to wrap without truncation
       const displayName = item.variantName
         ? `${item.dishName} (${item.variantName})`
         : item.dishName;
-      kot += `${index + 1}. ${displayName}\n`;
+      
+      kot += `${index + 1}. ${displayName} x${item.quantity}\n`;
 
       // Customizations
       if (
@@ -128,19 +128,10 @@ export default function KOTPage() {
         });
       }
 
-      // Veg/Non-Veg indicator
-      const vegIndicator = item.isVeg ? "[VEG]" : "[NON-VEG]";
-      kot += `   ${vegIndicator}\n`;
-
-      // Quantity
-      kot += `   Qty: ${item.quantity}\n`;
-
       // Notes if any
       if (item.notes) {
         kot += `   NOTE: ${item.notes.toUpperCase()}\n`;
       }
-
-      kot += "\n";
     });
 
     kot += separator("-") + "\n";
@@ -149,27 +140,25 @@ export default function KOTPage() {
 
     // Special instructions
     if (order.notes) {
-      kot += "SPECIAL INSTRUCTIONS:\n";
+      kot += "NOTES:\n";
       kot += order.notes + "\n";
       kot += separator("=") + "\n";
     }
 
-    // Customer info (if available)
+    // Customer info (compact)
     if (order.customerName) {
-      kot += splitLine("Customer:", order.customerName) + "\n";
+      kot += `Cust: ${order.customerName}\n`;
     }
     if (order.customerAddress) {
-      kot += "Address:\n";
       const addressLines = wrapText(order.customerAddress, PRINTER_WIDTH);
       addressLines.forEach((line) => {
-        kot += `  ${line}\n`;
+        kot += `${line}\n`;
       });
     }
 
-    // Footer
-    kot += "\n";
+    // Footer (compact)
     kot += centerText("--- KOT ---") + "\n";
-    kot += centerText(format(new Date(), "dd/MM/yyyy hh:mm a")) + "\n";
+    kot += centerText(format(new Date(), "hh:mm a dd/MM/yy")) + "\n";
 
     return kot;
   };
