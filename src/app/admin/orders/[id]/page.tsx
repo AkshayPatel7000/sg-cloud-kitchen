@@ -53,6 +53,7 @@ import { format } from "date-fns";
 import { getRestaurant } from "@/lib/data-client";
 import { useNotification } from "@/contexts/notification-context";
 import { logErrorToFirestore } from "@/lib/error-logger";
+import { printKOT, printBill } from "@/lib/thermal-printer";
 
 const statusConfig: Record<
   OrderStatus,
@@ -121,6 +122,26 @@ export default function OrderDetailsPage() {
       stopRinging();
     }
   }, [orderId, stopRinging]);
+
+  const handlePrintKOT = async () => {
+    if (!order) return;
+    let restData = restaurant;
+    if (!restData) {
+      restData = await getRestaurant();
+      setRestaurant(restData);
+    }
+    printKOT(order, restData);
+  };
+
+  const handlePrintBill = async () => {
+    if (!order) return;
+    let restData = restaurant;
+    if (!restData) {
+      restData = await getRestaurant();
+      setRestaurant(restData);
+    }
+    printBill(order, restData);
+  };
 
   const fetchRestaurantDetails = async () => {
     try {
@@ -345,18 +366,14 @@ export default function OrderDetailsPage() {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Link href={`/admin/orders/${orderId}/kot`}>
-            <Button variant="outline">
-              <Printer className="mr-2 h-4 w-4" />
-              Print KOT
-            </Button>
-          </Link>
-          <Link href={`/admin/orders/${orderId}/bill`}>
-            <Button variant="outline">
-              <Printer className="mr-2 h-4 w-4" />
-              Print Bill
-            </Button>
-          </Link>
+          <Button variant="outline" onClick={handlePrintKOT}>
+            <Printer className="mr-2 h-4 w-4" />
+            Print KOT
+          </Button>
+          <Button variant="outline" onClick={handlePrintBill}>
+            <Printer className="mr-2 h-4 w-4" />
+            Print Bill
+          </Button>
           <Link href={`/admin/orders/${orderId}/edit`}>
             <Button variant="outline">
               <Edit className="mr-2 h-4 w-4" />

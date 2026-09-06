@@ -12,15 +12,8 @@ import { db } from "@/lib/firebase/firestore";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import {
-  centerText,
-  separator,
-  splitLine,
-  rightAlign,
-  formatCurrency,
-  PRINTER_WIDTH,
-  generatePrintHTML,
-  printContent,
-  wrapText,
+  generateBill,
+  printBill,
 } from "@/lib/thermal-printer";
 
 export default function BillPage() {
@@ -80,186 +73,15 @@ export default function BillPage() {
     }
   };
 
-  const generateBill = (): string => {
-    if (!order) return "";
-
-    let bill = "";
-
-    // Header
-    bill += "\n";
-    if (restaurant?.name) {
-      bill += centerText(restaurant.name.toUpperCase()) + "\n";
-    }
-    bill += centerText("TAX INVOICE") + "\n";
-    bill += separator("=") + "\n";
-
-    // Restaurant details
-    if (restaurant) {
-      if (restaurant.address) {
-        const addressLines = wrapText(restaurant.address, PRINTER_WIDTH);
-        addressLines.forEach((line) => {
-          bill += centerText(line) + "\n";
-        });
-      }
-      if (restaurant.phone) {
-        bill += centerText(`Tel: ${restaurant.phone}`) + "\n";
-      }
-      if (restaurant.email) {
-        bill += centerText(restaurant.email) + "\n";
-      }
-    }
-    bill += separator("=") + "\n";
-
-    // Bill details
-    bill += splitLine("Bill No:", order.orderNumber) + "\n";
-    bill += splitLine("Date:", format(order.createdAt, "dd/MM/yyyy")) + "\n";
-    bill += splitLine("Time:", format(order.createdAt, "hh:mm a")) + "\n";
-
-    // GST Number if enabled
-    if (restaurant?.isGstEnabled && restaurant?.gstNumber) {
-      bill += splitLine("GSTIN:", restaurant.gstNumber) + "\n";
-    }
-
-    // Order type
-    bill += splitLine("Type:", order.orderType.toUpperCase()) + "\n";
-    if (order.tableNumber) {
-      bill += splitLine("Table:", order.tableNumber) + "\n";
-    }
-
-    // Customer details
-    if (order.customerName || order.customerPhone) {
-      bill += separator("-") + "\n";
-      if (order.customerName) {
-        bill += splitLine("Customer:", order.customerName) + "\n";
-      }
-      if (order.customerPhone) {
-        bill += splitLine("Phone:", order.customerPhone) + "\n";
-      }
-      if (order.customerAddress) {
-        bill += "Address:\n";
-        const addressLines = wrapText(order.customerAddress, PRINTER_WIDTH);
-        addressLines.forEach((line) => {
-          bill += `  ${line}\n`;
-        });
-      }
-    }
-
-    bill += separator("=") + "\n";
-
-    // Items header
-    bill += "Item         Qty    Amount\n"; // 13 + 5 + 10 = 28
-    bill += separator("-") + "\n";
-
-    // Items
-    order.items.forEach((item) => {
-      // Wrap item name to fit in 13 characters
-      const displayName = item.variantName
-        ? `${item.dishName} (${item.variantName})`
-        : item.dishName;
-      const nameLines = wrapText(displayName, 13);
-      const qtyStr = `${item.quantity}`.padStart(5);
-      const amountStr = formatCurrency(item.price * item.quantity).padStart(10);
-
-      nameLines.forEach((line, idx) => {
-        if (idx === 0) {
-          // First line: Name + Qty + Amount
-          bill += line.padEnd(13) + qtyStr + amountStr + "\n";
-        } else {
-          // Subsequent lines: Just the wrapped name
-          bill += line.padEnd(13) + "\n";
-        }
-      });
-
-      // Customizations
-      if (
-        item.selectedCustomizations &&
-        item.selectedCustomizations.length > 0
-      ) {
-        item.selectedCustomizations.forEach((c) => {
-          const custLines = wrapText(`+ ${c.optionName}`, 28);
-          custLines.forEach((cl) => {
-            bill += `  ${cl}\n`;
-          });
-        });
-      }
-
-      // Price details line (Veg/Non-Veg + unit price)
-      const vegTag = item.isVeg ? "[V]" : "[N]";
-      bill += `  ${vegTag} @${formatCurrency(item.price)}\n`;
-
-      // Notes if any
-      // if (item.notes) {
-      //   const noteLines = wrapText(`Note: ${item.notes}`, 26);
-      //   noteLines.forEach((nl) => {
-      //     bill += `  ${nl}\n`;
-      //   });
-      // }
-    });
-
-    bill += separator("-") + "\n";
-
-    // Totals
-    bill += splitLine("Subtotal:", formatCurrency(order.subtotal)) + "\n";
-
-    // Discount (if applicable)
-    if (order.discount && order.discount > 0) {
-      let discountLabel = "Discount:";
-      if (order.couponCode) {
-        discountLabel = `Discount (${order.couponCode}):`;
-      } else if (order.discountType && order.discountValue) {
-        if (order.discountType === "percentage") {
-          discountLabel = `Discount (${order.discountValue}%):`;
-        }
-      }
-      bill +=
-        splitLine(discountLabel, `- ${formatCurrency(order.discount)}`) + "\n";
-      bill +=
-        splitLine(
-          "After Discount:",
-          formatCurrency(order.subtotal - order.discount),
-        ) + "\n";
-    }
-
-    if (restaurant?.isGstEnabled && restaurant?.gstNumber && order.tax > 0) {
-      bill += splitLine("GST (5%):", formatCurrency(order.tax)) + "\n";
-    }
-
-    bill += separator("=") + "\n";
-    bill += splitLine("TOTAL:", formatCurrency(order.total)) + "\n";
-    bill += separator("=") + "\n";
-
-    // Payment details
-    if (order.isPaid) {
-      bill += splitLine("Payment:", "PAID") + "\n";
-      if (order.paymentMethod) {
-        bill += splitLine("Method:", order.paymentMethod.toUpperCase()) + "\n";
-      }
-      bill += separator("-") + "\n";
-    } else {
-      bill += centerText("** UNPAID **") + "\n";
-      bill += separator("-") + "\n";
-    }
-
-    // Footer
-    bill += "\n";
-    bill += centerText("Thank you for your order!") + "\n";
-    bill += centerText("Please visit again") + "\n";
-    bill += "\n";
-    bill += separator("=") + "\n";
-    bill += centerText("Powered by Kitchen App") + "\n";
-    bill += "\n";
-
-    return bill;
-  };
-
   const handlePrint = () => {
-    const billContent = generateBill();
-    const html = generatePrintHTML(billContent);
-    printContent(html);
+    if (order) {
+      printBill(order, restaurant);
+    }
   };
 
   const handleCopy = async () => {
-    const billContent = generateBill();
+    if (!order) return;
+    const billContent = generateBill(order, restaurant);
     try {
       await navigator.clipboard.writeText(billContent);
       setCopied(true);
@@ -300,7 +122,7 @@ export default function BillPage() {
     );
   }
 
-  const billContent = generateBill();
+  const billContent = generateBill(order, restaurant);
 
   return (
     <div className="space-y-6 p-4 md:p-8">

@@ -28,7 +28,9 @@ import {
   Loader2,
 } from "lucide-react";
 import Link from "next/link";
-import type { Order, OrderStatus } from "@/lib/types";
+import type { Order, OrderStatus, Restaurant } from "@/lib/types";
+import { getRestaurant } from "@/lib/data-client";
+import { printKOT, printBill } from "@/lib/thermal-printer";
 import {
   collection,
   query,
@@ -49,6 +51,7 @@ import { logErrorToFirestore } from "@/lib/error-logger";
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [paymentStatusFilter, setPaymentStatusFilter] = useState<string>("all");
   const [orderTypeFilter, setOrderTypeFilter] = useState<string>("all");
@@ -64,6 +67,30 @@ export default function OrdersPage() {
   const isInitialLoad = useRef(true);
   const { toast } = useToast();
   const { startRinging } = useNotification();
+
+  useEffect(() => {
+    getRestaurant()
+      .then((data) => setRestaurant(data))
+      .catch((err) => console.error("Error fetching restaurant details:", err));
+  }, []);
+
+  const handlePrintKOT = async (order: Order) => {
+    let restData = restaurant;
+    if (!restData) {
+      restData = await getRestaurant();
+      setRestaurant(restData);
+    }
+    printKOT(order, restData);
+  };
+
+  const handlePrintBill = async (order: Order) => {
+    let restData = restaurant;
+    if (!restData) {
+      restData = await getRestaurant();
+      setRestaurant(restData);
+    }
+    printBill(order, restData);
+  };
 
   useEffect(() => {
     // Set up real-time listener with limit
@@ -528,36 +555,28 @@ export default function OrdersPage() {
                         </span>
                       </Button>
                     </Link>
-                    <Link
-                      href={`/admin/orders/${order.id}/kot`}
-                      className="flex-1 sm:flex-none"
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 sm:flex-none h-9"
+                      onClick={() => handlePrintKOT(order)}
                     >
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full h-9"
-                      >
-                        <Printer className="h-4 w-4 sm:mr-1" />
-                        <span className="sm:hidden lg:inline text-xs font-bold">
-                          KOT
-                        </span>
-                      </Button>
-                    </Link>
-                    <Link
-                      href={`/admin/orders/${order.id}/bill`}
-                      className="flex-1 sm:flex-none"
+                      <Printer className="h-4 w-4 sm:mr-1" />
+                      <span className="sm:hidden lg:inline text-xs font-bold">
+                        KOT
+                      </span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 sm:flex-none h-9"
+                      onClick={() => handlePrintBill(order)}
                     >
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full h-9"
-                      >
-                        <Printer className="h-4 w-4 sm:mr-1 text-primary" />
-                        <span className="sm:hidden lg:inline text-xs font-bold">
-                          BILL
-                        </span>
-                      </Button>
-                    </Link>
+                      <Printer className="h-4 w-4 sm:mr-1 text-primary" />
+                      <span className="sm:hidden lg:inline text-xs font-bold">
+                        BILL
+                      </span>
+                    </Button>
                     <Button
                       variant={order.isPaid ? "outline" : "default"}
                       size="sm"

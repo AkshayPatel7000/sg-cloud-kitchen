@@ -12,13 +12,8 @@ import { db } from "@/lib/firebase/firestore";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import {
-  centerText,
-  separator,
-  splitLine,
-  PRINTER_WIDTH,
-  generatePrintHTML,
-  printContent,
-  wrapText,
+  generateKOT,
+  printKOT,
 } from "@/lib/thermal-printer";
 
 export default function KOTPage() {
@@ -78,99 +73,15 @@ export default function KOTPage() {
     }
   };
 
-  const generateKOT = (): string => {
-    if (!order) return "";
-
-    let kot = "";
-
-    // Header
-    kot += centerText("KOT") + "\n";
-    kot += separator("=") + "\n";
-
-    // Restaurant name
-    if (restaurant?.name) {
-      kot += centerText(restaurant.name) + "\n";
-      kot += separator("-") + "\n";
-    }
-
-    // Order details: Combined Date and Time to save space
-    kot += splitLine("Order:", order.orderNumber) + "\n";
-    kot += splitLine(format(order.createdAt, "dd/MM/yyyy"), format(order.createdAt, "hh:mm a")) + "\n";
-
-    // Order type and table: Combined on one line
-    const orderInfo = order.tableNumber 
-      ? `${order.orderType.toUpperCase()} | Table: ${order.tableNumber}`
-      : order.orderType.toUpperCase();
-    kot += centerText(orderInfo) + "\n";
-
-    kot += separator("=") + "\n";
-
-    // Items
-    kot += "ITEMS:\n";
-    kot += separator("-") + "\n";
-
-    order.items.forEach((item, index) => {
-      // Item number and name + Quantity
-      // We don't use splitLine here to allow the name to wrap without truncation
-      const displayName = item.variantName
-        ? `${item.dishName} (${item.variantName})`
-        : item.dishName;
-      
-      kot += `${index + 1}. ${displayName} x${item.quantity}\n`;
-
-      // Customizations
-      if (
-        item.selectedCustomizations &&
-        item.selectedCustomizations.length > 0
-      ) {
-        item.selectedCustomizations.forEach((c) => {
-          kot += `   + ${c.optionName}\n`;
-        });
-      }
-
-      // Notes if any
-      if (item.notes) {
-        kot += `   NOTE: ${item.notes.toUpperCase()}\n`;
-      }
-    });
-
-    kot += separator("-") + "\n";
-    kot += splitLine("Total Items:", order.items.length.toString()) + "\n";
-    kot += separator("=") + "\n";
-
-    // Special instructions
-    if (order.notes) {
-      kot += "NOTES:\n";
-      kot += order.notes + "\n";
-      kot += separator("=") + "\n";
-    }
-
-    // Customer info (compact)
-    if (order.customerName) {
-      kot += `Cust: ${order.customerName}\n`;
-    }
-    if (order.customerAddress) {
-      const addressLines = wrapText(order.customerAddress, PRINTER_WIDTH);
-      addressLines.forEach((line) => {
-        kot += `${line}\n`;
-      });
-    }
-
-    // Footer (compact)
-    kot += centerText("--- KOT ---") + "\n";
-    kot += centerText(format(new Date(), "hh:mm a dd/MM/yy")) + "\n";
-
-    return kot;
-  };
-
   const handlePrint = () => {
-    const kotContent = generateKOT();
-    const html = generatePrintHTML(kotContent);
-    printContent(html);
+    if (order) {
+      printKOT(order, restaurant);
+    }
   };
 
   const handleCopy = async () => {
-    const kotContent = generateKOT();
+    if (!order) return;
+    const kotContent = generateKOT(order, restaurant);
     try {
       await navigator.clipboard.writeText(kotContent);
       setCopied(true);
@@ -211,7 +122,7 @@ export default function KOTPage() {
     );
   }
 
-  const kotContent = generateKOT();
+  const kotContent = generateKOT(order, restaurant);
 
   return (
     <div className="space-y-6 p-4 md:p-8">
