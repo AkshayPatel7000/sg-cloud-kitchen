@@ -13,6 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Label } from "@/components/ui/label";
 import {
   AlertDialog,
@@ -747,83 +753,91 @@ export default function OrderDetailsPage() {
             order.customerPhone ||
             order.customerAddress) && (
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <User className="h-5 w-5" />
-                  Customer Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {order.customerName && (
-                  <div className="flex items-center gap-3">
-                    <div className="bg-muted p-2 rounded-full">
-                      <User className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Name</p>
-                      <p className="font-medium">{order.customerName}</p>
-                    </div>
-                  </div>
-                )}
-                {order.customerPhone && (
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-muted p-2 rounded-full">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Mobile</p>
-                        <p className="font-medium">{order.customerPhone}</p>
-                      </div>
-                    </div>
-                    <a
-                      href={`https://web.whatsapp.com/send?phone=${
-                        order.customerPhone
-                          .replace(/\D/g, "")
-                          .startsWith("91") ||
-                        order.customerPhone.replace(/\D/g, "").length > 10
-                          ? order.customerPhone.replace(/\D/g, "")
-                          : `91${order.customerPhone.replace(/\D/g, "")}`
-                      }`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center text-green-600 hover:text-green-700 hover:bg-green-50 h-9 w-9 rounded-md transition-colors"
-                      title="Contact on WhatsApp"
-                    >
-                      <MessageCircle className="h-5 w-5 fill-current opacity-80" />
-                    </a>
-                  </div>
-                )}
-                {(order.customerAddress || order.customerLocation) && (
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3">
-                      <div className="bg-muted p-2 rounded-full">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">
-                          Delivery Address
-                        </p>
-                        <p className="font-medium text-sm leading-snug">
-                          {order.customerAddress || "Location provided on map"}
-                        </p>
-                      </div>
-                    </div>
-                    {order.customerLocation && (
-                      <a
-                        href={`https://www.google.com/maps?q=${order.customerLocation.lat},${order.customerLocation.lng}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center text-primary hover:text-primary/80 hover:bg-primary/5 h-9 px-3 rounded-md border border-primary/20 transition-colors text-xs font-medium gap-1.5"
-                        title="View on Map"
-                      >
-                        <Navigation className="h-3.5 w-3.5" />
-                        Map
-                      </a>
-                    )}
-                  </div>
-                )}
-              </CardContent>
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="customer-details" className="border-b-0">
+                  <CardHeader className="py-3 px-6">
+                    <AccordionTrigger className="hover:no-underline py-0 text-base font-semibold">
+                      <span className="flex items-center gap-2">
+                        <User className="h-5 w-5" />
+                        Customer Details
+                      </span>
+                    </AccordionTrigger>
+                  </CardHeader>
+                  <AccordionContent>
+                    <CardContent className="space-y-4 pt-2">
+                      {order.customerName && (
+                        <div className="flex items-center gap-3">
+                          <div className="bg-muted p-2 rounded-full">
+                            <User className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Name</p>
+                            <p className="font-medium">{order.customerName}</p>
+                          </div>
+                        </div>
+                      )}
+                      {order.customerPhone && (
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3">
+                            <div className="bg-muted p-2 rounded-full">
+                              <Phone className="h-4 w-4 text-muted-foreground" />
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Mobile</p>
+                              <p className="font-medium">{order.customerPhone}</p>
+                            </div>
+                          </div>
+                          <a
+                            href={`https://web.whatsapp.com/send?phone=${
+                              order.customerPhone
+                                .replace(/\D/g, "")
+                                .startsWith("91") ||
+                              order.customerPhone.replace(/\D/g, "").length > 10
+                                ? order.customerPhone.replace(/\D/g, "")
+                                : `91${order.customerPhone.replace(/\D/g, "")}`
+                            }`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center text-green-600 hover:text-green-700 hover:bg-green-50 h-9 w-9 rounded-md transition-colors"
+                            title="Contact on WhatsApp"
+                          >
+                            <MessageCircle className="h-5 w-5 fill-current opacity-80" />
+                          </a>
+                        </div>
+                      )}
+                      {(order.customerAddress || order.customerLocation) && (
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-3">
+                            <div className="bg-muted p-2 rounded-full">
+                              <MapPin className="h-4 w-4 text-muted-foreground" />
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">
+                                Delivery Address
+                              </p>
+                              <p className="font-medium text-sm leading-snug">
+                                {order.customerAddress || "Location provided on map"}
+                              </p>
+                            </div>
+                          </div>
+                          {order.customerLocation && (
+                            <a
+                              href={`https://www.google.com/maps?q=${order.customerLocation.lat},${order.customerLocation.lng}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center justify-center text-primary hover:text-primary/80 hover:bg-primary/5 h-9 px-3 rounded-md border border-primary/20 transition-colors text-xs font-medium gap-1.5"
+                              title="View on Map"
+                            >
+                              <Navigation className="h-3.5 w-3.5" />
+                              Map
+                            </a>
+                          )}
+                        </div>
+                      )}
+                    </CardContent>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </Card>
           )}
         </div>

@@ -159,7 +159,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       notes?: string,
     ) => {
       setItems((prevItems) => {
-        // Create a unique key for matching (dish + variant + customizations)
+        const normVariant = (v?: string | null) => v || null;
+        const normNotes = (n?: string | null) => n || "";
         const getCustomizationKey = (
           cust?: CartItem["selectedCustomizations"],
         ) =>
@@ -173,17 +174,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         const existingItem = prevItems.find(
           (item) =>
             item.dish.id === dish.id &&
-            item.variantId === variantId &&
+            normVariant(item.variantId) === normVariant(variantId) &&
             getCustomizationKey(item.selectedCustomizations) === newCustKey &&
-            item.notes === notes,
+            normNotes(item.notes) === normNotes(notes),
         );
 
         if (existingItem) {
           return prevItems.map((item) =>
             item.dish.id === dish.id &&
-            item.variantId === variantId &&
+            normVariant(item.variantId) === normVariant(variantId) &&
             getCustomizationKey(item.selectedCustomizations) === newCustKey &&
-            item.notes === notes
+            normNotes(item.notes) === normNotes(notes)
               ? {
                   ...item,
                   quantity: Math.min(MAX_QUANTITY, item.quantity + quantity),
@@ -236,6 +237,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const removeFromCart = useCallback(
     (dishId: string, variantId?: string, customizationsKey?: string) => {
       setItems((prevItems) => {
+        const normVariant = (v?: string | null) => v || null;
         const getCustomizationKey = (
           cust?: CartItem["selectedCustomizations"],
         ) =>
@@ -248,7 +250,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           (item) =>
             !(
               item.dish.id === dishId &&
-              item.variantId === variantId &&
+              normVariant(item.variantId) === normVariant(variantId) &&
               (customizationsKey === undefined ||
                 getCustomizationKey(item.selectedCustomizations) ===
                   customizationsKey)
@@ -272,6 +274,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
 
       setItems((prevItems) => {
+        const normVariant = (v?: string | null) => v || null;
         const getCustomizationKey = (
           cust?: CartItem["selectedCustomizations"],
         ) =>
@@ -284,7 +287,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
         return prevItems.map((item) =>
           item.dish.id === dishId &&
-          item.variantId === variantId &&
+          normVariant(item.variantId) === normVariant(variantId) &&
           (customizationsKey === undefined ||
             getCustomizationKey(item.selectedCustomizations) ===
               customizationsKey)

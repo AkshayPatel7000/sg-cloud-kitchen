@@ -24,7 +24,14 @@ import {
   Save,
   Percent,
   Edit,
+  User,
 } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Dish, OrderItem, Restaurant } from "@/lib/types";
@@ -124,7 +131,9 @@ export default function NewOrderPage() {
       ? dish.variants?.find((v) => v.id === variantId)
       : undefined;
 
-    const getCustomizationKey = (cust?: any[]) =>
+    const normVariant = (v?: string | null) => v || null;
+    const normNotes = (n?: string | null) => n || "";
+    const getCustomizationKey = (cust?: any[] | null) =>
       cust
         ?.map((c) => `${c.optionId}`)
         .sort()
@@ -137,6 +146,7 @@ export default function NewOrderPage() {
       const customizationsPrice =
         selectedCustomizations?.reduce((sum, c) => sum + c.price, 0) || 0;
       const basePrice = variant ? variant.price : dish.price;
+      const finalPrice = basePrice + customizationsPrice;
 
       setOrderItems((prev) =>
         prev.map((item, i) =>
@@ -145,7 +155,7 @@ export default function NewOrderPage() {
                 ...item,
                 variantId: variantId,
                 variantName: variant?.name,
-                price: basePrice + customizationsPrice,
+                price: finalPrice,
                 selectedCustomizations: selectedCustomizations,
                 notes: itemNotes,
               }
@@ -154,62 +164,65 @@ export default function NewOrderPage() {
       );
       setEditingItemIndex(null);
     } else {
-      const existingItemIndex = orderItems.findIndex(
-        (item) =>
-          item.dishId === dish.id &&
-          item.variantId === variantId &&
-          getCustomizationKey(item.selectedCustomizations) === newCustKey &&
-          item.notes === itemNotes, // Also check notes for uniqueness
-      );
-
-      if (existingItemIndex > -1) {
-        updateQuantity(
-          existingItemIndex,
-          orderItems[existingItemIndex].quantity + 1,
+      setOrderItems((prev) => {
+        const existingItemIndex = prev.findIndex(
+          (item) =>
+            item.dishId === dish.id &&
+            normVariant(item.variantId) === normVariant(variantId) &&
+            getCustomizationKey(item.selectedCustomizations) === newCustKey &&
+            normNotes(item.notes) === normNotes(itemNotes),
         );
-      } else {
-        const customizationsPrice =
-          selectedCustomizations?.reduce((sum, c) => sum + c.price, 0) || 0;
-        let basePrice = variant ? variant.price : dish.price;
-        const originalBasePrice = basePrice;
 
-        // Apply dish-level discount
-        if (
-          dish.discountType &&
-          dish.discountValue &&
-          dish.discountType !== "none"
-        ) {
-          if (dish.discountType === "percentage") {
-            basePrice = basePrice - (basePrice * dish.discountValue) / 100;
-          } else if (dish.discountType === "fixed") {
-            basePrice = Math.max(0, basePrice - dish.discountValue);
+        if (existingItemIndex > -1) {
+          return prev.map((item, i) =>
+            i === existingItemIndex
+              ? { ...item, quantity: item.quantity + 1 }
+              : item,
+          );
+        } else {
+          const customizationsPrice =
+            selectedCustomizations?.reduce((sum, c) => sum + c.price, 0) || 0;
+          let basePrice = variant ? variant.price : dish.price;
+          const originalBasePrice = basePrice;
+
+          // Apply dish-level discount
+          if (
+            dish.discountType &&
+            dish.discountValue &&
+            dish.discountType !== "none"
+          ) {
+            if (dish.discountType === "percentage") {
+              basePrice = basePrice - (basePrice * dish.discountValue) / 100;
+            } else if (dish.discountType === "fixed") {
+              basePrice = Math.max(0, basePrice - dish.discountValue);
+            }
+            // Round to whole number
+            basePrice = Math.round(basePrice);
           }
-          // Round to whole number
-          basePrice = Math.round(basePrice);
+
+          const finalPrice = basePrice + customizationsPrice;
+          const originalPrice = originalBasePrice + customizationsPrice;
+
+          return [
+            ...prev,
+            {
+              dishId: dish.id,
+              dishName: dish.name,
+              quantity: 1,
+              price: finalPrice,
+              originalPrice:
+                originalPrice !== finalPrice ? originalPrice : undefined,
+              dishDiscountType: dish.discountType,
+              dishDiscountValue: dish.discountValue,
+              isVeg: dish.isVeg,
+              variantId: variantId || undefined,
+              variantName: variant?.name,
+              selectedCustomizations: selectedCustomizations,
+              notes: itemNotes,
+            },
+          ];
         }
-
-        const finalPrice = basePrice + customizationsPrice;
-        const originalPrice = originalBasePrice + customizationsPrice;
-
-        setOrderItems([
-          ...orderItems,
-          {
-            dishId: dish.id,
-            dishName: dish.name,
-            quantity: 1,
-            price: finalPrice,
-            originalPrice:
-              originalPrice !== finalPrice ? originalPrice : undefined,
-            dishDiscountType: dish.discountType,
-            dishDiscountValue: dish.discountValue,
-            isVeg: dish.isVeg,
-            variantId: variantId || undefined,
-            variantName: variant?.name,
-            selectedCustomizations: selectedCustomizations,
-            notes: itemNotes,
-          },
-        ]);
-      }
+      });
     }
 
     if (selectedDishForConfig) {
@@ -544,94 +557,111 @@ export default function NewOrderPage() {
         <div className="space-y-4">
           {/* Customer Details */}
           <Card>
-            <CardHeader>
-              <CardTitle>Customer Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="customerName">Customer Name (Optional)</Label>
-                <Input
-                  id="customerName"
-                  placeholder="Enter name"
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                />
-              </div>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="customer-details" className="border-b-0">
+                <CardHeader className="py-3 px-6">
+                  <AccordionTrigger className="hover:no-underline py-0 text-base font-semibold">
+                    <span className="flex items-center gap-2">
+                      <User className="h-5 w-5" />
+                      Customer Details
+                    </span>
+                  </AccordionTrigger>
+                </CardHeader>
+                <AccordionContent>
+                  <CardContent className="space-y-4 pt-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="customerName">
+                        Customer Name (Optional)
+                      </Label>
+                      <Input
+                        id="customerName"
+                        placeholder="Enter name"
+                        value={customerName}
+                        onChange={(e) => setCustomerName(e.target.value)}
+                      />
+                    </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="customerPhone">Phone Number (Optional)</Label>
-                <Input
-                  id="customerPhone"
-                  placeholder="Enter phone"
-                  value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value)}
-                />
-              </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="customerPhone">
+                        Phone Number (Optional)
+                      </Label>
+                      <Input
+                        id="customerPhone"
+                        placeholder="Enter phone"
+                        value={customerPhone}
+                        onChange={(e) => setCustomerPhone(e.target.value)}
+                      />
+                    </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="customerAddress">
-                  Delivery Address (Optional)
-                </Label>
-                <Input
-                  id="customerAddress"
-                  placeholder="Enter address"
-                  value={customerAddress}
-                  onChange={(e) => setCustomerAddress(e.target.value)}
-                />
-              </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="customerAddress">
+                        Delivery Address (Optional)
+                      </Label>
+                      <Input
+                        id="customerAddress"
+                        placeholder="Enter address"
+                        value={customerAddress}
+                        onChange={(e) => setCustomerAddress(e.target.value)}
+                      />
+                    </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="orderType">Order Type</Label>
-                <Select
-                  value={orderType}
-                  onValueChange={(value: any) => setOrderType(value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="dine-in">Dine In</SelectItem>
-                    <SelectItem value="takeaway">Takeaway</SelectItem>
-                    <SelectItem value="delivery">Delivery</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="orderType">Order Type</Label>
+                      <Select
+                        value={orderType}
+                        onValueChange={(value: any) => setOrderType(value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="dine-in">Dine In</SelectItem>
+                          <SelectItem value="takeaway">Takeaway</SelectItem>
+                          <SelectItem value="delivery">Delivery</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-              {orderType === "dine-in" && (
-                <div className="space-y-2">
-                  <Label htmlFor="tableNumber">Table Number</Label>
-                  <Select
-                    value={tableNumber}
-                    onValueChange={(value) => setTableNumber(value)}
-                  >
-                    <SelectTrigger id="tableNumber">
-                      <SelectValue placeholder="Select Table" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => {
-                        const tableId = `T-${num.toString().padStart(2, "0")}`;
-                        return (
-                          <SelectItem key={tableId} value={tableId}>
-                            {tableId}
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
+                    {orderType === "dine-in" && (
+                      <div className="space-y-2">
+                        <Label htmlFor="tableNumber">Table Number</Label>
+                        <Select
+                          value={tableNumber}
+                          onValueChange={(value) => setTableNumber(value)}
+                        >
+                          <SelectTrigger id="tableNumber">
+                            <SelectValue placeholder="Select Table" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Array.from({ length: 10 }, (_, i) => i + 1).map(
+                              (num) => {
+                                const tableId = `T-${num.toString().padStart(2, "0")}`;
+                                return (
+                                  <SelectItem key={tableId} value={tableId}>
+                                    {tableId}
+                                  </SelectItem>
+                                );
+                              },
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
 
-              <div className="space-y-2">
-                <Label htmlFor="notes">Special Instructions</Label>
-                <Textarea
-                  id="notes"
-                  placeholder="Any special requests..."
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows={3}
-                />
-              </div>
-            </CardContent>
+                    <div className="space-y-2">
+                      <Label htmlFor="notes">Special Instructions</Label>
+                      <Textarea
+                        id="notes"
+                        placeholder="Any special requests..."
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        rows={3}
+                      />
+                    </div>
+                  </CardContent>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </Card>
 
           {/* Order Items */}
