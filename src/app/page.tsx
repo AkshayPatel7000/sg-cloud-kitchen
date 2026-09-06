@@ -244,7 +244,7 @@ export default function Home() {
         </div>
       </footer>
 
-      <CartButton />
+      <CartButton isOrderingEnabled={restaurant.isOrderingEnabled ?? true} />
     </div>
   );
 }

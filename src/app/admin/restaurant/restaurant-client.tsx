@@ -38,6 +38,7 @@ const restaurantSchema = z.object({
   openingHours: z.string().min(1, "Opening hours are required"),
   isGstEnabled: z.boolean().default(false),
   gstNumber: z.string().default(""),
+  isOrderingEnabled: z.boolean().default(true),
   socialLinks: z.object({
     facebook: z.string().url().optional().or(z.literal("")),
     instagram: z.string().url().optional().or(z.literal("")),
@@ -65,13 +66,17 @@ export function RestaurantClientPage({
       openingHours: "",
       isGstEnabled: false,
       gstNumber: "",
+      isOrderingEnabled: true,
       socialLinks: { facebook: "", instagram: "", twitter: "" },
     },
   });
 
   useEffect(() => {
     if (restaurantData) {
-      form.reset(restaurantData);
+      form.reset({
+        isOrderingEnabled: true,
+        ...restaurantData,
+      });
     }
   }, [form, restaurantData]);
 
@@ -261,6 +266,36 @@ export function RestaurantClientPage({
                   </FormItem>
                 )}
               />
+            </div>
+
+            <Separator className="my-8" />
+
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Ordering Settings</h3>
+              <div className="grid md:grid-cols-2 gap-8 items-end">
+                <FormField
+                  control={form.control}
+                  name="isOrderingEnabled"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">
+                          Enable Online Ordering
+                        </FormLabel>
+                        <CardDescription>
+                          Allow customers to add items to cart and place orders.
+                        </CardDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
 
             <Separator className="my-8" />

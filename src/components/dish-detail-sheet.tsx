@@ -32,6 +32,7 @@ interface DishDetailSheetProps {
     notes?: string,
   ) => void;
   isOpen?: boolean;
+  isOrderingEnabled?: boolean;
 }
 
 export function DishDetailSheet({
@@ -40,6 +41,7 @@ export function DishDetailSheet({
   onOpenChange,
   onConfirm,
   isOpen = true,
+  isOrderingEnabled = true,
 }: DishDetailSheetProps) {
   const [selectedVariantId, setSelectedVariantId] = useState<
     string | undefined
@@ -397,34 +399,42 @@ export function DishDetailSheet({
         )}
 
         {/* Premium Footer with Sticky Button */}
-        <div className="sticky bottom-0 left-0 right-0 p-6 sm:px-10 sm:pb-8 bg-gradient-to-t from-background via-background/95 to-transparent backdrop-blur-md z-50">
-          <div className="sm:max-w-2xl sm:mx-auto">
-            <Button
-              className="w-full h-14 sm:h-16 text-lg sm:text-xl font-bold rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_8px_30px_rgb(220,104,50,0.3)] transition-all duration-500 bg-primary group relative overflow-hidden active:scale-[0.98]"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (isOpen) handleConfirm();
-              }}
-              disabled={!isOpen}
-            >
-              <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-              <div className="flex items-center justify-between w-full px-4 sm:px-8 relative z-10">
-                <span className="tracking-tight">
-                  {isOpen ? "Add to Checkout" : "Kitchen Offline"}
-                </span>
-                <div className="flex items-center gap-3">
-                  <Separator
-                    orientation="vertical"
-                    className="h-6 bg-white/30"
-                  />
-                  <span className="text-2xl font-extrabold tracking-tighter">
-                    Rs.{currentPrice().toFixed(0)}
+        {isOrderingEnabled ? (
+          <div className="sticky bottom-0 left-0 right-0 p-6 sm:px-10 sm:pb-8 bg-gradient-to-t from-background via-background/95 to-transparent backdrop-blur-md z-50">
+            <div className="sm:max-w-2xl sm:mx-auto">
+              <Button
+                className="w-full h-14 sm:h-16 text-lg sm:text-xl font-bold rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_8px_30px_rgb(220,104,50,0.3)] transition-all duration-500 bg-primary group relative overflow-hidden active:scale-[0.98]"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (isOpen) handleConfirm();
+                }}
+                disabled={!isOpen}
+              >
+                <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                <div className="flex items-center justify-between w-full px-4 sm:px-8 relative z-10">
+                  <span className="tracking-tight">
+                    {isOpen ? "Add to Checkout" : "Kitchen Offline"}
                   </span>
+                  <div className="flex items-center gap-3">
+                    <Separator
+                      orientation="vertical"
+                      className="h-6 bg-white/30"
+                    />
+                    <span className="text-2xl font-extrabold tracking-tighter">
+                      Rs.{currentPrice().toFixed(0)}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </Button>
+              </Button>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="sticky bottom-0 left-0 right-0 p-6 bg-background border-t z-50 text-center">
+            <p className="text-sm font-medium text-muted-foreground">
+              Online ordering is currently disabled by restaurant.
+            </p>
+          </div>
+        )}
       </SheetContent>
     </Sheet>
   );

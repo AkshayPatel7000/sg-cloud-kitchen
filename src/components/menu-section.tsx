@@ -18,7 +18,9 @@ export function MenuSection({
   const [allDishes, setAllDishes] = useState<Dish[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const isOrderingEnabled = restaurant?.isOrderingEnabled ?? true;
   const isOpen = restaurant ? isKitchenOpen(restaurant.openingHours) : true;
+  const isOrderingAllowed = isOpen && isOrderingEnabled;
 
   useEffect(() => {
     async function loadMenu() {
@@ -65,7 +67,22 @@ export function MenuSection({
         Our Menu
       </h2>
 
-      {!isOpen && (
+      {!isOrderingEnabled && (
+        <div className="max-w-4xl mx-auto mb-8">
+          <Alert
+            variant="destructive"
+            className="bg-destructive/10 border-destructive/20 text-destructive"
+          >
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Online Ordering is Currently Disabled</AlertTitle>
+            <AlertDescription>
+              We are currently not accepting online orders. You can browse our menu.
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
+
+      {isOrderingEnabled && !isOpen && (
         <div className="max-w-4xl mx-auto mb-8">
           <Alert
             variant="destructive"
@@ -82,16 +99,12 @@ export function MenuSection({
         </div>
       )}
 
-      <div
-        className={cn(
-          "transition-all duration-500",
-          !isOpen && "grayscale opacity-60",
-        )}
-      >
+      <div>
         <MenuAccordionClient
           categories={categories}
           allDishes={allDishes}
-          isOpen={isOpen}
+          isOpen={isOrderingAllowed}
+          isOrderingEnabled={isOrderingEnabled}
         />
       </div>
     </section>

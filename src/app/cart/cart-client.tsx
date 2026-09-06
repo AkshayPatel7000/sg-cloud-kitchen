@@ -63,6 +63,7 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
   const [couponInput, setCouponInput] = useState("");
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const isOrderingEnabled = restaurant.isOrderingEnabled ?? true;
   const isOpen = isKitchenOpen(restaurant.openingHours);
   const [userLocation, setUserLocation] = useState<{
     lat: number;
@@ -889,17 +890,29 @@ export function CartPageClient({ restaurant }: { restaurant: Restaurant }) {
                   </div>
                 )}
 
+                {!isOrderingEnabled && (
+                  <div className="p-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-lg text-sm flex items-center gap-2 mb-2">
+                    <Info className="h-4 w-4 shrink-0 text-amber-600" />
+                    <span>Online ordering is currently turned off by the restaurant.</span>
+                  </div>
+                )}
+
                 <div className="space-y-3">
                   <Button
                     className="w-full"
                     size="lg"
                     onClick={handleCheckout}
-                    disabled={isCreatingOrder || !isOpen}
+                    disabled={isCreatingOrder || !isOpen || !isOrderingEnabled}
                   >
                     {isCreatingOrder ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Creating Order...
+                      </>
+                    ) : !isOrderingEnabled ? (
+                      <>
+                        <Info className="mr-2 h-5 w-5" />
+                        Online Ordering is Disabled
                       </>
                     ) : !isOpen ? (
                       <>

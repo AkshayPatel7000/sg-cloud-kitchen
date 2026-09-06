@@ -17,9 +17,11 @@ import { trackMenuItemView, trackAddToCart } from "@/lib/analytics";
 export function DishListItem({
   dish,
   isOpen = true,
+  isOrderingEnabled = true,
 }: {
   dish: Dish;
   isOpen?: boolean;
+  isOrderingEnabled?: boolean;
 }) {
   const { addToCart, cart, isHydrated } = useCart();
   const [showDetail, setShowDetail] = useState(false);
@@ -222,34 +224,36 @@ export function DishListItem({
           )}
         </div>
 
-        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-full flex justify-center px-4">
-          <Button
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (isOpen) handleAddToCart();
-            }}
-            className=" sm:w-[90%] max-w-[120px] h-9 sm:h-10 rounded-lg font-bold shadow-lg border-2 border-background animate-in fade-in zoom-in duration-300"
-            variant={isInCart || justAdded ? "secondary" : "default"}
-            disabled={!isHydrated || !isOpen}
-          >
-            {isInCart || justAdded ? (
-              <div className="flex items-center gap-1.5 text-xs sm:text-sm">
-                <Check className="h-4 w-4 stroke-[3px]" />
-                <span>ADDED</span>
-              </div>
-            ) : !isOpen ? (
-              <div className="flex items-center gap-1.5 text-xs sm:text-sm">
-                <span>OFFLINE</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1.5 text-xs sm:text-sm ">
-                <Plus className="h-4 w-4 stroke-[3px]" />
-                <span>ADD</span>
-              </div>
-            )}
-          </Button>
-        </div>
+        {isOrderingEnabled && (
+          <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-full flex justify-center px-4">
+            <Button
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (isOpen) handleAddToCart();
+              }}
+              className=" sm:w-[90%] max-w-[120px] h-9 sm:h-10 rounded-lg font-bold shadow-lg border-2 border-background animate-in fade-in zoom-in duration-300"
+              variant={isInCart || justAdded ? "secondary" : "default"}
+              disabled={!isHydrated || !isOpen}
+            >
+              {isInCart || justAdded ? (
+                <div className="flex items-center gap-1.5 text-xs sm:text-sm">
+                  <Check className="h-4 w-4 stroke-[3px]" />
+                  <span>ADDED</span>
+                </div>
+              ) : !isOpen ? (
+                <div className="flex items-center gap-1.5 text-xs sm:text-sm">
+                  <span>OFFLINE</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1.5 text-xs sm:text-sm ">
+                  <Plus className="h-4 w-4 stroke-[3px]" />
+                  <span>ADD</span>
+                </div>
+              )}
+            </Button>
+          </div>
+        )}
       </div>
 
       <DishDetailSheet
@@ -257,6 +261,7 @@ export function DishListItem({
         open={showDetail}
         onOpenChange={setShowDetail}
         onConfirm={handleAddToCart}
+        isOrderingEnabled={isOrderingEnabled}
       />
     </div>
   );

@@ -16,9 +16,17 @@ import { Badge } from "./ui/badge";
 import { Separator } from "./ui/separator";
 import { useRouter } from "next/navigation";
 
-export function CartButton() {
+interface CartButtonProps {
+  isOrderingEnabled?: boolean;
+}
+
+export function CartButton({ isOrderingEnabled = true }: CartButtonProps) {
   const { cart, itemCount, updateQuantity, removeFromCart } = useCart();
   const router = useRouter();
+
+  if (!isOrderingEnabled) {
+    return null;
+  }
 
   return (
     <Sheet>

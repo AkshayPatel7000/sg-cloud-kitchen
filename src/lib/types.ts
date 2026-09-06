@@ -16,6 +16,7 @@ export type Restaurant = {
   };
   isGstEnabled?: boolean;
   gstNumber?: string;
+  isOrderingEnabled?: boolean;
 };
 
 export type SectionType = "offers" | "todaysSpecial" | "whatsNew";

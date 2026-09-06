@@ -15,12 +15,14 @@ interface MenuAccordionClientProps {
   categories: Category[];
   allDishes: Dish[];
   isOpen?: boolean;
+  isOrderingEnabled?: boolean;
 }
 
 export function MenuAccordionClient({
   categories,
   allDishes,
   isOpen = true,
+  isOrderingEnabled = true,
 }: MenuAccordionClientProps) {
   const itemRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
@@ -91,7 +93,12 @@ export function MenuAccordionClient({
               {dishes.length > 0 ? (
                 <div className="divide-y divide-border">
                   {dishes.map((dish) => (
-                    <DishListItem key={dish.id} dish={dish} isOpen={isOpen} />
+                    <DishListItem
+                      key={dish.id}
+                      dish={dish}
+                      isOpen={isOpen}
+                      isOrderingEnabled={isOrderingEnabled}
+                    />
                   ))}
                 </div>
               ) : (
